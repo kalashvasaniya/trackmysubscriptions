@@ -44,7 +44,7 @@ export async function sendSubscriptionAlert(
 
   try {
     const { data: result, error } = await getResend().emails.send({
-      from: "SubTracker <notifications@subtracker.app>",
+      from: "TrackMySubscriptions <notifications@trackmysubscriptions.com>",
       to: [to],
       subject: `Upcoming Payment: ${data.subscriptionName} - ${formattedAmount}`,
       html: `
@@ -171,16 +171,16 @@ export async function sendSubscriptionAlert(
 export async function sendWelcomeEmail(to: string, data: WelcomeEmailData) {
   try {
     const { data: result, error } = await getResend().emails.send({
-      from: "SubTracker <welcome@subtracker.app>",
+      from: "TrackMySubscriptions <welcome@trackmysubscriptions.com>",
       to: [to],
-      subject: "Welcome to SubTracker - Start Managing Your Subscriptions",
+      subject: "Welcome to TrackMySubscriptions - Start Managing Your Subscriptions",
       html: `
         <!DOCTYPE html>
         <html>
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Welcome to SubTracker</title>
+          <title>Welcome to TrackMySubscriptions</title>
         </head>
         <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
           <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f3f4f6;">
@@ -194,7 +194,7 @@ export async function sendWelcomeEmail(to: string, data: WelcomeEmailData) {
                         ST
                       </div>
                       <h1 style="margin: 20px 0 0; color: #111827; font-size: 28px; font-weight: 700;">
-                        Welcome to SubTracker!
+                        Welcome to TrackMySubscriptions!
                       </h1>
                     </td>
                   </tr>
@@ -206,7 +206,7 @@ export async function sendWelcomeEmail(to: string, data: WelcomeEmailData) {
                         Hi ${data.userName || "there"},
                       </p>
                       <p style="margin: 0 0 30px; color: #6b7280; font-size: 16px; line-height: 1.6;">
-                        Thanks for signing up! SubTracker helps you track and manage all your subscriptions in one place. No more surprise charges or forgotten renewals.
+                        Thanks for signing up! TrackMySubscriptions helps you track and manage all your subscriptions in one place. No more surprise charges or forgotten renewals.
                       </p>
                       
                       <!-- Features -->
@@ -326,7 +326,7 @@ export async function sendWeeklySummary(
 
   try {
     const { data: result, error } = await getResend().emails.send({
-      from: "SubTracker <weekly@subtracker.app>",
+      from: "TrackMySubscriptions <weekly@trackmysubscriptions.com>",
       to: [to],
       subject: `Your Weekly Subscription Summary - ${formattedMonthly}/month`,
       html: `

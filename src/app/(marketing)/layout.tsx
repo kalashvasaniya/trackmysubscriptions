@@ -19,7 +19,7 @@ const geistMono = localFont({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://subtracker.app"),
+  metadataBase: new URL("https://trackmysubscriptions.com"),
   title: siteConfig.name,
   description: siteConfig.description,
   keywords: [
@@ -30,11 +30,11 @@ export const metadata: Metadata = {
   ],
   authors: [
     {
-      name: "SubTracker",
-      url: "https://subtracker.app",
+      name: "TrackMySubscriptions",
+      url: "https://trackmysubscriptions.com",
     },
   ],
-  creator: "SubTracker",
+  creator: "TrackMySubscriptions",
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
-    creator: "@subtracker",
+    creator: "@trackmysubs",
   },
   icons: {
     icon: "/favicon.ico",

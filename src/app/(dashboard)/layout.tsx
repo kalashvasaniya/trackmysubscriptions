@@ -20,7 +20,7 @@ const geistMono = localFont({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://subtracker.app"),
+  metadataBase: new URL("https://trackmysubscriptions.com"),
   title: `Dashboard | ${siteConfig.name}`,
   description: siteConfig.description,
 }

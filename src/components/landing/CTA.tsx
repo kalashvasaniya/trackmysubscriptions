@@ -1,63 +1,109 @@
 "use client"
 
+import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/Button"
-import { RiArrowRightLine, RiCheckLine } from "@remixicon/react"
+import { RiArrowRightLine, RiCheckLine, RiSparklingLine } from "@remixicon/react"
 import Link from "next/link"
 
 const benefits = [
-  "Free forever plan available",
-  "No credit card required",
-  "Set up in under 2 minutes",
+  "Free forever plan",
+  "No credit card required", 
+  "Set up in 2 minutes",
 ]
 
 export function CTA() {
-  return (
-    <section className="relative py-24 sm:py-32 overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700">
-          {/* Background decorations */}
-          <div className="absolute inset-0">
-            <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
-            <div className="absolute right-1/4 top-1/2 size-32 rounded-full bg-white/5 blur-2xl" />
-          </div>
+  const [inView, setInView] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
 
-          <div className="relative px-8 py-16 sm:px-16 sm:py-24 text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
-              Ready to take control of your subscriptions?
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setInView(true)
+      },
+      { threshold: 0.2 }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <section className="py-16 sm:py-24 lg:py-32 bg-gray-50 dark:bg-gray-900 overflow-hidden">
+      <div ref={ref} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div 
+          className={`relative overflow-hidden rounded-2xl sm:rounded-3xl border border-gray-200 bg-white p-6 sm:p-8 lg:p-12 shadow-lg sm:shadow-xl dark:border-gray-800 dark:bg-gray-950 transition-all duration-700 ${
+            inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+          }`}
+        >
+          {/* Background pattern */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:2rem_2rem] sm:bg-[size:4rem_4rem] opacity-50 dark:bg-[linear-gradient(to_right,#1a1a1a_1px,transparent_1px),linear-gradient(to_bottom,#1a1a1a_1px,transparent_1px)]" />
+
+          {/* Animated circles - hidden on mobile */}
+          <div className="absolute -left-20 -top-20 size-40 sm:size-64 rounded-full border border-gray-200 opacity-50 dark:border-gray-800 animate-pulse hidden sm:block" />
+          <div className="absolute -right-20 -bottom-20 size-40 sm:size-64 rounded-full border border-gray-200 opacity-50 dark:border-gray-800 animate-pulse hidden sm:block" style={{ animationDelay: "1s" }} />
+
+          <div className="relative mx-auto max-w-3xl text-center">
+            {/* Badge */}
+            <div 
+              className={`inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-gray-200 bg-gray-50 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm transition-all duration-500 dark:border-gray-800 dark:bg-gray-900 ${
+                inView ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4"
+              }`}
+            >
+              <RiSparklingLine className="size-3.5 sm:size-4 text-amber-500" />
+              <span className="text-gray-600 dark:text-gray-400">Loved by 20,000+ users</span>
+            </div>
+
+            {/* Heading */}
+            <h2 
+              className={`mt-6 sm:mt-8 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-semibold tracking-tight text-gray-900 dark:text-white transition-all duration-700 delay-100 ${
+                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
+              Ready to take control of
+              <br />
+              <span className="text-gray-400 dark:text-gray-500">your subscriptions?</span>
             </h2>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-blue-100">
-              Join 20,000+ users who are saving money and staying on top of their recurring expenses with SubTracker.
+
+            {/* Subheading */}
+            <p 
+              className={`mt-4 sm:mt-6 text-sm sm:text-base lg:text-lg text-gray-500 dark:text-gray-400 transition-all duration-700 delay-200 ${
+                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
+              Join 20,000+ users saving money and staying on top of their recurring expenses.
             </p>
 
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button 
-                size="lg" 
-                asChild 
-                className="bg-white text-blue-700 hover:bg-blue-50 px-8 shadow-lg"
-              >
+            {/* CTA Buttons */}
+            <div 
+              className={`mt-6 sm:mt-8 lg:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 transition-all duration-700 delay-300 ${
+                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
+              <Button size="lg" asChild className="px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base w-full sm:w-auto">
                 <Link href="/register">
                   Start Free Today
-                  <RiArrowRightLine className="ml-2 size-5" />
+                  <RiArrowRightLine className="size-4 sm:size-5" />
                 </Link>
               </Button>
-              <Button 
-                variant="secondary" 
-                size="lg" 
-                asChild 
-                className="bg-white/10 text-white hover:bg-white/20 border-white/20 px-8"
-              >
-                <Link href="#pricing">View Pricing</Link>
+              <Button variant="secondary" size="lg" asChild className="px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base w-full sm:w-auto">
+                <Link href="#pricing">
+                  View Pricing
+                </Link>
               </Button>
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+            {/* Benefits */}
+            <div 
+              className={`mt-6 sm:mt-8 lg:mt-10 flex flex-wrap items-center justify-center gap-3 sm:gap-4 lg:gap-6 transition-all duration-700 delay-400 ${
+                inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              }`}
+            >
               {benefits.map((benefit) => (
-                <div key={benefit} className="flex items-center gap-2 text-sm text-blue-100">
-                  <div className="flex size-5 items-center justify-center rounded-full bg-white/20">
-                    <RiCheckLine className="size-3 text-white" />
-                  </div>
-                  {benefit}
+                <div 
+                  key={benefit} 
+                  className="flex items-center gap-1.5 sm:gap-2"
+                >
+                  <RiCheckLine className="size-3.5 sm:size-4 text-emerald-500" />
+                  <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">{benefit}</span>
                 </div>
               ))}
             </div>
