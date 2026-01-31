@@ -5,15 +5,16 @@ import { Button } from "@/components/Button"
 import { cx } from "@/lib/utils"
 import { RiArrowRightLine } from "@remixicon/react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
-// Mock data - will be replaced with API call
-const upcomingPayments = [
+// Mock data - using relative days instead of Date.now() to avoid hydration issues
+const mockPaymentsData = [
   {
     id: "1",
     name: "Netflix",
     amount: 14.99,
     currency: "USD",
-    dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+    daysFromNow: 1,
     status: "active",
     category: "Entertainment",
     color: "#E50914",
@@ -23,7 +24,7 @@ const upcomingPayments = [
     name: "Spotify",
     amount: 9.99,
     currency: "USD",
-    dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+    daysFromNow: 2,
     status: "active",
     category: "Music",
     color: "#1DB954",
@@ -33,7 +34,7 @@ const upcomingPayments = [
     name: "GitHub Pro",
     amount: 4.0,
     currency: "USD",
-    dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    daysFromNow: 3,
     status: "active",
     category: "Development",
     color: "#333333",
@@ -43,7 +44,7 @@ const upcomingPayments = [
     name: "Adobe Creative Cloud",
     amount: 54.99,
     currency: "USD",
-    dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    daysFromNow: 5,
     status: "trial",
     category: "Design",
     color: "#FF0000",
@@ -53,27 +54,28 @@ const upcomingPayments = [
     name: "AWS",
     amount: 120.0,
     currency: "USD",
-    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    daysFromNow: 7,
     status: "active",
     category: "Cloud",
     color: "#FF9900",
   },
 ]
 
-function formatDate(date: Date) {
-  const now = new Date()
-  const diffDays = Math.ceil(
-    (date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-  )
-
-  if (diffDays === 0) return "Today"
-  if (diffDays === 1) return "Tomorrow"
-  if (diffDays < 7) return `In ${diffDays} days`
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+function formatDaysFromNow(days: number) {
+  if (days === 0) return "Today"
+  if (days === 1) return "Tomorrow"
+  if (days < 7) return `In ${days} days`
+  return `In ${days} days`
 }
 
 export function UpcomingPayments() {
-  const total = upcomingPayments.reduce((sum, p) => sum + p.amount, 0)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const total = mockPaymentsData.reduce((sum, p) => sum + p.amount, 0)
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
@@ -95,56 +97,62 @@ export function UpcomingPayments() {
       </div>
 
       <div className="divide-y divide-gray-200 dark:divide-gray-800">
-        {upcomingPayments.map((payment) => (
-          <div
-            key={payment.id}
-            className="flex items-center justify-between px-6 py-4"
-          >
-            <div className="flex items-center gap-3">
-              <div
-                className="size-10 rounded-lg"
-                style={{ backgroundColor: `${payment.color}20` }}
-              >
+        {mockPaymentsData.map((payment) => {
+          // Determine if payment is urgent (due within 2 days)
+          // Use consistent value during SSR/hydration, then update on client
+          const isUrgent = mounted && payment.daysFromNow < 2
+
+          return (
+            <div
+              key={payment.id}
+              className="flex items-center justify-between px-6 py-4"
+            >
+              <div className="flex items-center gap-3">
                 <div
-                  className="flex size-full items-center justify-center rounded-lg text-sm font-bold"
-                  style={{ color: payment.color }}
+                  className="size-10 rounded-lg"
+                  style={{ backgroundColor: `${payment.color}20` }}
                 >
-                  {payment.name.charAt(0)}
+                  <div
+                    className="flex size-full items-center justify-center rounded-lg text-sm font-bold"
+                    style={{ color: payment.color }}
+                  >
+                    {payment.name.charAt(0)}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                    {payment.name}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {payment.category}
+                  </p>
                 </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                  {payment.name}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {payment.category}
-                </p>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
+                    ${payment.amount.toFixed(2)}
+                  </p>
+                  <p
+                    className={cx(
+                      "text-xs",
+                      isUrgent
+                        ? "text-amber-600 dark:text-amber-400"
+                        : "text-gray-500 dark:text-gray-400",
+                    )}
+                  >
+                    {formatDaysFromNow(payment.daysFromNow)}
+                  </p>
+                </div>
+                {payment.status === "trial" && (
+                  <Badge variant="warning" className="rounded-full">
+                    Trial
+                  </Badge>
+                )}
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                  ${payment.amount.toFixed(2)}
-                </p>
-                <p
-                  className={cx(
-                    "text-xs",
-                    payment.dueDate.getTime() - Date.now() < 2 * 24 * 60 * 60 * 1000
-                      ? "text-amber-600 dark:text-amber-400"
-                      : "text-gray-500 dark:text-gray-400",
-                  )}
-                >
-                  {formatDate(payment.dueDate)}
-                </p>
-              </div>
-              {payment.status === "trial" && (
-                <Badge variant="warning" className="rounded-full">
-                  Trial
-                </Badge>
-              )}
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <div className="border-t border-gray-200 px-6 py-4 dark:border-gray-800">
