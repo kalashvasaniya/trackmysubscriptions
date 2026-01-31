@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth"
-import dbConnect from "@/lib/mongodb"
-import User from "@/models/User"
-import bcrypt from "bcryptjs"
+import clientPromise from "@/lib/mongodb-client"
+import { ObjectId } from "mongodb"
 import { NextResponse } from "next/server"
 
 // GET current user profile
@@ -13,9 +12,14 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    await dbConnect()
+    // Use native MongoDB client to read all fields correctly
+    const client = await clientPromise
+    const db = client.db()
+    const usersCollection = db.collection("users")
 
-    const user = await User.findById(session.user.id)
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(session.user.id),
+    })
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
@@ -26,8 +30,10 @@ export async function GET() {
       email: user.email,
       name: user.name,
       image: user.image,
-      currency: user.currency,
-      defaultAlertDays: user.defaultAlertDays,
+      currency: user.currency || "USD",
+      defaultAlertDays: user.defaultAlertDays ?? 3,
+      emailAlerts: user.emailAlerts ?? true,
+      weeklyDigest: user.weeklyDigest ?? false,
       createdAt: user.createdAt,
     })
   } catch (error) {
@@ -48,68 +54,58 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { name, currency, defaultAlertDays, currentPassword, newPassword } =
-      await request.json()
+    const body = await request.json()
+    const { name, currency, defaultAlertDays, emailAlerts, weeklyDigest } = body
 
-    await dbConnect()
+    // Build update object with only provided fields
+    const updateFields: Record<string, unknown> = {}
 
-    const user = await User.findById(session.user.id).select("+password")
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
-
-    // Update basic fields
     if (name !== undefined) {
-      user.name = name
+      updateFields.name = name
     }
 
     if (currency !== undefined) {
-      user.currency = currency
+      updateFields.currency = currency
     }
 
     if (defaultAlertDays !== undefined) {
-      user.defaultAlertDays = defaultAlertDays
+      updateFields.defaultAlertDays = defaultAlertDays
     }
 
-    // Handle password change
-    if (newPassword) {
-      if (!currentPassword) {
-        return NextResponse.json(
-          { error: "Current password is required to change password" },
-          { status: 400 },
-        )
-      }
-
-      // Verify current password
-      if (user.password) {
-        const isPasswordValid = await bcrypt.compare(
-          currentPassword,
-          user.password,
-        )
-
-        if (!isPasswordValid) {
-          return NextResponse.json(
-            { error: "Current password is incorrect" },
-            { status: 400 },
-          )
-        }
-      }
-
-      // Hash new password
-      const hashedPassword = await bcrypt.hash(newPassword, 12)
-      user.password = hashedPassword
+    if (emailAlerts !== undefined) {
+      updateFields.emailAlerts = emailAlerts
     }
 
-    await user.save()
+    if (weeklyDigest !== undefined) {
+      updateFields.weeklyDigest = weeklyDigest
+    }
+
+    // Use native MongoDB client to ensure fields are saved
+    const client = await clientPromise
+    const db = client.db()
+    const usersCollection = db.collection("users")
+
+    const result = await usersCollection.findOneAndUpdate(
+      { _id: new ObjectId(session.user.id) },
+      { $set: updateFields },
+      { returnDocument: "after" },
+    )
+
+    if (!result) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 })
+    }
+
+    const user = result
 
     return NextResponse.json({
       id: user._id,
       email: user.email,
       name: user.name,
       image: user.image,
-      currency: user.currency,
-      defaultAlertDays: user.defaultAlertDays,
+      currency: user.currency || "USD",
+      defaultAlertDays: user.defaultAlertDays ?? 3,
+      emailAlerts: user.emailAlerts ?? true,
+      weeklyDigest: user.weeklyDigest ?? false,
     })
   } catch (error) {
     console.error("Error updating user profile:", error)
@@ -129,48 +125,33 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { password } = await request.json()
+    const { confirmed } = await request.json()
 
-    await dbConnect()
+    if (!confirmed) {
+      return NextResponse.json(
+        { error: "Deletion must be confirmed" },
+        { status: 400 },
+      )
+    }
 
-    const user = await User.findById(session.user.id).select("+password")
+    const client = await clientPromise
+    const db = client.db()
+    const userId = new ObjectId(session.user.id)
+
+    // Check if user exists
+    const user = await db.collection("users").findOne({ _id: userId })
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    // Verify password for account deletion (only for credential users)
-    if (user.password) {
-      if (!password) {
-        return NextResponse.json(
-          { error: "Password is required to delete account" },
-          { status: 400 },
-        )
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.password)
-
-      if (!isPasswordValid) {
-        return NextResponse.json(
-          { error: "Password is incorrect" },
-          { status: 400 },
-        )
-      }
-    }
-
-    // Import models to delete related data
-    const Subscription = (await import("@/models/Subscription")).default
-    const Tag = (await import("@/models/Tag")).default
-    const Folder = (await import("@/models/Folder")).default
-    const PaymentMethod = (await import("@/models/PaymentMethod")).default
-
-    // Delete all user data
+    // Delete all user data from all collections
     await Promise.all([
-      Subscription.deleteMany({ userId: session.user.id }),
-      Tag.deleteMany({ userId: session.user.id }),
-      Folder.deleteMany({ userId: session.user.id }),
-      PaymentMethod.deleteMany({ userId: session.user.id }),
-      User.findByIdAndDelete(session.user.id),
+      db.collection("subscriptions").deleteMany({ userId: session.user.id }),
+      db.collection("tags").deleteMany({ userId: session.user.id }),
+      db.collection("folders").deleteMany({ userId: session.user.id }),
+      db.collection("paymentmethods").deleteMany({ userId: session.user.id }),
+      db.collection("users").deleteOne({ _id: userId }),
     ])
 
     return NextResponse.json({ success: true })

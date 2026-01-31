@@ -10,11 +10,13 @@ import {
   SelectValue,
 } from "@/components/Select"
 import { getCurrencyList } from "@/lib/currency"
+import { Switch } from "@/components/ui/Switch"
 import {
   RiSaveLine,
   RiDeleteBinLine,
   RiDownloadLine,
   RiLoader4Line,
+  RiMailSendLine,
 } from "@remixicon/react"
 import { useSession, signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
@@ -38,25 +40,21 @@ export default function SettingsPage() {
   const [defaultAlertDays, setDefaultAlertDays] = useState("3")
   const [emailAlerts, setEmailAlerts] = useState(true)
   const [weeklyDigest, setWeeklyDigest] = useState(false)
-  const [currentPassword, setCurrentPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
 
   const [isSaving, setIsSaving] = useState(false)
   const [isSavingPreferences, setIsSavingPreferences] = useState(false)
-  const [isSavingPassword, setIsSavingPassword] = useState(false)
+  const [isSavingNotifications, setIsSavingNotifications] = useState(false)
+  const [isSendingTestEmail, setIsSendingTestEmail] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [message, setMessage] = useState("")
   const [preferencesMessage, setPreferencesMessage] = useState("")
-  const [passwordMessage, setPasswordMessage] = useState("")
+  const [notificationsMessage, setNotificationsMessage] = useState("")
+  const [testEmailMessage, setTestEmailMessage] = useState("")
 
   useEffect(() => {
-    if (session?.user) {
-      setName(session.user.name || "")
-      setEmail(session.user.email || "")
-    }
     fetchUserProfile()
-  }, [session])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   async function fetchUserProfile() {
     try {
@@ -71,6 +69,8 @@ export default function SettingsPage() {
             ? String(user.defaultAlertDays)
             : "3",
         )
+        setEmailAlerts(user.emailAlerts ?? true)
+        setWeeklyDigest(user.weeklyDigest ?? false)
       }
     } catch (err) {
       console.error("Failed to fetch profile:", err)
@@ -114,7 +114,7 @@ export default function SettingsPage() {
       const response = await fetch("/api/users/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, currency }),
+        body: JSON.stringify({ name }),
       })
 
       if (!response.ok) {
@@ -123,7 +123,6 @@ export default function SettingsPage() {
       }
 
       setMessage("Profile updated successfully!")
-      // Update session
       await update({ name })
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Failed to update profile")
@@ -132,42 +131,61 @@ export default function SettingsPage() {
     }
   }
 
-  const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      setPasswordMessage("Passwords do not match")
-      return
-    }
-
-    if (newPassword.length < 8) {
-      setPasswordMessage("Password must be at least 8 characters")
-      return
-    }
-
-    setIsSavingPassword(true)
-    setPasswordMessage("")
+  const handleSaveNotifications = async () => {
+    setIsSavingNotifications(true)
+    setNotificationsMessage("")
 
     try {
       const response = await fetch("/api/users/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentPassword, newPassword }),
+        body: JSON.stringify({
+          emailAlerts,
+          weeklyDigest,
+        }),
       })
 
       if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.error || "Failed to change password")
+        throw new Error(data.error || "Failed to save notification settings")
       }
 
-      setPasswordMessage("Password changed successfully!")
-      setCurrentPassword("")
-      setNewPassword("")
-      setConfirmPassword("")
+      const data = await response.json()
+      // Update state with server response to confirm save
+      setEmailAlerts(data.emailAlerts ?? true)
+      setWeeklyDigest(data.weeklyDigest ?? false)
+      setNotificationsMessage("Notification settings saved successfully!")
     } catch (err) {
-      setPasswordMessage(
-        err instanceof Error ? err.message : "Failed to change password",
+      setNotificationsMessage(
+        err instanceof Error ? err.message : "Failed to save notification settings",
       )
     } finally {
-      setIsSavingPassword(false)
+      setIsSavingNotifications(false)
+    }
+  }
+
+  const handleSendTestEmail = async () => {
+    setIsSendingTestEmail(true)
+    setTestEmailMessage("")
+
+    try {
+      const response = await fetch("/api/alerts/test", {
+        method: "POST",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send test email")
+      }
+
+      setTestEmailMessage(`Test email sent to ${email}!`)
+    } catch (err) {
+      setTestEmailMessage(
+        err instanceof Error ? err.message : "Failed to send test email",
+      )
+    } finally {
+      setIsSendingTestEmail(false)
     }
   }
 
@@ -191,14 +209,19 @@ export default function SettingsPage() {
   }
 
   const handleDeleteAccount = async () => {
-    const password = prompt(
-      "Please enter your password to confirm account deletion:",
+    const confirmText = prompt(
+      'Type "DELETE" to confirm account deletion:',
     )
-    if (!password) return
+    if (confirmText !== "DELETE") {
+      if (confirmText !== null) {
+        alert("Account deletion cancelled. You must type DELETE exactly.")
+      }
+      return
+    }
 
     if (
       !confirm(
-        "Are you sure you want to delete your account? This action cannot be undone.",
+        "Are you absolutely sure? This will permanently delete your account and all your data. This action cannot be undone.",
       )
     )
       return
@@ -209,7 +232,7 @@ export default function SettingsPage() {
       const response = await fetch("/api/users/profile", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ confirmed: true }),
       })
 
       if (!response.ok) {
@@ -217,7 +240,6 @@ export default function SettingsPage() {
         throw new Error(data.error || "Failed to delete account")
       }
 
-      // Sign out and redirect
       await signOut({ callbackUrl: "/" })
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to delete account")
@@ -271,7 +293,7 @@ export default function SettingsPage() {
                 className="bg-gray-50 dark:bg-gray-800"
               />
               <p className="mt-1 text-xs text-gray-500">
-                Email cannot be changed
+                Email is managed by your Google account
               </p>
             </div>
 
@@ -371,74 +393,6 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Password Change */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-            Change Password
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Update your account password
-          </p>
-
-          <div className="mt-6 space-y-4">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Current Password
-              </label>
-              <Input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Enter current password"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                New Password
-              </label>
-              <Input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Enter new password"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Confirm New Password
-              </label>
-              <Input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
-              />
-            </div>
-
-            {passwordMessage && (
-              <p
-                className={`text-sm ${passwordMessage.includes("success") ? "text-emerald-600" : "text-red-600"}`}
-              >
-                {passwordMessage}
-              </p>
-            )}
-
-            <Button
-              onClick={handleChangePassword}
-              disabled={isSavingPassword || !currentPassword || !newPassword}
-            >
-              {isSavingPassword ? (
-                <RiLoader4Line className="mr-2 size-4 animate-spin" />
-              ) : (
-                <RiSaveLine className="mr-2 size-4" />
-              )}
-              Change Password
-            </Button>
-          </div>
-        </div>
-
         {/* Notifications */}
         <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
@@ -449,13 +403,7 @@ export default function SettingsPage() {
           </p>
 
           <div className="mt-6 space-y-4">
-            <label className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={emailAlerts}
-                onChange={(e) => setEmailAlerts(e.target.checked)}
-                className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
+            <div className="flex items-center justify-between">
               <div>
                 <span className="font-medium text-gray-900 dark:text-gray-50">
                   Email Alerts
@@ -464,15 +412,13 @@ export default function SettingsPage() {
                   Receive email notifications before subscription renewals
                 </p>
               </div>
-            </label>
-
-            <label className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={weeklyDigest}
-                onChange={(e) => setWeeklyDigest(e.target.checked)}
-                className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              <Switch
+                checked={emailAlerts}
+                onCheckedChange={setEmailAlerts}
               />
+            </div>
+
+            <div className="flex items-center justify-between">
               <div>
                 <span className="font-medium text-gray-900 dark:text-gray-50">
                   Weekly Digest
@@ -481,7 +427,54 @@ export default function SettingsPage() {
                   Get a weekly summary of your upcoming payments
                 </p>
               </div>
-            </label>
+              <Switch
+                checked={weeklyDigest}
+                onCheckedChange={setWeeklyDigest}
+              />
+            </div>
+
+            {notificationsMessage && (
+              <p
+                className={`text-sm ${notificationsMessage.includes("success") ? "text-emerald-600" : "text-red-600"}`}
+              >
+                {notificationsMessage}
+              </p>
+            )}
+
+            <div className="flex flex-wrap gap-3">
+              <Button
+                onClick={handleSaveNotifications}
+                disabled={isSavingNotifications}
+              >
+                {isSavingNotifications ? (
+                  <RiLoader4Line className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <RiSaveLine className="mr-2 size-4" />
+                )}
+                Save Notifications
+              </Button>
+
+              <Button
+                variant="secondary"
+                onClick={handleSendTestEmail}
+                disabled={isSendingTestEmail || !emailAlerts}
+              >
+                {isSendingTestEmail ? (
+                  <RiLoader4Line className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <RiMailSendLine className="mr-2 size-4" />
+                )}
+                Send Test Email
+              </Button>
+            </div>
+
+            {testEmailMessage && (
+              <p
+                className={`text-sm ${testEmailMessage.includes("sent") ? "text-emerald-600" : "text-red-600"}`}
+              >
+                {testEmailMessage}
+              </p>
+            )}
           </div>
         </div>
 

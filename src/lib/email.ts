@@ -44,7 +44,7 @@ export async function sendSubscriptionAlert(
 
   try {
     const { data: result, error } = await getResend().emails.send({
-      from: "SubTracker <notifications@subtracker.app>",
+      from: process.env.RESEND_FROM_EMAIL || "SubTracker <onboarding@resend.dev>",
       to: [to],
       subject: `Upcoming Payment: ${data.subscriptionName} - ${formattedAmount}`,
       html: `
@@ -171,7 +171,7 @@ export async function sendSubscriptionAlert(
 export async function sendWelcomeEmail(to: string, data: WelcomeEmailData) {
   try {
     const { data: result, error } = await getResend().emails.send({
-      from: "SubTracker <welcome@subtracker.app>",
+      from: process.env.RESEND_FROM_EMAIL || "SubTracker <onboarding@resend.dev>",
       to: [to],
       subject: "Welcome to SubTracker - Start Managing Your Subscriptions",
       html: `
@@ -326,7 +326,7 @@ export async function sendWeeklySummary(
 
   try {
     const { data: result, error } = await getResend().emails.send({
-      from: "SubTracker <weekly@subtracker.app>",
+      from: process.env.RESEND_FROM_EMAIL || "SubTracker <onboarding@resend.dev>",
       to: [to],
       subject: `Your Weekly Subscription Summary - ${formattedMonthly}/month`,
       html: `

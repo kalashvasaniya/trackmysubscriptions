@@ -43,7 +43,8 @@ export async function GET(request: Request) {
         // Get user email
         const user = await User.findById(subscription.userId)
 
-        if (user && user.email) {
+        // Skip if user has disabled email alerts
+        if (user && user.email && user.emailAlerts !== false) {
           try {
             const result = await sendSubscriptionAlert(user.email, {
               subscriptionName: subscription.name,
@@ -123,6 +124,14 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "User not found or no email" },
         { status: 404 },
+      )
+    }
+
+    // Check if user has disabled email alerts
+    if (user.emailAlerts === false) {
+      return NextResponse.json(
+        { error: "Email alerts are disabled for this user" },
+        { status: 400 },
       )
     }
 
