@@ -295,8 +295,11 @@ export default function AnalyticsPage() {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
         <div className="flex flex-col items-center gap-4">
-          <RiLoader4Line className="size-10 animate-spin text-blue-500" />
-          <p className="text-gray-500">Analyzing your subscriptions...</p>
+          <div className="relative">
+            <div className="size-16 rounded-full border-4 border-purple-100 dark:border-purple-900" />
+            <div className="absolute inset-0 size-16 animate-spin rounded-full border-4 border-transparent border-t-purple-500" />
+          </div>
+          <p className="text-gray-500 dark:text-gray-400">Analyzing your subscriptions...</p>
         </div>
       </div>
     )
@@ -304,12 +307,15 @@ export default function AnalyticsPage() {
 
   if (error || !data || !insights) {
     return (
-      <div className="flex h-96 items-center justify-center bg-gray-50 p-6 dark:bg-gray-950">
+      <div className="flex h-96 items-center justify-center p-8">
         <div className="rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:border-red-800 dark:bg-red-900/20">
           <RiAlertLine className="mx-auto mb-4 size-12 text-red-400" />
           <p className="text-lg font-medium text-red-600 dark:text-red-400">{error || "Failed to load analytics"}</p>
-          <button onClick={() => window.location.reload()} className="mt-4 text-sm text-red-500 underline">
-            Try again
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 rounded-lg bg-red-100 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+          >
+            Try Again
           </button>
         </div>
       </div>
@@ -320,17 +326,55 @@ export default function AnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 sm:text-3xl">
-            Financial Insights
-          </h1>
-          <p className="mt-1 text-gray-500 dark:text-gray-400">
-            Understand where your money goes and how to optimize spending
-          </p>
-        </div>
+      {/* Hero Header Section */}
+      <div className="relative overflow-hidden border-b border-gray-200 bg-gradient-to-br from-indigo-600 via-purple-600 to-purple-700 dark:border-gray-800">
+        <div className="absolute inset-0 bg-grid-white/10" />
+        <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
+        
+        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="text-white">
+              <div className="flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
+                  <RiLineChartLine className="size-6" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold sm:text-3xl">Financial Insights</h1>
+                  <p className="mt-1 text-purple-100">Understand where your money goes</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
+          {/* Quick Stats Pills */}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <RiMoneyDollarCircleLine className="size-4" />
+              <span className="font-medium">{formatCurrency(insights.monthly, currency)}/mo</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <RiCalendarCheckLine className="size-4" />
+              <span className="font-medium">{formatCurrency(insights.yearly, currency)}/yr</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <RiPercentLine className="size-4" />
+              <span className="font-medium">{insights.efficiencyScore}% Efficiency</span>
+            </div>
+            {insights.monthlyChange !== 0 && (
+              <div className={cx(
+                "flex items-center gap-1.5 rounded-full px-4 py-2 text-sm backdrop-blur-sm",
+                insights.isIncreasing ? "bg-red-500/30 text-white" : "bg-emerald-500/30 text-white"
+              )}>
+                {insights.isIncreasing ? <RiArrowUpLine className="size-4" /> : <RiArrowDownLine className="size-4" />}
+                <span className="font-medium">{Math.abs(insights.monthlyChange).toFixed(1)}% vs last month</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
         {/* Quick Stats Row */}
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
           <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
@@ -478,53 +522,6 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            {/* Category Spending - Bar Chart */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-              <h2 className="mb-1 text-lg font-semibold text-gray-900 dark:text-gray-50">
-                Spending by Category
-              </h2>
-              <p className="mb-6 text-sm text-gray-500">Where your money goes each month</p>
-
-              {insights.categoryChartData.length > 0 ? (
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      data={insights.categoryChartData}
-                      layout="vertical"
-                      margin={{ top: 0, right: 20, left: 0, bottom: 0 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
-                      <XAxis
-                        type="number"
-                        tick={{ fontSize: 11, fill: "#6b7280" }}
-                        axisLine={false}
-                        tickLine={false}
-                        tickFormatter={(value) => formatCurrency(value, currency)}
-                      />
-                      <YAxis
-                        type="category"
-                        dataKey="name"
-                        tick={{ fontSize: 12, fill: "#374151" }}
-                        axisLine={false}
-                        tickLine={false}
-                        width={100}
-                      />
-                      <Tooltip content={<CustomTooltip currency={currency} />} />
-                      <Bar dataKey="amount" radius={[0, 4, 4, 0]}>
-                        {insights.categoryChartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.fill} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="flex h-64 items-center justify-center text-gray-400">
-                  <p>No category data available</p>
-                </div>
-              )}
-            </div>
-
             {/* Category Pie Chart */}
             {insights.categoryPieData.length > 0 && (
               <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
@@ -666,101 +663,6 @@ export default function AnalyticsPage() {
               </div>
             )}
 
-            {/* Distribution Row */}
-            <div className="grid gap-6 sm:grid-cols-2">
-              {/* Status Distribution with Pie */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-                <h3 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">
-                  Subscription Status
-                </h3>
-                {insights.statusChartData.length > 0 ? (
-                  <div className="flex flex-col items-center gap-4 lg:flex-row">
-                    <div className="h-40 w-40">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={insights.statusChartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={30}
-                            outerRadius={55}
-                            paddingAngle={3}
-                            dataKey="value"
-                          >
-                            {insights.statusChartData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.fill} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      {insights.statusChartData.map((item) => (
-                        <div key={item.name} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="size-2.5 rounded-full" style={{ backgroundColor: item.fill }} />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
-                          </div>
-                          <span className="font-semibold text-gray-900 dark:text-gray-50">{item.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex h-32 items-center justify-center text-gray-400">
-                    <p className="text-sm">No subscriptions yet</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Billing Cycle Cost Distribution */}
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-                <h3 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">
-                  Cost by Billing Cycle
-                </h3>
-                {insights.billingCycleCostData.length > 0 ? (
-                  <div className="flex flex-col items-center gap-4 lg:flex-row">
-                    <div className="h-40 w-40">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={insights.billingCycleCostData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={30}
-                            outerRadius={55}
-                            paddingAngle={3}
-                            dataKey="value"
-                          >
-                            {insights.billingCycleCostData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.fill} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      {insights.billingCycleCostData.map((item) => (
-                        <div key={item.name} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="size-2.5 rounded-full" style={{ backgroundColor: item.fill }} />
-                            <span className="text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
-                          </div>
-                          <span className="font-semibold text-gray-900 dark:text-gray-50">
-                            {formatCurrency(item.value, currency)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex h-32 items-center justify-center text-gray-400">
-                    <p className="text-sm">No subscriptions yet</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
             {/* Month Over Month Comparison */}
             {insights.monthOverMonth.length > 2 && (
               <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
@@ -808,6 +710,98 @@ export default function AnalyticsPage() {
 
           {/* Right Column - Insights & Actions */}
           <div className="space-y-6">
+            {/* Status Distribution with Pie */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+              <h3 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">
+                Subscription Status
+              </h3>
+              {insights.statusChartData.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="mx-auto h-32 w-32">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={insights.statusChartData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={25}
+                          outerRadius={50}
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {insights.statusChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="space-y-2">
+                    {insights.statusChartData.map((item) => (
+                      <div key={item.name} className="flex items-center justify-between rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800">
+                        <div className="flex items-center gap-2">
+                          <div className="size-2.5 rounded-full" style={{ backgroundColor: item.fill }} />
+                          <span className="text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
+                        </div>
+                        <span className="font-semibold text-gray-900 dark:text-gray-50">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex h-32 items-center justify-center text-gray-400">
+                  <p className="text-sm">No subscriptions yet</p>
+                </div>
+              )}
+            </div>
+
+            {/* Billing Cycle Cost Distribution */}
+            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+              <h3 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">
+                Cost by Billing Cycle
+              </h3>
+              {insights.billingCycleCostData.length > 0 ? (
+                <div className="space-y-4">
+                  <div className="mx-auto h-32 w-32">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={insights.billingCycleCostData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={25}
+                          outerRadius={50}
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {insights.billingCycleCostData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="space-y-2">
+                    {insights.billingCycleCostData.map((item) => (
+                      <div key={item.name} className="flex items-center justify-between rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800">
+                        <div className="flex items-center gap-2">
+                          <div className="size-2.5 rounded-full" style={{ backgroundColor: item.fill }} />
+                          <span className="text-sm text-gray-600 dark:text-gray-400">{item.name}</span>
+                        </div>
+                        <span className="font-semibold text-gray-900 dark:text-gray-50">
+                          {formatCurrency(item.value, currency)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex h-32 items-center justify-center text-gray-400">
+                  <p className="text-sm">No subscriptions yet</p>
+                </div>
+              )}
+            </div>
+
             {/* Smart Insights */}
             <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
               <div className="mb-4 flex items-center gap-2">

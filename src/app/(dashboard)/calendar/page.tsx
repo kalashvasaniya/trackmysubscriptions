@@ -315,47 +315,87 @@ export default function CalendarPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-white px-4 py-6 dark:border-gray-800 dark:bg-gray-900 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 sm:text-3xl">
-              Payment Calendar
-            </h1>
-            <p className="mt-1 text-gray-600 dark:text-gray-400">
-              Track and visualize your subscription payments
-            </p>
-          </div>
-          
-          {/* View Mode Switcher */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex rounded-lg border border-gray-200 bg-gray-100 p-1 dark:border-gray-700 dark:bg-gray-800">
-              {[
-                { mode: "month" as ViewMode, icon: RiCalendar2Line, label: "Month" },
-                { mode: "week" as ViewMode, icon: RiGridLine, label: "Week" },
-                { mode: "year" as ViewMode, icon: RiCalendarLine, label: "Year" },
-                { mode: "agenda" as ViewMode, icon: RiListCheck2, label: "Agenda" },
-              ].map(({ mode, icon: Icon, label }) => (
-                <button
-                  key={mode}
-                  onClick={() => setViewMode(mode)}
-                  className={cx(
-                    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
-                    viewMode === mode
-                      ? "bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-gray-50"
-                      : "text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-                  )}
-                >
-                  <Icon className="size-4" />
-                  <span className="hidden sm:inline">{label}</span>
-                </button>
-              ))}
+      {/* Hero Header Section */}
+      <div className="relative overflow-hidden border-b border-gray-200 bg-gradient-to-br from-cyan-600 via-teal-600 to-emerald-700 dark:border-gray-800">
+        <div className="absolute inset-0 bg-grid-white/10" />
+        <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
+        
+        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="text-white">
+              <div className="flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
+                  <RiCalendarLine className="size-6" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold sm:text-3xl">Payment Calendar</h1>
+                  <p className="mt-1 text-cyan-100">Track and visualize your subscription payments</p>
+                </div>
+              </div>
             </div>
+            
+            {/* View Mode Switcher */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex rounded-lg bg-white/10 p-1 backdrop-blur-sm">
+                {[
+                  { mode: "month" as ViewMode, icon: RiCalendar2Line, label: "Month" },
+                  { mode: "week" as ViewMode, icon: RiGridLine, label: "Week" },
+                  { mode: "year" as ViewMode, icon: RiCalendarLine, label: "Year" },
+                  { mode: "agenda" as ViewMode, icon: RiListCheck2, label: "Agenda" },
+                ].map(({ mode, icon: Icon, label }) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    className={cx(
+                      "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
+                      viewMode === mode
+                        ? "bg-white text-teal-700 shadow-sm"
+                        : "text-white/80 hover:text-white hover:bg-white/10"
+                    )}
+                  >
+                    <Icon className="size-4" />
+                    <span className="hidden sm:inline">{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats Pills */}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <RiWalletLine className="size-4" />
+              <span className="font-medium">{formatCurrency(monthlyTotal, displayCurrency)} this month</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <RiCalendarCheckLine className="size-4" />
+              <span className="font-medium">{subscriptions.length} payments</span>
+            </div>
+            {calendarStats.nextPayment && (
+              <div className={cx(
+                "flex items-center gap-2 rounded-full px-4 py-2 text-sm text-white backdrop-blur-sm",
+                calendarStats.daysUntilNext !== null && calendarStats.daysUntilNext <= 3 
+                  ? "bg-amber-500/40" 
+                  : "bg-white/20"
+              )}>
+                <RiTimeLine className="size-4" />
+                <span className="font-medium">
+                  Next: {calendarStats.daysUntilNext === 0 ? "Today" : `${calendarStats.daysUntilNext}d`} ({calendarStats.nextPayment.name})
+                </span>
+              </div>
+            )}
+            {calendarStats.paymentDays > 0 && (
+              <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
+                <RiFireLine className="size-4" />
+                <span className="font-medium">{calendarStats.paymentDays} payment days</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
         {/* Quick Stats Row */}
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">

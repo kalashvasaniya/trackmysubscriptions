@@ -37,6 +37,16 @@ import {
   RiSortDesc,
   RiCloseLine,
   RiFileListLine,
+  RiPlayCircleLine,
+  RiPauseCircleLine,
+  RiCloseCircleLine,
+  RiTimerFlashLine,
+  RiSparklingLine,
+  RiFireLine,
+  RiEyeLine,
+  RiRefreshLine,
+  RiBarChartLine,
+  RiLightbulbLine,
 } from "@remixicon/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -69,10 +79,10 @@ type SortField = "name" | "amount" | "nextBillingDate" | "status" | "category"
 type SortOrder = "asc" | "desc"
 
 const statusConfig = {
-  active: { variant: "success" as const, label: "Active", color: "emerald", bg: "bg-emerald-500" },
-  trial: { variant: "warning" as const, label: "Trial", color: "amber", bg: "bg-amber-500" },
-  cancelled: { variant: "neutral" as const, label: "Cancelled", color: "gray", bg: "bg-gray-500" },
-  paused: { variant: "default" as const, label: "Paused", color: "blue", bg: "bg-blue-500" },
+  active: { variant: "success" as const, label: "Active", color: "emerald", bg: "bg-emerald-500", icon: RiPlayCircleLine },
+  trial: { variant: "warning" as const, label: "Trial", color: "amber", bg: "bg-amber-500", icon: RiTimerFlashLine },
+  cancelled: { variant: "neutral" as const, label: "Cancelled", color: "gray", bg: "bg-gray-500", icon: RiCloseCircleLine },
+  paused: { variant: "default" as const, label: "Paused", color: "blue", bg: "bg-blue-500", icon: RiPauseCircleLine },
 }
 
 const categoryColors: Record<string, string> = {
@@ -108,6 +118,55 @@ function formatRelativeDate(dateStr: string): string {
   if (diffDays < 7) return `In ${diffDays} days`
   if (diffDays < 30) return `In ${Math.ceil(diffDays / 7)} weeks`
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+}
+
+// Insight Card Component
+function InsightCard({ 
+  icon: Icon, 
+  title, 
+  value, 
+  subtitle, 
+  trend,
+  color = "blue"
+}: { 
+  icon: React.ComponentType<{ className?: string }>
+  title: string
+  value: string
+  subtitle?: string
+  trend?: { value: number; isUp: boolean }
+  color?: string
+}) {
+  const colorClasses: Record<string, string> = {
+    blue: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+    emerald: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400",
+    purple: "bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400",
+    amber: "bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+    rose: "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400",
+  }
+
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
+      <div className="flex items-start justify-between">
+        <div className={cx("flex size-12 items-center justify-center rounded-xl", colorClasses[color])}>
+          <Icon className="size-6" />
+        </div>
+        {trend && (
+          <div className={cx(
+            "flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium",
+            trend.isUp ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" : "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
+          )}>
+            {trend.isUp ? <RiArrowUpLine className="size-3" /> : <RiArrowDownLine className="size-3" />}
+            {Math.abs(trend.value).toFixed(1)}%
+          </div>
+        )}
+      </div>
+      <div className="mt-4">
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
+        <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-50">{value}</p>
+        {subtitle && <p className="mt-1 text-xs text-gray-500">{subtitle}</p>}
+      </div>
+    </div>
+  )
 }
 
 export default function SubscriptionsPage() {
@@ -294,6 +353,26 @@ export default function SubscriptionsPage() {
 
     const upcoming7DaysAmount = upcoming7Days.reduce((sum, s) => sum + amountForDisplay(s), 0)
 
+    // Status breakdown for filtered results
+    const statusCounts = {
+      active: filtered.filter(s => s.status === "active").length,
+      trial: filtered.filter(s => s.status === "trial").length,
+      paused: filtered.filter(s => s.status === "paused").length,
+      cancelled: filtered.filter(s => s.status === "cancelled").length,
+    }
+
+    // Category breakdown
+    const categoryBreakdown = filtered.reduce((acc, sub) => {
+      const cat = sub.category || "Uncategorized"
+      acc[cat] = (acc[cat] || 0) + amountForDisplay(sub)
+      return acc
+    }, {} as Record<string, number>)
+
+    const topCategory = Object.entries(categoryBreakdown).sort((a, b) => b[1] - a[1])[0]
+
+    // Most expensive subscription
+    const mostExpensive = [...filtered].sort((a, b) => amountForDisplay(b) - amountForDisplay(a))[0]
+
     return {
       total: filtered.length,
       active: active.length,
@@ -301,6 +380,10 @@ export default function SubscriptionsPage() {
       yearlyTotal: monthlyTotal * 12,
       upcoming7Days: upcoming7Days.length,
       upcoming7DaysAmount,
+      statusCounts,
+      topCategory,
+      mostExpensive,
+      avgSubscriptionCost: filtered.length > 0 ? monthlyTotal / filtered.length : 0,
     }
   }, [filteredSubscriptions])
 
@@ -369,103 +452,148 @@ export default function SubscriptionsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* Header */}
-      <div className="border-b border-gray-200 bg-white px-4 py-6 dark:border-gray-800 dark:bg-gray-900 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50 sm:text-3xl">
-              Subscriptions
-            </h1>
-            <p className="mt-1 text-gray-600 dark:text-gray-400">
-              Manage and track all your subscriptions in one place
-            </p>
+      {/* Hero Header Section */}
+      <div className="relative overflow-hidden border-b border-gray-200 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 dark:border-gray-800">
+        <div className="absolute inset-0 bg-grid-white/10" />
+        <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
+        
+        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="text-white">
+              <div className="flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
+                  <RiFileListLine className="size-6" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold sm:text-3xl">Subscriptions</h1>
+                  <p className="mt-1 text-blue-100">Manage and track all your subscriptions</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                onChange={handleImport}
+                className="hidden"
+              />
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-white/20 text-white hover:bg-white/30 border-white/20"
+              >
+                <RiUploadLine className="mr-2 size-4" />
+                Import
+              </Button>
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                onClick={handleExport}
+                className="bg-white/20 text-white hover:bg-white/30 border-white/20"
+              >
+                <RiDownloadLine className="mr-2 size-4" />
+                Export
+              </Button>
+              <Button asChild className="bg-white text-blue-700 hover:bg-blue-50 shadow-lg">
+                <Link href="/subscriptions/new">
+                  <RiAddLine className="mr-2 size-4" />
+                  Add Subscription
+                </Link>
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              onChange={handleImport}
-              className="hidden"
-            />
-            <Button variant="secondary" size="sm" onClick={() => fileInputRef.current?.click()}>
-              <RiUploadLine className="mr-2 size-4" />
-              Import
-            </Button>
-            <Button variant="secondary" size="sm" onClick={handleExport}>
-              <RiDownloadLine className="mr-2 size-4" />
-              Export
-            </Button>
-            <Button asChild className="shadow-lg shadow-blue-500/25">
-              <Link href="/subscriptions/new">
-                <RiAddLine className="mr-2 size-4" />
-                Add Subscription
-              </Link>
-            </Button>
+
+          {/* Quick Stats Pills */}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <RiFileListLine className="size-4" />
+              <span className="font-medium">{stats.total} Total</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full bg-emerald-500/30 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <RiPlayCircleLine className="size-4" />
+              <span className="font-medium">{stats.statusCounts.active} Active</span>
+            </div>
+            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <RiWalletLine className="size-4" />
+              <span className="font-medium">{formatCurrency(stats.monthlyTotal, displayCurrency)}/mo</span>
+            </div>
+            {stats.upcoming7Days > 0 && (
+              <div className="flex items-center gap-2 rounded-full bg-amber-500/30 px-4 py-2 text-sm text-white backdrop-blur-sm">
+                <RiTimeLine className="size-4" />
+                <span className="font-medium">{stats.upcoming7Days} due this week</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      <div className="p-4 sm:p-6 lg:p-8">
-        {/* Stats Cards */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30">
-                <RiFileListLine className="size-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Total</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">{stats.total}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                <RiWalletLine className="size-5 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Monthly</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-                  {formatCurrency(stats.monthlyTotal, displayCurrency)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-900/30">
-                <RiCalendarLine className="size-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Yearly</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-                  {formatCurrency(stats.yearlyTotal, displayCurrency)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30">
-                <RiTimeLine className="size-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Due 7 days</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-                  {formatCurrency(stats.upcoming7DaysAmount, displayCurrency)}
-                </p>
-              </div>
-            </div>
-          </div>
+      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+        {/* Enhanced Stats Cards */}
+        <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <InsightCard
+            icon={RiFileListLine}
+            title="Total Subscriptions"
+            value={stats.total.toString()}
+            subtitle={`${stats.statusCounts.active} active, ${stats.statusCounts.trial} trials`}
+            color="blue"
+          />
+          <InsightCard
+            icon={RiWalletLine}
+            title="Monthly Cost"
+            value={formatCurrency(stats.monthlyTotal, displayCurrency)}
+            subtitle={`Avg: ${formatCurrency(stats.avgSubscriptionCost, displayCurrency)}/sub`}
+            color="emerald"
+          />
+          <InsightCard
+            icon={RiCalendarLine}
+            title="Yearly Projection"
+            value={formatCurrency(stats.yearlyTotal, displayCurrency)}
+            subtitle="Based on current subscriptions"
+            color="purple"
+          />
+          <InsightCard
+            icon={RiTimeLine}
+            title="Due This Week"
+            value={formatCurrency(stats.upcoming7DaysAmount, displayCurrency)}
+            subtitle={`${stats.upcoming7Days} payment${stats.upcoming7Days !== 1 ? "s" : ""} coming up`}
+            color="amber"
+          />
         </div>
 
+        {/* Quick Insights Banner */}
+        {(stats.topCategory || stats.mostExpensive) && stats.total > 0 && (
+          <div className="mb-6 rounded-2xl border border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 dark:border-gray-800 dark:from-blue-900/20 dark:to-indigo-900/20">
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="flex items-center gap-2">
+                <RiLightbulbLine className="size-5 text-amber-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Insights:</span>
+              </div>
+              {stats.topCategory && (
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <span className="font-medium text-gray-900 dark:text-gray-50">{stats.topCategory[0]}</span>
+                  <span>is your top category</span>
+                  <span className="text-gray-400">•</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-50">{formatCurrency(stats.topCategory[1], displayCurrency)}/mo</span>
+                </div>
+              )}
+              {stats.mostExpensive && (
+                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                  <span className="font-medium text-gray-900 dark:text-gray-50">{stats.mostExpensive.name}</span>
+                  <span>is most expensive</span>
+                  <span className="text-gray-400">•</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-50">{formatCurrency(amountForDisplay(stats.mostExpensive), displayCurrency)}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Toolbar */}
-        <div className="mb-4 flex flex-col gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div className="mb-4 flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             {/* Search & Filters */}
             <div className="flex flex-1 flex-col gap-3 sm:flex-row">
@@ -656,10 +784,10 @@ export default function SubscriptionsPage() {
         {/* Content */}
         {filteredSubscriptions.length === 0 ? (
           <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-              <RiFileListLine className="size-8 text-gray-400" />
+            <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
+              <RiFileListLine className="size-10 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-50">
               {subscriptions.length === 0 ? "No subscriptions yet" : "No results found"}
             </h3>
             <p className="mt-2 text-gray-500 dark:text-gray-400">
@@ -668,11 +796,15 @@ export default function SubscriptionsPage() {
                 : "Try adjusting your filters to find what you're looking for."}
             </p>
             {subscriptions.length === 0 ? (
-              <Button asChild className="mt-4">
-                <Link href="/subscriptions/new">Add Subscription</Link>
+              <Button asChild className="mt-6">
+                <Link href="/subscriptions/new">
+                  <RiAddLine className="mr-2 size-4" />
+                  Add Subscription
+                </Link>
               </Button>
             ) : (
-              <Button variant="secondary" className="mt-4" onClick={clearFilters}>
+              <Button variant="secondary" className="mt-6" onClick={clearFilters}>
+                <RiRefreshLine className="mr-2 size-4" />
                 Clear Filters
               </Button>
             )}
@@ -687,18 +819,29 @@ export default function SubscriptionsPage() {
                 (new Date(sub.nextBillingDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
               )
               const isUrgent = daysUntil <= 3 && daysUntil >= 0
+              const isOverdue = daysUntil < 0
               const isSelected = selectedIds.has(sub._id)
 
               return (
                 <div
                   key={sub._id}
                   className={cx(
-                    "group relative overflow-hidden rounded-2xl border bg-white p-5 shadow-sm transition-all hover:shadow-md dark:bg-gray-900",
+                    "group relative overflow-hidden rounded-2xl border bg-white shadow-sm transition-all hover:shadow-lg dark:bg-gray-900",
                     isSelected
                       ? "border-blue-500 ring-2 ring-blue-500/20"
+                      : isOverdue
+                      ? "border-red-200 dark:border-red-800"
                       : "border-gray-200 dark:border-gray-800"
                   )}
                 >
+                  {/* Urgent/Overdue indicator */}
+                  {(isUrgent || isOverdue) && (
+                    <div className={cx(
+                      "absolute left-0 right-0 top-0 h-1",
+                      isOverdue ? "bg-red-500" : "bg-amber-500"
+                    )} />
+                  )}
+
                   {/* Selection checkbox */}
                   <div className="absolute left-3 top-3 opacity-0 transition-opacity group-hover:opacity-100">
                     <input
@@ -709,87 +852,85 @@ export default function SubscriptionsPage() {
                     />
                   </div>
 
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="flex size-12 items-center justify-center rounded-xl text-lg font-bold"
-                        style={{ backgroundColor: `${color}15`, color }}
-                      >
-                        {sub.name.charAt(0)}
+                  <div className="p-5">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className="flex size-14 items-center justify-center rounded-xl text-xl font-bold shadow-sm"
+                          style={{ backgroundColor: `${color}15`, color }}
+                        >
+                          {sub.name.charAt(0)}
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="truncate font-semibold text-gray-900 dark:text-gray-50">
+                            {sub.name}
+                          </h3>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {sub.category || "Uncategorized"}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <h3 className="truncate font-semibold text-gray-900 dark:text-gray-50">
-                          {sub.name}
-                        </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {sub.category || "Uncategorized"}
-                        </p>
-                      </div>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="!p-1 opacity-0 group-hover:opacity-100">
-                          <RiMoreLine className="size-5 text-gray-500" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/subscriptions/${sub._id}`}>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="!p-1 opacity-0 group-hover:opacity-100">
+                            <RiMoreLine className="size-5 text-gray-500" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => router.push(`/subscriptions/${sub._id}`)}>
                             <RiEditLine className="mr-2 size-4" />
                             Edit
-                          </Link>
-                        </DropdownMenuItem>
-                        {sub.url && (
-                          <DropdownMenuItem asChild>
-                            <a href={sub.url} target="_blank" rel="noopener noreferrer">
+                          </DropdownMenuItem>
+                          {sub.url && (
+                            <DropdownMenuItem onClick={() => window.open(sub.url, "_blank")}>
                               <RiExternalLinkLine className="mr-2 size-4" />
                               Visit Website
-                            </a>
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className="text-red-600 dark:text-red-400"
-                          onClick={() => handleDelete(sub._id)}
-                          disabled={deleting === sub._id}
-                        >
-                          {deleting === sub._id ? (
-                            <RiLoader4Line className="mr-2 size-4 animate-spin" />
-                          ) : (
-                            <RiDeleteBinLine className="mr-2 size-4" />
+                            </DropdownMenuItem>
                           )}
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-
-                  <div className="mt-5 flex items-end justify-between">
-                    <div>
-                      <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-                        {formatCurrency(amountForDisplay(sub), displayCurrency)}
-                      </p>
-                      <p className="text-sm capitalize text-gray-500 dark:text-gray-400">
-                        {billingCycleLabels[sub.billingCycle] || sub.billingCycle}
-                      </p>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-red-600 dark:text-red-400"
+                            onClick={() => handleDelete(sub._id)}
+                            disabled={deleting === sub._id}
+                          >
+                            {deleting === sub._id ? (
+                              <RiLoader4Line className="mr-2 size-4 animate-spin" />
+                            ) : (
+                              <RiDeleteBinLine className="mr-2 size-4" />
+                            )}
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-                    <Badge variant={status.variant} className="rounded-full">
-                      <span className={cx("mr-1.5 size-1.5 rounded-full", status.bg)} />
-                      {status.label}
-                    </Badge>
-                  </div>
 
-                  <div className={cx(
-                    "mt-4 flex items-center justify-between rounded-xl p-3",
-                    isUrgent ? "bg-amber-50 dark:bg-amber-900/20" : "bg-gray-50 dark:bg-gray-800"
-                  )}>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">Next billing</span>
-                    <span className={cx(
-                      "text-sm font-medium",
-                      isUrgent ? "text-amber-600 dark:text-amber-400" : "text-gray-900 dark:text-gray-50"
+                    <div className="mt-5 flex items-end justify-between">
+                      <div>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-gray-50">
+                          {formatCurrency(amountForDisplay(sub), displayCurrency)}
+                        </p>
+                        <p className="text-sm capitalize text-gray-500 dark:text-gray-400">
+                          {billingCycleLabels[sub.billingCycle] || sub.billingCycle}
+                        </p>
+                      </div>
+                      <Badge variant={status.variant} className="rounded-full">
+                        <status.icon className="mr-1.5 size-3" />
+                        {status.label}
+                      </Badge>
+                    </div>
+
+                    <div className={cx(
+                      "mt-4 flex items-center justify-between rounded-xl p-3",
+                      isOverdue ? "bg-red-50 dark:bg-red-900/20" : isUrgent ? "bg-amber-50 dark:bg-amber-900/20" : "bg-gray-50 dark:bg-gray-800"
                     )}>
-                      {formatRelativeDate(sub.nextBillingDate)}
-                    </span>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">Next billing</span>
+                      <span className={cx(
+                        "text-sm font-semibold",
+                        isOverdue ? "text-red-600 dark:text-red-400" : isUrgent ? "text-amber-600 dark:text-amber-400" : "text-gray-900 dark:text-gray-50"
+                      )}>
+                        {formatRelativeDate(sub.nextBillingDate)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               )
@@ -824,6 +965,7 @@ export default function SubscriptionsPage() {
                   (new Date(sub.nextBillingDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
                 )
                 const isUrgent = daysUntil <= 3 && daysUntil >= 0
+                const isOverdue = daysUntil < 0
                 const isSelected = selectedIds.has(sub._id)
 
                 return (
@@ -844,7 +986,7 @@ export default function SubscriptionsPage() {
                     </div>
                     <div className="flex items-center gap-3 sm:col-span-4">
                       <div
-                        className="flex size-10 items-center justify-center rounded-xl text-sm font-bold sm:size-12"
+                        className="flex size-12 items-center justify-center rounded-xl text-sm font-bold shadow-sm"
                         style={{ backgroundColor: `${color}15`, color }}
                       >
                         {sub.name.charAt(0)}
@@ -857,21 +999,21 @@ export default function SubscriptionsPage() {
                       </div>
                     </div>
                     <div className="sm:col-span-2">
-                      <p className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                      <p className="text-lg font-bold text-gray-900 dark:text-gray-50">
                         {formatCurrency(amountForDisplay(sub), displayCurrency)}
                       </p>
                     </div>
                     <div className="sm:col-span-2">
                       <p className={cx(
-                        "text-sm font-medium",
-                        isUrgent ? "text-amber-600 dark:text-amber-400" : "text-gray-600 dark:text-gray-400"
+                        "text-sm font-semibold",
+                        isOverdue ? "text-red-600 dark:text-red-400" : isUrgent ? "text-amber-600 dark:text-amber-400" : "text-gray-600 dark:text-gray-400"
                       )}>
                         {formatRelativeDate(sub.nextBillingDate)}
                       </p>
                     </div>
                     <div className="sm:col-span-2">
                       <Badge variant={status.variant} className="rounded-full">
-                        <span className={cx("mr-1.5 size-1.5 rounded-full", status.bg)} />
+                        <status.icon className="mr-1.5 size-3" />
                         {status.label}
                       </Badge>
                     </div>
@@ -883,11 +1025,9 @@ export default function SubscriptionsPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link href={`/subscriptions/${sub._id}`}>
-                              <RiEditLine className="mr-2 size-4" />
-                              Edit
-                            </Link>
+                          <DropdownMenuItem onClick={() => router.push(`/subscriptions/${sub._id}`)}>
+                            <RiEditLine className="mr-2 size-4" />
+                            Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
@@ -912,18 +1052,21 @@ export default function SubscriptionsPage() {
               const statusSubs = filteredSubscriptions.filter((s) => s.status === statusKey)
               const statusInfo = statusConfig[statusKey]
               const statusTotal = statusSubs.reduce((sum, s) => sum + amountForDisplay(s), 0)
+              const StatusIcon = statusInfo.icon
 
               return (
                 <div key={statusKey} className="rounded-2xl border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900/50">
                   <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-700">
                     <div className="flex items-center gap-2">
-                      <span className={cx("size-3 rounded-full", statusInfo.bg)} />
+                      <div className={cx("flex size-7 items-center justify-center rounded-lg", statusInfo.bg, "bg-opacity-20")}>
+                        <StatusIcon className={cx("size-4", statusInfo.bg.replace("bg-", "text-"))} />
+                      </div>
                       <span className="font-semibold text-gray-900 dark:text-gray-50">{statusInfo.label}</span>
                       <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
                         {statusSubs.length}
                       </span>
                     </div>
-                    <span className="text-sm font-medium text-gray-500">
+                    <span className="text-sm font-semibold text-gray-500">
                       {formatCurrency(statusTotal, displayCurrency)}
                     </span>
                   </div>
@@ -936,6 +1079,10 @@ export default function SubscriptionsPage() {
                     ) : (
                       statusSubs.map((sub) => {
                         const color = categoryColors[sub.category || ""] || categoryColors.default
+                        const daysUntil = Math.ceil(
+                          (new Date(sub.nextBillingDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+                        )
+                        const isUrgent = daysUntil <= 3 && daysUntil >= 0
 
                         return (
                           <Link
@@ -945,7 +1092,7 @@ export default function SubscriptionsPage() {
                           >
                             <div className="flex items-center gap-3">
                               <div
-                                className="flex size-9 items-center justify-center rounded-lg text-sm font-bold"
+                                className="flex size-10 items-center justify-center rounded-lg text-sm font-bold shadow-sm"
                                 style={{ backgroundColor: `${color}15`, color }}
                               >
                                 {sub.name.charAt(0)}
@@ -958,10 +1105,13 @@ export default function SubscriptionsPage() {
                               </div>
                             </div>
                             <div className="mt-3 flex items-center justify-between">
-                              <span className="font-semibold text-gray-900 dark:text-gray-50">
+                              <span className="text-lg font-bold text-gray-900 dark:text-gray-50">
                                 {formatCurrency(amountForDisplay(sub), displayCurrency)}
                               </span>
-                              <span className="text-xs text-gray-500">
+                              <span className={cx(
+                                "text-xs font-medium",
+                                isUrgent ? "text-amber-600" : "text-gray-500"
+                              )}>
                                 {formatRelativeDate(sub.nextBillingDate)}
                               </span>
                             </div>
@@ -978,8 +1128,16 @@ export default function SubscriptionsPage() {
 
         {/* Results count */}
         {filteredSubscriptions.length > 0 && (
-          <div className="mt-4 text-center text-sm text-gray-500">
-            Showing {filteredSubscriptions.length} of {subscriptions.length} subscription{subscriptions.length !== 1 ? "s" : ""}
+          <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500">
+            <span>
+              Showing {filteredSubscriptions.length} of {subscriptions.length} subscription{subscriptions.length !== 1 ? "s" : ""}
+            </span>
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-blue-600 hover:text-blue-700">
+                <RiCloseLine className="mr-1 size-4" />
+                Clear filters
+              </Button>
+            )}
           </div>
         )}
       </div>

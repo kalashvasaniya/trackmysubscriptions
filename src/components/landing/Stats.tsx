@@ -1,26 +1,67 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
+import { RiGroupLine, RiHeart3Line, RiMoneyDollarCircleLine, RiFileList3Line } from "@remixicon/react"
 
 const stats = [
-  { id: 1, name: "Users", value: 20000, suffix: "+", prefix: "" },
-  { id: 2, name: "Customers", value: 600, suffix: "+", prefix: "" },
-  { id: 3, name: "Subscriptions Tracked", value: 250000, suffix: "+", prefix: "" },
-  { id: 4, name: "Saved", value: 1000000, suffix: "+", prefix: "$" },
+  { 
+    id: 1, 
+    name: "Happy Users", 
+    value: 20000, 
+    suffix: "+", 
+    prefix: "",
+    icon: RiGroupLine,
+    color: "from-blue-500 to-indigo-600",
+    bgColor: "bg-blue-500/10",
+  },
+  { 
+    id: 2, 
+    name: "5-Star Reviews", 
+    value: 600, 
+    suffix: "+", 
+    prefix: "",
+    icon: RiHeart3Line,
+    color: "from-pink-500 to-rose-600",
+    bgColor: "bg-pink-500/10",
+  },
+  { 
+    id: 3, 
+    name: "Subscriptions Tracked", 
+    value: 250000, 
+    suffix: "+", 
+    prefix: "",
+    icon: RiFileList3Line,
+    color: "from-emerald-500 to-teal-600",
+    bgColor: "bg-emerald-500/10",
+  },
+  { 
+    id: 4, 
+    name: "Money Saved", 
+    value: 1000000, 
+    suffix: "+", 
+    prefix: "$",
+    icon: RiMoneyDollarCircleLine,
+    color: "from-amber-500 to-orange-600",
+    bgColor: "bg-amber-500/10",
+  },
 ]
 
 function AnimatedCounter({
   value,
   prefix,
   suffix,
+  inView,
 }: {
   value: number
   prefix: string
   suffix: string
+  inView: boolean
 }) {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
+    if (!inView) return
+    
     const duration = 2000
     const steps = 60
     const stepValue = value / steps
@@ -36,7 +77,7 @@ function AnimatedCounter({
     }, duration / steps)
 
     return () => clearInterval(timer)
-  }, [value])
+  }, [value, inView])
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
@@ -58,35 +99,72 @@ function AnimatedCounter({
 }
 
 export function Stats() {
+  const [inView, setInView] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true)
+        }
+      },
+      { threshold: 0.3 }
+    )
+
+    if (ref.current) {
+      observer.observe(ref.current)
+    }
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <section className="py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
-            Tracking over{" "}
-            <span className="text-blue-600 dark:text-blue-400">
-              $100+ Million
+    <section className="relative py-24 sm:py-32 overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-gradient-to-b from-white via-blue-50/50 to-white dark:from-gray-950 dark:via-blue-950/10 dark:to-gray-950" />
+      </div>
+
+      <div ref={ref} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            Trusted by{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              20,000+
             </span>{" "}
-            worth of subscriptions
+            users worldwide
           </h2>
+          <p className="mt-6 text-lg text-gray-600 dark:text-gray-400">
+            Join thousands who have already taken control of their subscription spending.
+          </p>
         </div>
 
-        <dl className="mt-16 grid grid-cols-2 gap-8 sm:grid-cols-4">
+        <dl className="mt-16 grid grid-cols-2 gap-6 lg:grid-cols-4">
           {stats.map((stat) => (
             <div
               key={stat.id}
-              className="flex flex-col items-center rounded-2xl border border-gray-200 bg-white p-8 text-center dark:border-gray-800 dark:bg-gray-900"
+              className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-8 text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 dark:border-gray-800 dark:bg-gray-900"
             >
-              <dt className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                {stat.name}
-              </dt>
-              <dd className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
+              {/* Gradient background on hover */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 transition-opacity duration-300 group-hover:opacity-5`} />
+              
+              <div className={`relative mx-auto flex size-14 items-center justify-center rounded-xl ${stat.bgColor}`}>
+                <stat.icon className={`size-7 bg-gradient-to-br ${stat.color} bg-clip-text text-transparent`} style={{ WebkitTextFillColor: 'transparent', backgroundClip: 'text' }} />
+              </div>
+              
+              <dd className="relative mt-4 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl dark:text-white">
                 <AnimatedCounter
                   value={stat.value}
                   prefix={stat.prefix}
                   suffix={stat.suffix}
+                  inView={inView}
                 />
               </dd>
+              
+              <dt className="relative mt-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+                {stat.name}
+              </dt>
             </div>
           ))}
         </dl>

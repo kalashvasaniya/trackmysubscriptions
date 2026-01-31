@@ -1,3 +1,5 @@
+"use client"
+
 import {
   RiBellLine,
   RiCalendarLine,
@@ -5,86 +7,130 @@ import {
   RiFolderLine,
   RiGiftLine,
   RiListCheck2,
+  RiLineChartLine,
+  RiShieldCheckLine,
 } from "@remixicon/react"
 
 const features = [
   {
     name: "CSV Import & Export",
     description:
-      "Update your subscriptions in bulk and take your own backups with the CSV import/export function.",
+      "Import your subscriptions in bulk via CSV or export your data anytime for backup and analysis.",
     icon: RiFileExcelLine,
-    color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    color: "from-emerald-500 to-teal-600",
+    bgColor: "bg-emerald-500/10",
+    textColor: "text-emerald-600 dark:text-emerald-400",
   },
   {
     name: "Track Everything",
     description:
-      "Use SubTracker to set up alerts for everything: warranties, rent, gym memberships, loans, and more.",
+      "From streaming services to gym memberships, warranties to loans — track all your recurring expenses.",
     icon: RiListCheck2,
-    color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    color: "from-blue-500 to-indigo-600",
+    bgColor: "bg-blue-500/10",
+    textColor: "text-blue-600 dark:text-blue-400",
   },
   {
     name: "Lifetime Deal Tracking",
     description:
-      "Keep track of FREE trials, never miss a refund date, and see how much you've saved by having a lifetime deal!",
+      "Keep track of lifetime deals, see how much you've saved, and never miss a refund window.",
     icon: RiGiftLine,
-    color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+    color: "from-purple-500 to-pink-600",
+    bgColor: "bg-purple-500/10",
+    textColor: "text-purple-600 dark:text-purple-400",
   },
   {
-    name: "Organized For You",
+    name: "Smart Organization",
     description:
-      "With folders, tags, and payment methods, you can organize and filter all your subscriptions for easy management.",
+      "Organize with folders, tags, and payment methods. Filter and find any subscription instantly.",
     icon: RiFolderLine,
-    color: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
+    color: "from-orange-500 to-amber-600",
+    bgColor: "bg-orange-500/10",
+    textColor: "text-orange-600 dark:text-orange-400",
   },
   {
-    name: "Smart Alerts",
+    name: "Intelligent Alerts",
     description:
-      "Customize your alerts, cancel BEFORE your next charge, and even send alerts to someone else.",
+      "Get notified before renewals via email. Customize timing and never be surprised by a charge.",
     icon: RiBellLine,
-    color: "bg-red-500/10 text-red-600 dark:text-red-400",
+    color: "from-red-500 to-rose-600",
+    bgColor: "bg-red-500/10",
+    textColor: "text-red-600 dark:text-red-400",
   },
   {
     name: "Calendar View",
     description:
-      "See exactly when payments are due. Full month or list view to identify expensive months.",
+      "Visualize your payments on a beautiful calendar. Identify expensive months at a glance.",
     icon: RiCalendarLine,
-    color: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400",
+    color: "from-cyan-500 to-blue-600",
+    bgColor: "bg-cyan-500/10",
+    textColor: "text-cyan-600 dark:text-cyan-400",
+  },
+  {
+    name: "Detailed Analytics",
+    description:
+      "Get insights into your spending patterns, category breakdowns, and month-over-month trends.",
+    icon: RiLineChartLine,
+    color: "from-indigo-500 to-purple-600",
+    bgColor: "bg-indigo-500/10",
+    textColor: "text-indigo-600 dark:text-indigo-400",
+  },
+  {
+    name: "Secure & Private",
+    description:
+      "Your data is encrypted and secure. We never share your information with third parties.",
+    icon: RiShieldCheckLine,
+    color: "from-gray-500 to-gray-600",
+    bgColor: "bg-gray-500/10",
+    textColor: "text-gray-600 dark:text-gray-400",
   },
 ]
 
 export function Features() {
   return (
-    <section id="features" className="py-24 sm:py-32">
+    <section id="features" className="relative py-24 sm:py-32 overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute left-1/4 top-0 h-[500px] w-[500px] rounded-full bg-blue-100/50 blur-3xl dark:bg-blue-900/20" />
+        <div className="absolute right-1/4 bottom-0 h-[500px] w-[500px] rounded-full bg-purple-100/50 blur-3xl dark:bg-purple-900/20" />
+      </div>
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-base font-semibold text-blue-600 dark:text-blue-400">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-4 py-1.5 text-sm font-medium text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+            <span className="size-1.5 rounded-full bg-blue-500 animate-pulse" />
             Features
+          </div>
+          <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
+            Everything you need to{" "}
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              take control
+            </span>
           </h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
-            Simple to Set Up, Easy to Manage
-          </p>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-            Everything you need to take control of your subscriptions, automatic
-            for your convenience.
+          <p className="mt-6 text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+            Simple to set up, powerful to use. All the tools you need to manage your subscriptions effortlessly.
           </p>
         </div>
 
-        <div className="mx-auto mt-16 max-w-5xl">
-          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
+        <div className="mx-auto mt-16 max-w-6xl">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {features.map((feature, index) => (
               <div
                 key={feature.name}
-                className="group relative rounded-2xl border border-gray-200 bg-white p-6 transition hover:border-gray-300 hover:shadow-lg dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700"
+                className="group relative rounded-2xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:border-gray-300 hover:shadow-xl hover:-translate-y-1 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700"
               >
-                <div
-                  className={`inline-flex rounded-lg p-3 ${feature.color}`}
-                >
-                  <feature.icon className="size-6" />
+                {/* Gradient overlay on hover */}
+                <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${feature.color} opacity-0 transition-opacity duration-300 group-hover:opacity-5`} />
+                
+                <div className={`relative inline-flex rounded-xl p-3 ${feature.bgColor}`}>
+                  <feature.icon className={`size-6 ${feature.textColor}`} />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+                
+                <h3 className="relative mt-4 text-lg font-semibold text-gray-900 dark:text-white">
                   {feature.name}
                 </h3>
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                
+                <p className="relative mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
                   {feature.description}
                 </p>
               </div>
