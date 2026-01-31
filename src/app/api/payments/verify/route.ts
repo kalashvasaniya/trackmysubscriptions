@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth"
 import dbConnect from "@/lib/mongodb"
 import mongoose from "mongoose"
 
-// Verify one-time payment and grant lifetime access
+// Check payment status from database (webhook sets the actual status)
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
@@ -15,57 +15,36 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const body = await request.json().catch(() => ({}))
-    const paymentId = body.paymentId ?? body.subscriptionId ?? body.sessionId ?? body.checkoutId
-    const paymentStatus = body.status
+    await dbConnect()
+    const db = mongoose.connection.db
 
-    // Save when user landed from success redirect (Dodo confirmed payment)
-    const isSuccess =
-      paymentStatus === "active" ||
-      paymentStatus === "succeeded" ||
-      paymentId
+    if (!db) {
+      throw new Error("Database connection failed")
+    }
 
-    if (isSuccess) {
-      await dbConnect()
-      const db = mongoose.connection.db
+    // Check if payment was confirmed by webhook
+    const payment = await db.collection("payments").findOne({
+      email: session.user.email,
+      status: "active",
+      plan: "lifetime",
+    })
 
-      if (!db) {
-        throw new Error("Database connection failed")
-      }
-
-      // Save one-time payment data - grants lifetime access
-      await db.collection("payments").updateOne(
-        { email: session.user.email },
-        {
-          $set: {
-            email: session.user.email,
-            name: session.user.name || "Customer",
-            paymentId: paymentId || null,
-            status: "active",
-            plan: "lifetime",
-            isPro: true,
-            paidAt: new Date(),
-            updatedAt: new Date(),
-          },
-        },
-        { upsert: true }
-      )
-
-      console.log(`Lifetime access granted for ${session.user.email}`)
-
+    if (payment) {
       return NextResponse.json({
         success: true,
         isPro: true,
         status: "active",
         plan: "lifetime",
-        paymentId,
-        message: "Lifetime access activated successfully",
+        message: "Lifetime access confirmed",
       })
     }
 
+    // Payment not yet confirmed by webhook - tell user to wait
     return NextResponse.json({
       success: false,
-      message: "Invalid payment status",
+      isPro: false,
+      status: "pending",
+      message: "Payment is being processed. Please wait a moment.",
     })
   } catch (error) {
     console.error("Payment verification error:", error)

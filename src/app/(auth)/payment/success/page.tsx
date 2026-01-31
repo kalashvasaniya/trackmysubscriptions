@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useState, Suspense, useCallback } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { RiLoader4Line, RiCheckboxCircleLine, RiErrorWarningLine } from "@remixicon/react"
 
@@ -9,56 +9,71 @@ function PaymentSuccessContent() {
   const router = useRouter()
   const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying")
   const [message, setMessage] = useState("Verifying your payment...")
+  const [attempts, setAttempts] = useState(0)
+  const maxAttempts = 30 // Poll for up to 60 seconds (30 attempts * 2 seconds)
+
+  const checkPayment = useCallback(async () => {
+    try {
+      const response = await fetch("/api/payments/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      })
+
+      const result = await response.json()
+
+      if (response.ok && result.success && result.status === "active") {
+        setStatus("success")
+        setMessage("Payment verified! Redirecting to dashboard...")
+        setTimeout(() => {
+          router.push("/dashboard")
+        }, 2000)
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error("Verification error:", error)
+      return false
+    }
+  }, [router])
 
   useEffect(() => {
-    async function verifyAndSave() {
-      // Dodo may send payment_id, subscription_id, session_id, or checkout_id
-      const paymentId =
-        searchParams.get("payment_id") ||
-        searchParams.get("subscription_id") ||
-        searchParams.get("session_id") ||
-        searchParams.get("checkout_id")
-      const paymentStatus = searchParams.get("status")
+    const paymentId = searchParams.get("payment_id") || searchParams.get("session_id")
+    const paymentStatus = searchParams.get("status")
 
-      // Allow verify when user landed from payment (has any id or status=active)
-      if (!paymentId && paymentStatus !== "active" && paymentStatus !== "succeeded") {
-        setStatus("error")
-        setMessage("Invalid payment information")
+    // Must have payment_id and succeeded status from Dodo redirect
+    if (!paymentId || (paymentStatus !== "succeeded" && paymentStatus !== "active")) {
+      setStatus("error")
+      setMessage("Invalid payment information")
+      return
+    }
+
+    // Start polling for webhook confirmation
+    const pollInterval = setInterval(async () => {
+      const confirmed = await checkPayment()
+      
+      if (confirmed) {
+        clearInterval(pollInterval)
         return
       }
 
-      try {
-        const response = await fetch("/api/payments/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            paymentId,
-            status: paymentStatus || "active",
-          }),
-        })
-
-        const result = await response.json()
-
-        if (response.ok && result.success) {
-          setStatus("success")
-          setMessage("Payment verified! Redirecting to dashboard...")
-
-          setTimeout(() => {
-            router.push("/dashboard")
-          }, 2000)
-        } else {
+      setAttempts((prev) => {
+        const newAttempts = prev + 1
+        if (newAttempts >= maxAttempts) {
+          clearInterval(pollInterval)
           setStatus("error")
-          setMessage(result.error || "Failed to verify payment")
+          setMessage("Payment verification timed out. If you were charged, please contact support.")
+        } else {
+          setMessage(`Confirming payment... (${newAttempts}/${maxAttempts})`)
         }
-      } catch (error) {
-        console.error("Verification error:", error)
-        setStatus("error")
-        setMessage("Something went wrong. Please contact support.")
-      }
-    }
+        return newAttempts
+      })
+    }, 2000)
 
-    verifyAndSave()
-  }, [searchParams, router])
+    // Initial check
+    checkPayment()
+
+    return () => clearInterval(pollInterval)
+  }, [searchParams, checkPayment])
 
   return (
     <div className="mx-4 w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-lg dark:border-gray-800 dark:bg-gray-900">
