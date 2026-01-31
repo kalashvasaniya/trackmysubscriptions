@@ -16,7 +16,6 @@ import {
   RiDeleteBinLine,
   RiDownloadLine,
   RiLoader4Line,
-  RiMailSendLine,
 } from "@remixicon/react"
 import { useSession, signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
@@ -44,12 +43,10 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isSavingPreferences, setIsSavingPreferences] = useState(false)
   const [isSavingNotifications, setIsSavingNotifications] = useState(false)
-  const [isSendingTestEmail, setIsSendingTestEmail] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [message, setMessage] = useState("")
   const [preferencesMessage, setPreferencesMessage] = useState("")
   const [notificationsMessage, setNotificationsMessage] = useState("")
-  const [testEmailMessage, setTestEmailMessage] = useState("")
 
   useEffect(() => {
     fetchUserProfile()
@@ -161,31 +158,6 @@ export default function SettingsPage() {
       )
     } finally {
       setIsSavingNotifications(false)
-    }
-  }
-
-  const handleSendTestEmail = async () => {
-    setIsSendingTestEmail(true)
-    setTestEmailMessage("")
-
-    try {
-      const response = await fetch("/api/alerts/test", {
-        method: "POST",
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to send test email")
-      }
-
-      setTestEmailMessage(`Test email sent to ${email}!`)
-    } catch (err) {
-      setTestEmailMessage(
-        err instanceof Error ? err.message : "Failed to send test email",
-      )
-    } finally {
-      setIsSendingTestEmail(false)
     }
   }
 
@@ -441,40 +413,17 @@ export default function SettingsPage() {
               </p>
             )}
 
-            <div className="flex flex-wrap gap-3">
-              <Button
-                onClick={handleSaveNotifications}
-                disabled={isSavingNotifications}
-              >
-                {isSavingNotifications ? (
-                  <RiLoader4Line className="mr-2 size-4 animate-spin" />
-                ) : (
-                  <RiSaveLine className="mr-2 size-4" />
-                )}
-                Save Notifications
-              </Button>
-
-              <Button
-                variant="secondary"
-                onClick={handleSendTestEmail}
-                disabled={isSendingTestEmail || !emailAlerts}
-              >
-                {isSendingTestEmail ? (
-                  <RiLoader4Line className="mr-2 size-4 animate-spin" />
-                ) : (
-                  <RiMailSendLine className="mr-2 size-4" />
-                )}
-                Send Test Email
-              </Button>
-            </div>
-
-            {testEmailMessage && (
-              <p
-                className={`text-sm ${testEmailMessage.includes("sent") ? "text-emerald-600" : "text-red-600"}`}
-              >
-                {testEmailMessage}
-              </p>
-            )}
+            <Button
+              onClick={handleSaveNotifications}
+              disabled={isSavingNotifications}
+            >
+              {isSavingNotifications ? (
+                <RiLoader4Line className="mr-2 size-4 animate-spin" />
+              ) : (
+                <RiSaveLine className="mr-2 size-4" />
+              )}
+              Save Notifications
+            </Button>
           </div>
         </div>
 
