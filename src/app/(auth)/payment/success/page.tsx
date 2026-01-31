@@ -1,11 +1,22 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { RiCheckboxCircleFill, RiLoader4Line, RiArrowRightLine, RiErrorWarningLine } from "@remixicon/react"
 import { Button } from "@/components/Button"
 
-export default function PaymentSuccessPage() {
+function LoadingState() {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="text-center">
+        <RiLoader4Line className="mx-auto size-12 animate-spin text-gray-400" />
+        <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+      </div>
+    </div>
+  )
+}
+
+function PaymentSuccessContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [status, setStatus] = useState<"loading" | "success" | "pending" | "error">("loading")
@@ -158,5 +169,13 @@ export default function PaymentSuccessPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <PaymentSuccessContent />
+    </Suspense>
   )
 }
