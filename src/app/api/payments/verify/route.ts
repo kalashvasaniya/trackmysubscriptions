@@ -1,112 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server';
-import clientPromise from '@/lib/mongodb-client';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import dbConnect from "@/lib/mongodb";
+import User from "@/models/User";
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const bearerToken = process.env.DODO_PAYMENTS_API_KEY;
-    const env = process.env.DODO_PAYMENTS_ENV || 'test';
-    const baseUrl = env === 'live' ? 'https://live.dodopayments.com' : 'https://test.dodopayments.com';
-    if (!bearerToken) {
+    const session = await auth();
+    const checkoutId = request.nextUrl.searchParams.get("checkout_id");
+
+    if (!session?.user?.email) {
       return NextResponse.json(
-        { ok: false, error: 'Server not configured' },
-        { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+        { error: "Unauthorized" },
+        { status: 401 }
       );
     }
 
-    const url = new URL(req.url);
-    const sessionId = url.searchParams.get('session_id') || url.searchParams.get('sessionId') || '';
-    const paymentId = url.searchParams.get('payment_id') || url.searchParams.get('paymentId') || '';
-    const checkId = sessionId || paymentId;
+    await dbConnect();
 
-    if (!checkId) {
-      // Nothing to verify
+    const user = await User.findOne({ email: session.user.email.toLowerCase() });
+
+    if (!user) {
       return NextResponse.json(
-        { ok: false },
-        { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+        { error: "User not found" },
+        { status: 404 }
       );
     }
 
-    // Validate ID to prevent path injection/SSRF
-    const idSchema = z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/);
-    const parsed = idSchema.safeParse(checkId);
-    if (!parsed.success) {
-      return NextResponse.json(
-        { ok: false, error: 'Invalid ID' },
-        { status: 400, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
-      );
-    }
+    // Check if user has paid
+    const isPaid = user.payment?.status === "paid";
+    
+    // Also check if checkout ID matches (for immediate verification after payment)
+    const checkoutMatches = checkoutId && user.payment?.polarCheckoutId === checkoutId;
 
-    // Try checkout sessions endpoint first (new API)
-    let resp = await fetch(`${baseUrl}/checkouts/${checkId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${bearerToken}`,
-      },
+    return NextResponse.json({
+      verified: isPaid,
+      status: user.payment?.status || "free",
+      checkoutMatches,
     });
-
-    let data = await resp.json().catch(() => ({} as any));
-    
-    // If checkout not found and we have a paymentId, try the old payments endpoint
-    if (!resp.ok && paymentId) {
-      resp = await fetch(`${baseUrl}/payments/${paymentId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${bearerToken}`,
-        },
-      });
-      data = await resp.json().catch(() => ({} as any));
-    }
-
-    if (!resp.ok) {
-      return NextResponse.json(
-        { ok: false, error: data?.message || 'Failed to verify' },
-        { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
-      );
-    }
-
-    // Check if payment succeeded
-    const paymentStatus = data?.status || data?.payment_status;
-    
-    if (paymentStatus === 'succeeded' || paymentStatus === 'paid') {
-      try {
-        const client = await clientPromise;
-        const db = client.db();
-        const usersCollection = db.collection('users');
-        // Check all possible email locations in Dodo response
-        const userEmail = 
-          data?.metadata?.userEmail || 
-          data?.customer?.email || 
-          data?.customer_email ||  // Dodo uses snake_case
-          data?.email || 
-          null;
-        
-        if (userEmail) {
-          const emailSchema = z.string().email();
-          const parsedEmail = emailSchema.safeParse(String(userEmail));
-          
-          if (parsedEmail.success) {
-            await usersCollection.updateOne(
-              { email: parsedEmail.data },
-              { $set: { payment: true, updatedAt: new Date() } }
-            );
-          }
-        }
-      } catch (e) {
-        // Silently handle database errors
-      }
-    }
-
+  } catch (error) {
+    console.error("Payment verification error:", error);
     return NextResponse.json(
-      { ok: true, status: paymentStatus || 'unknown' },
-      { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
-    );
-  } catch (err) {
-    return NextResponse.json(
-      { ok: false },
-      { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+      { error: "Verification failed" },
+      { status: 500 }
     );
   }
 }

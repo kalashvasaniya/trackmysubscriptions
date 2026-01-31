@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/Button"
-import { RiCheckLine, RiArrowRightLine, RiLoader4Line, RiShieldCheckLine, RiSparklingLine } from "@remixicon/react"
+import { RiCheckLine, RiArrowRightLine, RiShieldCheckLine, RiSparklingLine } from "@remixicon/react"
 import { useSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
 
 const features = [
   "Unlimited subscriptions",
@@ -17,13 +16,13 @@ const features = [
   "All future updates",
 ]
 
+// Polar product ID - set this in your .env.local
+const POLAR_PRODUCT_ID = process.env.NEXT_PUBLIC_POLAR_PRODUCT_ID
+
 export function Pricing() {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [inView, setInView] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const { data: session } = useSession()
-  const router = useRouter()
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -36,33 +35,13 @@ export function Pricing() {
     return () => observer.disconnect()
   }, [])
 
-  const handleCheckout = async () => {
-    if (!session) {
-      router.push("/register")
-      return
+  // Build checkout URL with optional customer info
+  const getCheckoutUrl = () => {
+    const baseUrl = `/api/checkout?products=${POLAR_PRODUCT_ID}`
+    if (session?.user?.email) {
+      return `${baseUrl}&customerEmail=${encodeURIComponent(session.user.email)}`
     }
-
-    setLoading(true)
-    setError(null)
-
-    try {
-      const response = await fetch("/api/payments/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl
-      } else {
-        setError(data.error || "Failed to start checkout")
-      }
-    } catch (err) {
-      setError("Something went wrong. Please try again.")
-    } finally {
-      setLoading(false)
-    }
+    return baseUrl
   }
 
   return (
@@ -115,26 +94,15 @@ export function Pricing() {
             {/* CTA */}
             <div className="mt-6 sm:mt-8">
               <Button 
+                asChild
                 size="lg" 
                 className="w-full text-sm sm:text-base py-5 sm:py-6"
-                onClick={handleCheckout}
-                disabled={loading}
               >
-                {loading ? (
-                  <>
-                    <RiLoader4Line className="size-4 sm:size-5 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    Get Started Now
-                    <RiArrowRightLine className="size-4 sm:size-5" />
-                  </>
-                )}
+                <a href={getCheckoutUrl()}>
+                  Get Started Now
+                  <RiArrowRightLine className="size-4 sm:size-5" />
+                </a>
               </Button>
-              {error && (
-                <p className="mt-2 sm:mt-3 text-center text-xs sm:text-sm text-red-500">{error}</p>
-              )}
             </div>
 
             {/* Features */}

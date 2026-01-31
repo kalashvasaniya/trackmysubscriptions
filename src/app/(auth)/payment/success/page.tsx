@@ -1,147 +1,162 @@
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
-import { RiLoader4Line, RiCheckboxCircleLine, RiErrorWarningLine } from "@remixicon/react"
-
-function PaymentSuccessContent() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const [status, setStatus] = useState<"verifying" | "success" | "error">("verifying")
-  const [message, setMessage] = useState("Verifying your payment...")
-
-  useEffect(() => {
-    async function verifyAndSave() {
-      // First check if user already has payment access
-      try {
-        const statusResponse = await fetch("/api/payments/status")
-        const statusResult = await statusResponse.json()
-        
-        if (statusResult.paid) {
-          // User already has access, redirect to dashboard
-          setStatus("success")
-          setMessage("You already have access! Redirecting to dashboard...")
-          setTimeout(() => {
-            router.push("/dashboard")
-          }, 1500)
-          return
-        }
-      } catch (e) {
-        // Continue with verification if status check fails
-      }
-
-      // Dodo may send payment_id, subscription_id, session_id, or checkout_id
-      const paymentId =
-        searchParams.get("payment_id") ||
-        searchParams.get("subscription_id") ||
-        searchParams.get("session_id") ||
-        searchParams.get("checkout_id")
-      const paymentStatus = searchParams.get("status")
-
-      // Allow verify when user landed from payment (has any id or status=active)
-      if (!paymentId && paymentStatus !== "active" && paymentStatus !== "succeeded") {
-        setStatus("error")
-        setMessage("Invalid payment information")
-        return
-      }
-
-      try {
-        // Build query params for GET request
-        const params = new URLSearchParams()
-        if (paymentId) params.set("payment_id", paymentId)
-        
-        const response = await fetch(`/api/payments/verify?${params.toString()}`)
-        const result = await response.json()
-
-        if (response.ok && result.ok && (result.status === "succeeded" || result.status === "paid")) {
-          setStatus("success")
-          setMessage("Payment verified! Redirecting to dashboard...")
-
-          setTimeout(() => {
-            router.push("/dashboard")
-          }, 2000)
-        } else {
-          setStatus("error")
-          setMessage(result.error || "Failed to verify payment")
-        }
-      } catch (error) {
-        console.error("Verification error:", error)
-        setStatus("error")
-        setMessage("Something went wrong. Please contact support.")
-      }
-    }
-
-    verifyAndSave()
-  }, [searchParams, router])
-
-  return (
-    <div className="mx-4 w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-lg dark:border-gray-800 dark:bg-gray-900">
-      {status === "verifying" && (
-        <>
-          <RiLoader4Line className="mx-auto size-16 animate-spin text-blue-500" />
-          <h1 className="mt-6 text-2xl font-bold text-gray-900 dark:text-white">
-            Processing Payment
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">{message}</p>
-        </>
-      )}
-
-      {status === "success" && (
-        <>
-          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-            <RiCheckboxCircleLine className="size-10 text-emerald-500" />
-          </div>
-          <h1 className="mt-6 text-2xl font-bold text-gray-900 dark:text-white">
-            Payment Successful!
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">{message}</p>
-          <div className="mt-6">
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-4 py-2 text-sm font-medium text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-              <RiCheckboxCircleLine className="size-4" />
-              Lifetime Access Activated
-            </div>
-          </div>
-        </>
-      )}
-
-      {status === "error" && (
-        <>
-          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
-            <RiErrorWarningLine className="size-10 text-red-500" />
-          </div>
-          <h1 className="mt-6 text-2xl font-bold text-gray-900 dark:text-white">
-            Verification Failed
-          </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">{message}</p>
-          <button
-            onClick={() => router.push("/dashboard")}
-            className="mt-6 rounded-lg bg-blue-500 px-6 py-2 text-white hover:bg-blue-600"
-          >
-            Go to Dashboard
-          </button>
-        </>
-      )}
-    </div>
-  )
-}
-
-function LoadingFallback() {
-  return (
-    <div className="mx-4 w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-lg dark:border-gray-800 dark:bg-gray-900">
-      <RiLoader4Line className="mx-auto size-16 animate-spin text-blue-500" />
-      <h1 className="mt-6 text-2xl font-bold text-gray-900 dark:text-white">
-        Loading...
-      </h1>
-    </div>
-  )
-}
+import { RiCheckboxCircleFill, RiLoader4Line, RiArrowRightLine, RiErrorWarningLine } from "@remixicon/react"
+import { Button } from "@/components/Button"
 
 export default function PaymentSuccessPage() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [status, setStatus] = useState<"loading" | "success" | "pending" | "error">("loading")
+  const [attempts, setAttempts] = useState(0)
+  const checkoutId = searchParams.get("checkout_id")
+
+  const verifyPayment = useCallback(async () => {
+    if (!checkoutId) {
+      setStatus("error")
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/payments/verify?checkout_id=${checkoutId}`)
+      const data = await res.json()
+
+      if (data.verified) {
+        setStatus("success")
+        // Auto-redirect to dashboard after 2 seconds
+        setTimeout(() => router.push("/dashboard"), 2000)
+      } else if (attempts < 10) {
+        // Payment not yet confirmed, keep polling (webhook may be delayed)
+        setStatus("pending")
+        setAttempts((prev) => prev + 1)
+      } else {
+        // After 10 attempts (~30 seconds), show manual redirect option
+        setStatus("pending")
+      }
+    } catch {
+      if (attempts < 5) {
+        setAttempts((prev) => prev + 1)
+      } else {
+        setStatus("error")
+      }
+    }
+  }, [checkoutId, attempts, router])
+
+  useEffect(() => {
+    // Initial verification after short delay
+    const timer = setTimeout(verifyPayment, 1500)
+    return () => clearTimeout(timer)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    // Poll for payment verification if pending
+    if (status === "pending" && attempts < 10) {
+      const timer = setTimeout(verifyPayment, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [status, attempts, verifyPayment])
+
+  if (status === "loading") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <RiLoader4Line className="mx-auto size-12 animate-spin text-gray-400" />
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Verifying your payment...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === "error") {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="mx-auto max-w-md px-4 text-center">
+          <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg dark:border-gray-800 dark:bg-gray-900">
+            <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+              <RiErrorWarningLine className="size-10 text-red-500" />
+            </div>
+            <h1 className="mt-6 text-2xl font-semibold text-gray-900 dark:text-white">
+              Verification Failed
+            </h1>
+            <p className="mt-3 text-gray-600 dark:text-gray-400">
+              We couldn&apos;t verify your payment. If you completed the payment, please contact support.
+            </p>
+            <div className="mt-8 space-y-3">
+              <Button className="w-full" onClick={() => router.push("/")}>
+                Go Home
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (status === "pending") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+        <div className="mx-auto max-w-md px-4 text-center">
+          <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg dark:border-gray-800 dark:bg-gray-900">
+            <RiLoader4Line className="mx-auto size-12 animate-spin text-amber-500" />
+            <h1 className="mt-6 text-2xl font-semibold text-gray-900 dark:text-white">
+              Processing Payment...
+            </h1>
+            <p className="mt-3 text-gray-600 dark:text-gray-400">
+              Your payment is being processed. This usually takes a few seconds.
+            </p>
+            {attempts >= 10 && (
+              <div className="mt-8 space-y-3">
+                <Button className="w-full" onClick={() => router.push("/dashboard")}>
+                  Continue to Dashboard
+                  <RiArrowRightLine className="size-4" />
+                </Button>
+                <p className="text-xs text-gray-500">
+                  If you completed the payment, your access will be activated shortly.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
-      <Suspense fallback={<LoadingFallback />}>
-        <PaymentSuccessContent />
-      </Suspense>
+      <div className="mx-auto max-w-md px-4 text-center">
+        <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-lg dark:border-gray-800 dark:bg-gray-900">
+          <div className="mx-auto flex size-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+            <RiCheckboxCircleFill className="size-10 text-emerald-500" />
+          </div>
+          
+          <h1 className="mt-6 text-2xl font-semibold text-gray-900 dark:text-white">
+            Payment Successful!
+          </h1>
+          
+          <p className="mt-3 text-gray-600 dark:text-gray-400">
+            Thank you for your purchase. You now have lifetime access to all features.
+          </p>
+
+          <p className="mt-4 text-sm text-emerald-600 dark:text-emerald-400">
+            Redirecting to dashboard...
+          </p>
+
+          <div className="mt-8 space-y-3">
+            <Button 
+              className="w-full" 
+              onClick={() => router.push("/dashboard")}
+            >
+              Go to Dashboard
+              <RiArrowRightLine className="size-4" />
+            </Button>
+          </div>
+
+          <p className="mt-6 text-xs text-gray-500">
+            Order ID: {checkoutId}
+          </p>
+        </div>
+      </div>
     </div>
   )
 }
