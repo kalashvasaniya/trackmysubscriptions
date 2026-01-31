@@ -2,15 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/Button"
-import { RiArrowRightLine, RiCheckLine, RiPlayCircleLine, RiStarFill, RiShieldCheckLine } from "@remixicon/react"
+import { RiArrowRightLine, RiCheckLine, RiPlayCircleLine, RiShieldCheckLine } from "@remixicon/react"
 import Link from "next/link"
-
-const features = [
-  "Track unlimited subscriptions",
-  "Get alerts before charges",
-  "Export to CSV anytime",
-  "160+ currencies supported",
-]
 
 export function Hero() {
   const [loaded, setLoaded] = useState(false)
@@ -85,40 +78,6 @@ export function Hero() {
                   See How It Works
                 </Link>
               </Button>
-            </div>
-
-            {/* Social Proof */}
-            <div 
-              className={`mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 sm:gap-6 pt-6 sm:pt-8 border-t border-gray-200 transition-all duration-700 delay-400 dark:border-gray-800 ${
-                loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-            >
-              <div className="flex items-center gap-1.5">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <RiStarFill key={i} className="size-4 text-amber-400" />
-                ))}
-                <span className="ml-2 text-sm font-medium text-gray-900 dark:text-white">4.9/5</span>
-              </div>
-              <div className="hidden sm:block h-4 w-px bg-gray-300 dark:bg-gray-700" />
-              <span className="text-sm text-gray-500 dark:text-gray-400">from 2,000+ users</span>
-            </div>
-
-            {/* Feature list */}
-            <div 
-              className={`mt-6 sm:mt-8 grid grid-cols-2 gap-x-4 gap-y-2 sm:flex sm:flex-wrap sm:gap-x-6 sm:gap-y-3 justify-center lg:justify-start transition-all duration-700 delay-500 ${
-                loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-              }`}
-            >
-              {features.map((feature, i) => (
-                <div
-                  key={feature}
-                  className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400"
-                  style={{ transitionDelay: `${i * 50 + 600}ms` }}
-                >
-                  <RiCheckLine className="size-3.5 sm:size-4 text-emerald-500 shrink-0" />
-                  <span className="truncate">{feature}</span>
-                </div>
-              ))}
             </div>
           </div>
 

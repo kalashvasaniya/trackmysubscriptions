@@ -11,7 +11,7 @@ const features = [
   "Smart email alerts",
   "Calendar view",
   "CSV import & export",
-  "160+ currencies",
+  "30+ currencies",
   "Folders & tags",
   "Analytics & reports",
   "All future updates",
