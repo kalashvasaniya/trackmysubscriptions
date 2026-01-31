@@ -1,8 +1,10 @@
 "use client"
 
 import { Button } from "@/components/Button"
-import { RiCheckLine, RiSparklingLine, RiInfinityLine, RiHeartLine } from "@remixicon/react"
-import Link from "next/link"
+import { RiCheckLine, RiSparklingLine, RiHeartLine, RiLoader4Line } from "@remixicon/react"
+import { useState } from "react"
+import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 
 const features = [
   "Unlimited subscriptions",
@@ -14,10 +16,48 @@ const features = [
   "Detailed analytics & reports",
   "All future updates included",
   "Priority support",
-  "Lifetime access — pay once, use forever",
 ]
 
 export function Pricing() {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const { data: session } = useSession()
+  const router = useRouter()
+
+  const handleCheckout = async () => {
+    // If not logged in, redirect to register
+    if (!session) {
+      router.push("/register")
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch("/api/payments/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl
+      } else {
+        setError(data.error || "Failed to start checkout")
+        console.error("Checkout error:", data)
+      }
+    } catch (err) {
+      setError("Something went wrong. Please try again.")
+      console.error("Checkout error:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <section id="pricing" className="relative py-24 sm:py-32 overflow-hidden">
       {/* Background */}
@@ -33,13 +73,14 @@ export function Pricing() {
             Pricing
           </div>
           <h2 className="mt-6 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl dark:text-white">
-            One price.{" "}
+            Simple,{" "}
             <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Lifetime access.
-            </span>
+              affordable
+            </span>{" "}
+            pricing
           </h2>
           <p className="mt-6 text-lg text-gray-600 dark:text-gray-400">
-            Pay once and get full access to SubTracker forever. No subscriptions, no recurring fees.
+            Get full access to all features for less than a coffee per month.
           </p>
         </div>
 
@@ -49,38 +90,46 @@ export function Pricing() {
             {/* Popular badge */}
             <div className="absolute -right-12 top-8 rotate-45">
               <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-12 py-1.5 text-xs font-bold text-white shadow-lg">
-                BEST VALUE
+                PRO PLAN
               </div>
             </div>
 
             <div className="text-center">
               <div className="inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-1.5 text-sm font-semibold text-blue-700 dark:bg-blue-900/50 dark:text-blue-300">
-                <RiInfinityLine className="size-4" />
-                Lifetime Deal
+                <RiSparklingLine className="size-4" />
+                Full Access
               </div>
               
               <div className="mt-6">
-                <div className="flex items-baseline justify-center gap-2">
-                  <span className="text-6xl font-bold text-gray-900 dark:text-white">$9</span>
-                  <span className="text-xl text-gray-500 line-through">$49</span>
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="text-6xl font-bold text-gray-900 dark:text-white">$5</span>
+                  <span className="text-xl text-gray-500">/month</span>
                 </div>
                 <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  One-time payment • Use forever
+                  Cancel anytime • No hidden fees
                 </p>
-              </div>
-
-              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-sm font-medium text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300">
-                <RiSparklingLine className="size-4" />
-                Save 82% — Limited time offer
               </div>
             </div>
 
             <div className="mt-8">
-              <Button size="lg" className="w-full shadow-lg shadow-blue-500/25" asChild>
-                <Link href="/register">
-                  Get Lifetime Access
-                </Link>
+              <Button 
+                size="lg" 
+                className="w-full shadow-lg shadow-blue-500/25" 
+                onClick={handleCheckout}
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <RiLoader4Line className="mr-2 size-5 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  "Get Started Now"
+                )}
               </Button>
+              {error && (
+                <p className="mt-2 text-center text-sm text-red-500">{error}</p>
+              )}
             </div>
 
             <ul className="mt-8 space-y-4">
@@ -93,7 +142,6 @@ export function Pricing() {
                 </li>
               ))}
             </ul>
-
           </div>
 
           {/* Trust badges */}
@@ -104,11 +152,11 @@ export function Pricing() {
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <RiCheckLine className="size-4 text-emerald-500" />
-              Instant access
+              Cancel anytime
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <RiCheckLine className="size-4 text-emerald-500" />
-              No recurring fees
+              Instant access
             </div>
           </div>
 
