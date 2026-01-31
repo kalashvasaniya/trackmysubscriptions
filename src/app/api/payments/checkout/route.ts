@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Create a checkout session with Dodo Payments
     // Using live endpoint - change to test.dodopayments.com for testing
-    const response = await fetch("https://test.dodopayments.com/checkouts", {
+    const response = await fetch("https://live.dodopayments.com/checkouts", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
