@@ -6,7 +6,7 @@ import { formatCurrency } from "@/lib/currency"
 import { cx } from "@/lib/utils"
 import { RiArrowRightLine, RiLoader4Line } from "@remixicon/react"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, memo } from "react"
 
 interface Subscription {
   id: string
@@ -19,12 +19,13 @@ interface Subscription {
   category?: string
 }
 
+// Moved outside component to prevent recreation on each render
 const statusConfig = {
   active: { variant: "success" as const, label: "Active", color: "emerald" },
   trial: { variant: "warning" as const, label: "Trial", color: "amber" },
   cancelled: { variant: "neutral" as const, label: "Cancelled", color: "gray" },
   paused: { variant: "default" as const, label: "Paused", color: "blue" },
-}
+} as const
 
 const categoryColors: Record<string, string> = {
   Entertainment: "#E50914",
@@ -34,7 +35,73 @@ const categoryColors: Record<string, string> = {
   Cloud: "#FF9900",
   Productivity: "#0078D4",
   default: "#6B7280",
-}
+} as const
+
+// Memoized subscription list item to prevent unnecessary re-renders
+const SubscriptionListItem = memo(function SubscriptionListItem({
+  subscription: sub,
+}: {
+  subscription: Subscription
+}) {
+  const status =
+    statusConfig[sub.status as keyof typeof statusConfig] ||
+    statusConfig.active
+  const color = categoryColors[sub.category || ""] || categoryColors.default
+
+  return (
+    <Link
+      href={`/subscriptions/${sub.id}`}
+      className="flex items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
+    >
+      <div className="flex items-center gap-4">
+        <div
+          className="flex size-12 items-center justify-center rounded-xl text-lg font-bold"
+          style={{
+            backgroundColor: `${color}15`,
+            color: color,
+          }}
+        >
+          {sub.name.charAt(0)}
+        </div>
+        <div>
+          <p className="font-medium text-gray-900 dark:text-gray-50">
+            {sub.name}
+          </p>
+          <div className="mt-1 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+            <span>{sub.category || "Uncategorized"}</span>
+            <span>•</span>
+            <span className="capitalize">{sub.billingCycle}</span>
+          </div>
+        </div>
+      </div>
+      <div className="flex items-center gap-4">
+        <div className="text-right">
+          <p className="font-semibold text-gray-900 dark:text-gray-50">
+            {formatCurrency(sub.amount, sub.currency)}
+          </p>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Next: {new Date(sub.nextBillingDate).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            })}
+          </p>
+        </div>
+        <Badge variant={status.variant} className="rounded-full">
+          <span
+            className={cx(
+              "mr-1.5 size-1.5 rounded-full",
+              status.color === "emerald" && "bg-emerald-500",
+              status.color === "amber" && "bg-amber-500",
+              status.color === "gray" && "bg-gray-500",
+              status.color === "blue" && "bg-blue-500",
+            )}
+          />
+          {status.label}
+        </Badge>
+      </div>
+    </Link>
+  )
+})
 
 export function RecentSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
@@ -111,67 +178,9 @@ export function RecentSubscriptions() {
         </div>
       ) : (
         <div className="divide-y divide-gray-100 dark:divide-gray-800">
-          {subscriptions.map((sub) => {
-            const status =
-              statusConfig[sub.status as keyof typeof statusConfig] ||
-              statusConfig.active
-            const color = categoryColors[sub.category || ""] || categoryColors.default
-            
-            return (
-              <Link
-                key={sub.id}
-                href={`/subscriptions/${sub.id}`}
-                className="flex items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className="flex size-12 items-center justify-center rounded-xl text-lg font-bold"
-                    style={{
-                      backgroundColor: `${color}15`,
-                      color: color,
-                    }}
-                  >
-                    {sub.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-gray-50">
-                      {sub.name}
-                    </p>
-                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                      <span>{sub.category || "Uncategorized"}</span>
-                      <span>•</span>
-                      <span className="capitalize">{sub.billingCycle}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="font-semibold text-gray-900 dark:text-gray-50">
-                      {formatCurrency(sub.amount, sub.currency)}
-                    </p>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                      Next: {new Date(sub.nextBillingDate).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </p>
-                  </div>
-                  <Badge variant={status.variant} className="rounded-full">
-                    <span
-                      className={cx(
-                        "mr-1.5 size-1.5 rounded-full",
-                        status.color === "emerald" && "bg-emerald-500",
-                        status.color === "amber" && "bg-amber-500",
-                        status.color === "gray" && "bg-gray-500",
-                        status.color === "blue" && "bg-blue-500",
-                      )}
-                    />
-                    {status.label}
-                  </Badge>
-                </div>
-              </Link>
-            )
-          })}
+          {subscriptions.map((sub) => (
+            <SubscriptionListItem key={sub.id} subscription={sub} />
+          ))}
         </div>
       )}
     </div>

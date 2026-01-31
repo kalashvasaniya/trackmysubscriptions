@@ -1,69 +1,85 @@
-import { auth } from "@/lib/auth"
 import dbConnect from "@/lib/mongodb"
 import Tag from "@/models/Tag"
-import { NextResponse } from "next/server"
+import {
+  requireAuth,
+  checkRateLimit,
+  errorResponse,
+  successResponse,
+  ApiErrors,
+  getClientIp,
+  handleMongoError,
+  cacheHeaders,
+} from "@/lib/api-utils"
 
 // GET all tags for the current user
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const session = await auth()
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
+    }
+    const { userId } = authResult
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Rate limiting for read operations
+    const rateLimitResult = checkRateLimit(userId, "read", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
     }
 
     await dbConnect()
 
-    const tags = await Tag.find({ userId: session.user.id }).sort({ name: 1 })
+    const tags = await Tag.find({ userId }).sort({ name: 1 })
 
-    return NextResponse.json(tags)
+    // Return with cache headers (60 seconds) and rate limit headers
+    return successResponse(tags, 200, {
+      ...cacheHeaders(60),
+      ...rateLimitResult.headers,
+    })
   } catch (error) {
     console.error("Error fetching tags:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }
 
 // POST create a new tag
 export async function POST(request: Request) {
   try {
-    const session = await auth()
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
+    }
+    const { userId } = authResult
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Rate limiting for write operations
+    const rateLimitResult = checkRateLimit(userId, "write", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
     }
 
-    const { name, color } = await request.json()
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse(ApiErrors.VALIDATION_ERROR("Invalid JSON body"))
+    }
 
-    if (!name) {
-      return NextResponse.json(
-        { error: "Tag name is required" },
-        { status: 400 },
-      )
+    const { name, color } = body as { name?: string; color?: string }
+
+    if (!name || typeof name !== "string" || name.trim().length === 0) {
+      return errorResponse(ApiErrors.VALIDATION_ERROR("Tag name is required"))
     }
 
     await dbConnect()
 
     const tag = await Tag.create({
-      name,
+      name: name.trim(),
       color: color || "#6B7280",
-      userId: session.user.id,
+      userId,
     })
 
-    return NextResponse.json(tag, { status: 201 })
-  } catch (error: any) {
+    return successResponse(tag, 201, rateLimitResult.headers)
+  } catch (error) {
     console.error("Error creating tag:", error)
-    if (error.code === 11000) {
-      return NextResponse.json(
-        { error: "A tag with this name already exists" },
-        { status: 400 },
-      )
-    }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return handleMongoError(error)
   }
 }

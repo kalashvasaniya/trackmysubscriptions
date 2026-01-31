@@ -163,3 +163,30 @@ export function getClientIp(request: Request): string | undefined {
   }
   return request.headers.get("x-real-ip") || undefined
 }
+
+// Type guard for MongoDB errors (e.g., duplicate key errors)
+export function isMongoError(error: unknown): error is { code: number; message: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof (error as { code: unknown }).code === "number"
+  )
+}
+
+// Handle common MongoDB errors with proper responses
+export function handleMongoError(error: unknown): NextResponse {
+  if (isMongoError(error)) {
+    if (error.code === 11000) {
+      return errorResponse(ApiErrors.VALIDATION_ERROR("A resource with this name already exists"))
+    }
+  }
+  return errorResponse(ApiErrors.INTERNAL_ERROR)
+}
+
+// Create cache headers for GET responses
+export function cacheHeaders(maxAge: number = 60): Record<string, string> {
+  return {
+    "Cache-Control": `private, max-age=${maxAge}, stale-while-revalidate=${maxAge * 2}`,
+  }
+}

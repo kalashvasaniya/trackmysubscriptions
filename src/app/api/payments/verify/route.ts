@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth"
 import dbConnect from "@/lib/mongodb"
 import mongoose from "mongoose"
 
-// Verify payment and save subscription status
+// Verify one-time payment and grant lifetime access
 export async function POST(request: NextRequest) {
   try {
     const session = await auth()
@@ -15,10 +15,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { subscriptionId, status } = await request.json()
+    const body = await request.json().catch(() => ({}))
+    const paymentId = body.paymentId ?? body.subscriptionId ?? body.sessionId ?? body.checkoutId
+    const paymentStatus = body.status
 
-    // If status is active, save directly (Dodo already confirmed via redirect)
-    if (status === "active" || subscriptionId) {
+    // Save when user landed from success redirect (Dodo confirmed payment)
+    const isSuccess =
+      paymentStatus === "active" ||
+      paymentStatus === "succeeded" ||
+      paymentId
+
+    if (isSuccess) {
       await dbConnect()
       const db = mongoose.connection.db
 
@@ -26,16 +33,16 @@ export async function POST(request: NextRequest) {
         throw new Error("Database connection failed")
       }
 
-      // Save subscription data
-      await db.collection("subscriptions_billing").updateOne(
+      // Save one-time payment data - grants lifetime access
+      await db.collection("payments").updateOne(
         { email: session.user.email },
         {
           $set: {
             email: session.user.email,
             name: session.user.name || "Customer",
-            subscriptionId: subscriptionId || null,
+            paymentId: paymentId || null,
             status: "active",
-            plan: "pro",
+            plan: "lifetime",
             isPro: true,
             paidAt: new Date(),
             updatedAt: new Date(),
@@ -44,15 +51,15 @@ export async function POST(request: NextRequest) {
         { upsert: true }
       )
 
-      console.log(`Subscription saved for ${session.user.email}: ${subscriptionId}`)
+      console.log(`Lifetime access granted for ${session.user.email}`)
 
       return NextResponse.json({
         success: true,
         isPro: true,
         status: "active",
-        plan: "pro",
-        subscriptionId,
-        message: "Subscription activated successfully",
+        plan: "lifetime",
+        paymentId,
+        message: "Lifetime access activated successfully",
       })
     }
 

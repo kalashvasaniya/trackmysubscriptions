@@ -84,7 +84,7 @@ export function Pricing() {
             <span className="sm:ml-2 text-gray-400 dark:text-gray-500">everything included</span>
           </h2>
           <p className="mt-4 sm:mt-6 text-base sm:text-lg text-gray-500 dark:text-gray-400">
-            Get full access for less than a coffee per month.
+            Pay once, access everything forever. Less than a coffee.
           </p>
         </div>
 
@@ -102,13 +102,13 @@ export function Pricing() {
 
             {/* Header */}
             <div className="text-center">
-              <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Pro Plan</p>
+              <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Lifetime Access</p>
               <div className="mt-3 sm:mt-4 flex items-baseline justify-center gap-1">
-                <span className="text-5xl sm:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">$5</span>
-                <span className="text-lg sm:text-xl text-gray-500">/month</span>
+                <span className="text-5xl sm:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">$9</span>
+                <span className="text-lg sm:text-xl text-gray-500">one-time</span>
               </div>
               <p className="mt-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-                Cancel anytime • No hidden fees
+                Pay once, use forever • No recurring fees
               </p>
             </div>
 
@@ -171,7 +171,7 @@ export function Pricing() {
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-500">
               <RiCheckLine className="size-3.5 sm:size-4 text-emerald-500" />
-              Cancel anytime
+              Lifetime access
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-500">
               <RiSparklingLine className="size-3.5 sm:size-4 text-emerald-500" />

@@ -26,6 +26,8 @@ export interface RateLimitConfig {
 export const RATE_LIMITS = {
   // General API limits
   api: { interval: 60000, limit: 100 }, // 100 requests per minute
+  read: { interval: 60000, limit: 120 }, // 120 reads per minute
+  write: { interval: 60000, limit: 60 }, // 60 writes per minute
   
   // Write operations
   create: { interval: 60000, limit: 30 }, // 30 creates per minute

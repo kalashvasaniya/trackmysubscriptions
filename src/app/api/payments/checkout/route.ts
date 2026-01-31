@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 
-// Dodo Payments Checkout API
+// Dodo Payments Checkout API (One-time payment - $9 lifetime access)
 // Docs: https://docs.dodopayments.com/api-reference/checkout-sessions/create
 
 export async function POST(request: NextRequest) {

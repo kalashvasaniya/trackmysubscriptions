@@ -8,7 +8,7 @@ import {
   RiAlertLine,
   RiLoader4Line,
 } from "@remixicon/react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo, memo } from "react"
 
 interface AnalyticsData {
   displayCurrency?: string
@@ -31,6 +31,53 @@ interface AnalyticsData {
     cancelled: number
   }
 }
+
+interface MetricCardProps {
+  name: string
+  value: string
+  subValue: string
+  description: string
+  icon: React.ComponentType<{ className?: string }>
+  gradient: string
+  iconBg: string
+}
+
+// Memoized metric card component to prevent unnecessary re-renders
+const MetricCard = memo(function MetricCard({
+  name,
+  value,
+  subValue,
+  description,
+  icon: Icon,
+  gradient,
+  iconBg,
+}: MetricCardProps) {
+  return (
+    <div
+      className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradient} p-6 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]`}
+    >
+      {/* Background decoration */}
+      <div className="absolute -right-4 -top-4 size-24 rounded-full bg-white/10 transition-transform duration-300 group-hover:scale-110" />
+      <div className="absolute -right-2 -top-2 size-16 rounded-full bg-white/5" />
+      
+      {/* Icon */}
+      <div className={`mb-4 inline-flex rounded-xl ${iconBg} p-2.5`}>
+        <Icon className="size-6" />
+      </div>
+      
+      {/* Content */}
+      <p className="text-sm font-medium text-white/80">{name}</p>
+      <p className="mt-1 text-3xl font-bold tracking-tight">{value}</p>
+      
+      {/* Sub info */}
+      <div className="mt-2 flex items-center gap-1.5 text-sm text-white/70">
+        <span className="font-medium text-white/90">{subValue}</span>
+        <span>•</span>
+        <span>{description}</span>
+      </div>
+    </div>
+  )
+})
 
 export function DashboardMetrics() {
   const [data, setData] = useState<AnalyticsData | null>(null)
@@ -56,6 +103,72 @@ export function DashboardMetrics() {
     fetchAnalytics()
   }, [])
 
+  // Memoize expensive calculations
+  const { upcomingThisWeek, upcomingAmount, needsAttention, currency } = useMemo(() => {
+    if (!data) return { upcomingThisWeek: [], upcomingAmount: 0, needsAttention: 0, currency: "USD" }
+    
+    const curr = data.displayCurrency || "USD"
+    const now = new Date()
+    const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+    const upcoming = data.upcomingPayments.filter((p) => {
+      const date = new Date(p.nextBillingDate)
+      return date <= sevenDaysFromNow
+    })
+    const amount = upcoming.reduce((sum, p) => sum + p.amount, 0)
+    const attention = data.statusBreakdown.trial
+
+    return { 
+      upcomingThisWeek: upcoming, 
+      upcomingAmount: amount, 
+      needsAttention: attention, 
+      currency: curr 
+    }
+  }, [data])
+
+  // Memoize metrics array
+  const metrics = useMemo(() => {
+    if (!data) return []
+    
+    return [
+      {
+        name: "Monthly Spending",
+        value: formatCurrency(data.metrics.monthlySpending, currency),
+        subValue: `${formatCurrency(data.metrics.yearlySpending, currency, { compact: true })}/yr`,
+        description: "projected yearly",
+        icon: RiWalletLine,
+        gradient: "from-blue-500 to-blue-600",
+        iconBg: "bg-blue-400/20",
+      },
+      {
+        name: "Active Subscriptions",
+        value: data.metrics.activeSubscriptions.toString(),
+        subValue: `${data.metrics.totalSubscriptions} total`,
+        description: "being tracked",
+        icon: RiFileListLine,
+        gradient: "from-emerald-500 to-emerald-600",
+        iconBg: "bg-emerald-400/20",
+      },
+      {
+        name: "Due This Week",
+        value: formatCurrency(upcomingAmount, currency),
+        subValue: `${upcomingThisWeek.length} payments`,
+        description: "next 7 days",
+        icon: RiCalendarCheckLine,
+        gradient: "from-purple-500 to-purple-600",
+        iconBg: "bg-purple-400/20",
+      },
+      {
+        name: "Needs Attention",
+        value: needsAttention.toString(),
+        subValue: needsAttention > 0 ? "trials ending" : "all good",
+        description: needsAttention > 0 ? "action required" : "no issues",
+        icon: RiAlertLine,
+        gradient: needsAttention > 0 ? "from-amber-500 to-orange-500" : "from-gray-400 to-gray-500",
+        iconBg: needsAttention > 0 ? "bg-amber-400/20" : "bg-gray-400/20",
+      },
+    ]
+  }, [data, currency, upcomingAmount, upcomingThisWeek.length, needsAttention])
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -79,87 +192,19 @@ export function DashboardMetrics() {
     )
   }
 
-  const currency = data.displayCurrency || "USD"
-
-  // Calculate upcoming payments for next 7 days
-  const now = new Date()
-  const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-  const upcomingThisWeek = data.upcomingPayments.filter((p) => {
-    const date = new Date(p.nextBillingDate)
-    return date <= sevenDaysFromNow
-  })
-  const upcomingAmount = upcomingThisWeek.reduce((sum, p) => sum + p.amount, 0)
-
-  // Calculate needs attention (trials ending soon)
-  const needsAttention = data.statusBreakdown.trial
-
-  const metrics = [
-    {
-      name: "Monthly Spending",
-      value: formatCurrency(data.metrics.monthlySpending, currency),
-      subValue: `${formatCurrency(data.metrics.yearlySpending, currency, { compact: true })}/yr`,
-      description: "projected yearly",
-      icon: RiWalletLine,
-      gradient: "from-blue-500 to-blue-600",
-      iconBg: "bg-blue-400/20",
-    },
-    {
-      name: "Active Subscriptions",
-      value: data.metrics.activeSubscriptions.toString(),
-      subValue: `${data.metrics.totalSubscriptions} total`,
-      description: "being tracked",
-      icon: RiFileListLine,
-      gradient: "from-emerald-500 to-emerald-600",
-      iconBg: "bg-emerald-400/20",
-    },
-    {
-      name: "Due This Week",
-      value: formatCurrency(upcomingAmount, currency),
-      subValue: `${upcomingThisWeek.length} payments`,
-      description: "next 7 days",
-      icon: RiCalendarCheckLine,
-      gradient: "from-purple-500 to-purple-600",
-      iconBg: "bg-purple-400/20",
-    },
-    {
-      name: "Needs Attention",
-      value: needsAttention.toString(),
-      subValue: needsAttention > 0 ? "trials ending" : "all good",
-      description: needsAttention > 0 ? "action required" : "no issues",
-      icon: RiAlertLine,
-      gradient: needsAttention > 0 ? "from-amber-500 to-orange-500" : "from-gray-400 to-gray-500",
-      iconBg: needsAttention > 0 ? "bg-amber-400/20" : "bg-gray-400/20",
-      isWarning: needsAttention > 0,
-    },
-  ]
-
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric) => (
-        <div
+        <MetricCard
           key={metric.name}
-          className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${metric.gradient} p-6 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]`}
-        >
-          {/* Background decoration */}
-          <div className="absolute -right-4 -top-4 size-24 rounded-full bg-white/10 transition-transform duration-300 group-hover:scale-110" />
-          <div className="absolute -right-2 -top-2 size-16 rounded-full bg-white/5" />
-          
-          {/* Icon */}
-          <div className={`mb-4 inline-flex rounded-xl ${metric.iconBg} p-2.5`}>
-            <metric.icon className="size-6" />
-          </div>
-          
-          {/* Content */}
-          <p className="text-sm font-medium text-white/80">{metric.name}</p>
-          <p className="mt-1 text-3xl font-bold tracking-tight">{metric.value}</p>
-          
-          {/* Sub info */}
-          <div className="mt-2 flex items-center gap-1.5 text-sm text-white/70">
-            <span className="font-medium text-white/90">{metric.subValue}</span>
-            <span>•</span>
-            <span>{metric.description}</span>
-          </div>
-        </div>
+          name={metric.name}
+          value={metric.value}
+          subValue={metric.subValue}
+          description={metric.description}
+          icon={metric.icon}
+          gradient={metric.gradient}
+          iconBg={metric.iconBg}
+        />
       ))}
     </div>
   )

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { Logo } from "@/components/Logo"
 import { RiTwitterXLine, RiGithubLine, RiLinkedinLine, RiHeartFill } from "@remixicon/react"
 
 const navigation = {
@@ -42,9 +43,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-3 lg:col-span-2">
             <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group">
               <div className="flex size-8 sm:size-10 items-center justify-center rounded-lg sm:rounded-xl bg-gray-900 transition-transform group-hover:scale-105 dark:bg-white">
-                <svg viewBox="0 0 24 24" className="size-4 sm:size-5 text-white dark:text-gray-900" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                </svg>
+                <Logo className="size-4 sm:size-5 text-white dark:text-gray-900" />
               </div>
               <span className="text-base sm:text-xl font-semibold text-gray-900 dark:text-white">
                 TrackMySubscriptions

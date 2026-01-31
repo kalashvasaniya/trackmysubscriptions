@@ -6,7 +6,7 @@ import { formatCurrency } from "@/lib/currency"
 import { cx } from "@/lib/utils"
 import { RiArrowRightLine, RiLoader4Line, RiTimeLine } from "@remixicon/react"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo, memo } from "react"
 
 interface UpcomingPayment {
   id: string
@@ -19,6 +19,7 @@ interface UpcomingPayment {
   status?: string
 }
 
+// Helper functions moved outside component
 function formatDaysFromNow(dateStr: string) {
   const date = new Date(dateStr)
   const now = new Date()
@@ -37,7 +38,7 @@ function getDaysUntil(dateStr: string) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 }
 
-// Color mapping for categories
+// Color mapping for categories - moved outside component
 const categoryColors: Record<string, string> = {
   Entertainment: "#E50914",
   Music: "#1DB954",
@@ -46,7 +47,78 @@ const categoryColors: Record<string, string> = {
   Cloud: "#FF9900",
   Productivity: "#0078D4",
   default: "#6B7280",
-}
+} as const
+
+// Memoized payment list item component
+const PaymentListItem = memo(function PaymentListItem({
+  payment,
+  displayCurrency,
+}: {
+  payment: UpcomingPayment
+  displayCurrency: string
+}) {
+  const daysUntil = getDaysUntil(payment.nextBillingDate)
+  const isUrgent = daysUntil <= 1
+  const isWarning = daysUntil <= 3
+  const color = categoryColors[payment.category || ""] || categoryColors.default
+
+  return (
+    <div
+      className={cx(
+        "flex items-center justify-between rounded-xl p-4 transition-all",
+        isUrgent
+          ? "bg-red-50 dark:bg-red-900/20"
+          : isWarning
+            ? "bg-amber-50 dark:bg-amber-900/10"
+            : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <div
+          className="flex size-10 items-center justify-center rounded-xl text-sm font-bold"
+          style={{
+            backgroundColor: `${color}15`,
+            color: color,
+          }}
+        >
+          {payment.name.charAt(0)}
+        </div>
+        <div>
+          <p className="font-medium text-gray-900 dark:text-gray-50">
+            {payment.name}
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {payment.category || payment.billingCycle}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="text-right">
+          <p className="font-semibold text-gray-900 dark:text-gray-50">
+            {formatCurrency(payment.amount, payment.currency || displayCurrency)}
+          </p>
+          <p
+            className={cx(
+              "text-sm font-medium",
+              isUrgent
+                ? "text-red-600 dark:text-red-400"
+                : isWarning
+                  ? "text-amber-600 dark:text-amber-400"
+                  : "text-gray-500 dark:text-gray-400"
+            )}
+          >
+            {formatDaysFromNow(payment.nextBillingDate)}
+          </p>
+        </div>
+        {payment.status === "trial" && (
+          <Badge variant="warning" className="rounded-full">
+            Trial
+          </Badge>
+        )}
+      </div>
+    </div>
+  )
+})
 
 export function UpcomingPayments() {
   const [payments, setPayments] = useState<UpcomingPayment[]>([])
@@ -140,70 +212,13 @@ export function UpcomingPayments() {
           </div>
         ) : (
           <div className="space-y-1">
-            {payments.map((payment) => {
-              const daysUntil = getDaysUntil(payment.nextBillingDate)
-              const isUrgent = daysUntil <= 1
-              const isWarning = daysUntil <= 3
-              const color = categoryColors[payment.category || ""] || categoryColors.default
-
-              return (
-                <div
-                  key={payment.id}
-                  className={cx(
-                    "flex items-center justify-between rounded-xl p-4 transition-all",
-                    isUrgent
-                      ? "bg-red-50 dark:bg-red-900/20"
-                      : isWarning
-                        ? "bg-amber-50 dark:bg-amber-900/10"
-                        : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="flex size-10 items-center justify-center rounded-xl text-sm font-bold"
-                      style={{
-                        backgroundColor: `${color}15`,
-                        color: color,
-                      }}
-                    >
-                      {payment.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-50">
-                        {payment.name}
-                      </p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {payment.category || payment.billingCycle}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <p className="font-semibold text-gray-900 dark:text-gray-50">
-                        {formatCurrency(payment.amount, payment.currency || displayCurrency)}
-                      </p>
-                      <p
-                        className={cx(
-                          "text-sm font-medium",
-                          isUrgent
-                            ? "text-red-600 dark:text-red-400"
-                            : isWarning
-                              ? "text-amber-600 dark:text-amber-400"
-                              : "text-gray-500 dark:text-gray-400"
-                        )}
-                      >
-                        {formatDaysFromNow(payment.nextBillingDate)}
-                      </p>
-                    </div>
-                    {payment.status === "trial" && (
-                      <Badge variant="warning" className="rounded-full">
-                        Trial
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
+            {payments.map((payment) => (
+              <PaymentListItem
+                key={payment.id}
+                payment={payment}
+                displayCurrency={displayCurrency}
+              />
+            ))}
           </div>
         )}
       </div>

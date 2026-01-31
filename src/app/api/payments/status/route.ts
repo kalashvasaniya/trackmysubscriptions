@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth"
 import dbConnect from "@/lib/mongodb"
 import mongoose from "mongoose"
 
-// Check user's subscription status
+// Check user's payment/access status (one-time purchase model)
 export async function GET() {
   try {
     const session = await auth()
@@ -18,11 +18,11 @@ export async function GET() {
     await dbConnect()
     const db = mongoose.connection.db
 
-    const subscription = await db?.collection("subscriptions_billing").findOne({
+    const payment = await db?.collection("payments").findOne({
       email: session.user.email,
     })
 
-    if (!subscription) {
+    if (!payment) {
       return NextResponse.json({
         isPro: false,
         status: "free",
@@ -31,11 +31,11 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      isPro: subscription.status === "active" && subscription.plan === "pro",
-      status: subscription.status,
-      plan: subscription.plan,
-      paidAt: subscription.paidAt,
-      subscriptionId: subscription.subscriptionId,
+      isPro: payment.status === "active" && payment.plan === "lifetime",
+      status: payment.status,
+      plan: payment.plan,
+      paidAt: payment.paidAt,
+      paymentId: payment.paymentId,
     })
   } catch (error) {
     console.error("Status check error:", error)

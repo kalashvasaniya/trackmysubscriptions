@@ -1,5 +1,6 @@
 "use client"
 import { Divider } from "@/components/Divider"
+import { Logo } from "@/components/Logo"
 import {
   Sidebar,
   SidebarContent,
@@ -22,10 +23,12 @@ import {
   RiPriceTag3Line,
   RiBankCardLine,
 } from "@remixicon/react"
+import Link from "next/link"
 import { usePathname } from "next/navigation"
 import * as React from "react"
 import { UserProfile } from "./UserProfile"
 
+// Navigation arrays defined outside component to prevent recreation on each render
 const mainNavigation = [
   {
     name: "Dashboard",
@@ -47,7 +50,7 @@ const mainNavigation = [
     href: siteConfig.baseLinks.analytics,
     icon: RiPieChartLine,
   },
-]
+] as const
 
 const organizationNavigation = [
   {
@@ -65,7 +68,7 @@ const organizationNavigation = [
     href: "/payment-methods",
     icon: RiBankCardLine,
   },
-]
+] as const
 
 const settingsNavigation = [
   {
@@ -73,38 +76,40 @@ const settingsNavigation = [
     href: siteConfig.baseLinks.settings,
     icon: RiSettings4Line,
   },
-]
+] as const
 
 export function DashboardSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname()
 
-  const isActive = (href: string) => {
+  // Memoize isActive function to prevent recreation on each render
+  const isActive = React.useCallback((href: string) => {
     if (href === "/dashboard") {
       return pathname === "/dashboard"
     }
     return pathname.startsWith(href)
-  }
+  }, [pathname])
 
   return (
     <Sidebar {...props} className="bg-gray-50 dark:bg-gray-925">
       <SidebarHeader className="px-3 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex size-9 items-center justify-center rounded-xl bg-gray-900 dark:bg-white">
-            <svg viewBox="0 0 24 24" className="size-5 text-white dark:text-gray-900" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-            </svg>
+        <Link
+          href="/"
+          className="flex items-center gap-3 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 -m-2 p-2"
+        >
+          <div className="flex size-9 items-center justify-center rounded-xl bg-gray-900 dark:bg-white shrink-0">
+            <Logo className="size-5 text-white dark:text-gray-900" />
           </div>
-          <div>
-            <span className="block text-sm font-semibold text-gray-900 dark:text-gray-50">
+          <div className="min-w-0">
+            <span className="block text-sm font-semibold text-gray-900 dark:text-gray-50 truncate">
               TrackMySubscriptions
             </span>
-            <span className="block text-xs text-gray-600 dark:text-gray-400">
+            <span className="block text-xs text-gray-600 dark:text-gray-400 truncate">
               Subscription Manager
             </span>
           </div>
-        </div>
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

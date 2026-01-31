@@ -3,7 +3,7 @@ import dbConnect from "@/lib/mongodb"
 import mongoose from "mongoose"
 import crypto from "crypto"
 
-// Dodo Payments Webhook Handler
+// Dodo Payments Webhook Handler (One-time payment model)
 // Docs: https://docs.dodopayments.com/
 
 export async function POST(request: NextRequest) {
@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
 
     switch (type) {
       case "payment.succeeded": {
-        // Payment was successful
+        // One-time payment was successful - grant lifetime access
         const { customer, product_id, payment_id } = data
         
-        await db.collection("subscriptions_billing").updateOne(
+        await db.collection("payments").updateOne(
           { email: customer.email },
           {
             $set: {
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
               productId: product_id,
               paymentId: payment_id,
               status: "active",
-              plan: "pro",
+              plan: "lifetime",
               paidAt: new Date(),
               updatedAt: new Date(),
             },
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
           { upsert: true }
         )
         
-        console.log(`Payment succeeded for ${customer.email}`)
+        console.log(`One-time payment succeeded for ${customer.email} - Lifetime access granted`)
         break
       }
 
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
         // Payment failed
         const { customer } = data
         
-        await db.collection("subscriptions_billing").updateOne(
+        await db.collection("payments").updateOne(
           { email: customer.email },
           {
             $set: {
@@ -82,51 +82,11 @@ export async function POST(request: NextRequest) {
         break
       }
 
-      case "subscription.active": {
-        // Subscription is now active
-        const { customer, subscription_id } = data
-        
-        await db.collection("subscriptions_billing").updateOne(
-          { email: customer.email },
-          {
-            $set: {
-              subscriptionId: subscription_id,
-              status: "active",
-              plan: "pro",
-              updatedAt: new Date(),
-            },
-          },
-          { upsert: true }
-        )
-        
-        console.log(`Subscription active for ${customer.email}`)
-        break
-      }
-
-      case "subscription.cancelled": {
-        // Subscription was cancelled
-        const { customer } = data
-        
-        await db.collection("subscriptions_billing").updateOne(
-          { email: customer.email },
-          {
-            $set: {
-              status: "cancelled",
-              cancelledAt: new Date(),
-              updatedAt: new Date(),
-            },
-          }
-        )
-        
-        console.log(`Subscription cancelled for ${customer.email}`)
-        break
-      }
-
       case "refund.succeeded": {
-        // Refund was processed
+        // Refund was processed - revoke access
         const { customer } = data
         
-        await db.collection("subscriptions_billing").updateOne(
+        await db.collection("payments").updateOne(
           { email: customer.email },
           {
             $set: {

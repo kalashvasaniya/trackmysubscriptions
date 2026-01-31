@@ -75,30 +75,44 @@ export async function GET(request: Request) {
       alertEnabled: true,
     }).lean()
 
-    for (const subscription of subscriptions) {
+    // Pre-filter subscriptions that need alerts to minimize user lookups
+    const subscriptionsNeedingAlerts = subscriptions.filter((subscription) => {
       const nextBillingDate = new Date(subscription.nextBillingDate)
       const daysUntil = calculateDaysUntil(nextBillingDate)
 
-      if (daysUntil < 0) continue
+      if (daysUntil < 0) return false
 
       const shouldSendAlert =
         daysUntil === subscription.alertDays ||
         daysUntil === 1 ||
         daysUntil === 0
 
-      if (!shouldSendAlert) continue
+      if (!shouldSendAlert) return false
 
       const lastAlertSent = (subscription as { lastAlertSent?: Date }).lastAlertSent
       const lastAlertDate = lastAlertSent
         ? new Date(lastAlertSent).toISOString().split("T")[0]
         : null
 
-      if (lastAlertDate === todayStr) continue
+      return lastAlertDate !== todayStr
+    })
 
+    // OPTIMIZATION: Batch fetch all users at once instead of N+1 queries
+    const userIds = [...new Set(subscriptionsNeedingAlerts.map((s) => s.userId.toString()))]
+    const users = await usersCollection
+      .find({ _id: { $in: userIds.map((id) => new ObjectId(id)) } })
+      .toArray()
+    
+    // Create a map for O(1) user lookups
+    const userMap = new Map(users.map((u) => [u._id.toString(), u]))
+
+    for (const subscription of subscriptionsNeedingAlerts) {
+      const nextBillingDate = new Date(subscription.nextBillingDate)
+      const daysUntil = calculateDaysUntil(nextBillingDate)
       const userId = subscription.userId.toString()
-      const user = await usersCollection.findOne({
-        _id: new ObjectId(userId),
-      })
+      
+      // O(1) lookup from pre-fetched users map
+      const user = userMap.get(userId)
 
       if (!user || !user.email || user.emailAlerts === false) continue
 

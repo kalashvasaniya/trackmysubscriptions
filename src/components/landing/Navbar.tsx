@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/Button"
+import { Logo } from "@/components/Logo"
 import { cx } from "@/lib/utils"
 import useScroll from "@/lib/useScroll"
 import { RiMenuLine, RiCloseLine, RiArrowRightLine } from "@remixicon/react"
@@ -30,9 +31,7 @@ export function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 sm:gap-2.5 group">
           <div className="flex size-8 sm:size-9 items-center justify-center rounded-lg sm:rounded-xl bg-gray-900 dark:bg-white transition-transform group-hover:scale-105">
-            <svg viewBox="0 0 24 24" className="size-4 sm:size-5 text-white dark:text-gray-900" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-            </svg>
+            <Logo className="size-4 sm:size-5 text-white dark:text-gray-900" />
           </div>
           <span className="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white">
             TrackMySubscriptions

@@ -6,8 +6,8 @@ import { RiArrowRightLine, RiCheckLine, RiSparklingLine } from "@remixicon/react
 import Link from "next/link"
 
 const benefits = [
-  "Free forever plan",
-  "No credit card required", 
+  "$9 one-time payment",
+  "Lifetime access", 
   "Set up in 2 minutes",
 ]
 

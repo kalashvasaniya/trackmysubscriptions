@@ -1,8 +1,16 @@
-import { auth } from "@/lib/auth"
 import dbConnect from "@/lib/mongodb"
 import PaymentMethod from "@/models/PaymentMethod"
 import Subscription from "@/models/Subscription"
-import { NextResponse } from "next/server"
+import {
+  requireAuth,
+  checkRateLimit,
+  validateObjectId,
+  errorResponse,
+  successResponse,
+  ApiErrors,
+  getClientIp,
+  cacheHeaders,
+} from "@/lib/api-utils"
 
 // GET single payment method
 export async function GET(
@@ -10,43 +18,51 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth()
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
     }
+    const { userId } = authResult
 
     const { id } = await params
+
+    // Validate ObjectId format
+    const idValidation = validateObjectId(id)
+    if (!idValidation.success) {
+      return idValidation.response
+    }
+
+    // Rate limiting
+    const rateLimitResult = checkRateLimit(userId, "read", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
+    }
+
     await dbConnect()
 
     const paymentMethod = await PaymentMethod.findOne({
       _id: id,
-      userId: session.user.id,
+      userId,
     })
 
     if (!paymentMethod) {
-      return NextResponse.json(
-        { error: "Payment method not found" },
-        { status: 404 },
-      )
+      return errorResponse(ApiErrors.NOT_FOUND)
     }
 
     // Get subscription count
     const subscriptionCount = await Subscription.countDocuments({
       paymentMethodId: id,
-      userId: session.user.id,
+      userId,
     })
 
-    return NextResponse.json({
-      ...paymentMethod.toObject(),
-      subscriptionCount,
-    })
+    return successResponse(
+      { ...paymentMethod.toObject(), subscriptionCount },
+      200,
+      { ...cacheHeaders(60), ...rateLimitResult.headers }
+    )
   } catch (error) {
     console.error("Error fetching payment method:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }
 
@@ -56,37 +72,55 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth()
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
     }
+    const { userId } = authResult
 
     const { id } = await params
-    const { name, type, lastFour } = await request.json()
+
+    // Validate ObjectId format
+    const idValidation = validateObjectId(id)
+    if (!idValidation.success) {
+      return idValidation.response
+    }
+
+    // Rate limiting
+    const rateLimitResult = checkRateLimit(userId, "write", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
+    }
+
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse(ApiErrors.VALIDATION_ERROR("Invalid JSON body"))
+    }
+
+    const { name, type, lastFour } = body as { 
+      name?: string
+      type?: string
+      lastFour?: string 
+    }
 
     await dbConnect()
 
     const paymentMethod = await PaymentMethod.findOneAndUpdate(
-      { _id: id, userId: session.user.id },
+      { _id: id, userId },
       { name, type, lastFour },
       { new: true, runValidators: true },
     )
 
     if (!paymentMethod) {
-      return NextResponse.json(
-        { error: "Payment method not found" },
-        { status: 404 },
-      )
+      return errorResponse(ApiErrors.NOT_FOUND)
     }
 
-    return NextResponse.json(paymentMethod)
+    return successResponse(paymentMethod, 200, rateLimitResult.headers)
   } catch (error) {
     console.error("Error updating payment method:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }
 
@@ -96,39 +130,46 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth()
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
     }
+    const { userId } = authResult
 
     const { id } = await params
+
+    // Validate ObjectId format
+    const idValidation = validateObjectId(id)
+    if (!idValidation.success) {
+      return idValidation.response
+    }
+
+    // Rate limiting
+    const rateLimitResult = checkRateLimit(userId, "write", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
+    }
+
     await dbConnect()
 
     const paymentMethod = await PaymentMethod.findOneAndDelete({
       _id: id,
-      userId: session.user.id,
+      userId,
     })
 
     if (!paymentMethod) {
-      return NextResponse.json(
-        { error: "Payment method not found" },
-        { status: 404 },
-      )
+      return errorResponse(ApiErrors.NOT_FOUND)
     }
 
     // Remove payment method reference from all subscriptions
     await Subscription.updateMany(
-      { paymentMethodId: id, userId: session.user.id },
+      { paymentMethodId: id, userId },
       { $unset: { paymentMethodId: "" } },
     )
 
-    return NextResponse.json({ success: true })
+    return successResponse({ success: true }, 200, rateLimitResult.headers)
   } catch (error) {
     console.error("Error deleting payment method:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }

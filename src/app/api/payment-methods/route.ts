@@ -1,66 +1,93 @@
-import { auth } from "@/lib/auth"
 import dbConnect from "@/lib/mongodb"
 import PaymentMethod from "@/models/PaymentMethod"
-import { NextResponse } from "next/server"
+import {
+  requireAuth,
+  checkRateLimit,
+  errorResponse,
+  successResponse,
+  ApiErrors,
+  getClientIp,
+  cacheHeaders,
+} from "@/lib/api-utils"
 
 // GET all payment methods for the current user
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const session = await auth()
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
+    }
+    const { userId } = authResult
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Rate limiting for read operations
+    const rateLimitResult = checkRateLimit(userId, "read", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
     }
 
     await dbConnect()
 
-    const paymentMethods = await PaymentMethod.find({
-      userId: session.user.id,
-    }).sort({ name: 1 })
+    const paymentMethods = await PaymentMethod.find({ userId }).sort({ name: 1 })
 
-    return NextResponse.json(paymentMethods)
+    // Return with cache headers (60 seconds) and rate limit headers
+    return successResponse(paymentMethods, 200, {
+      ...cacheHeaders(60),
+      ...rateLimitResult.headers,
+    })
   } catch (error) {
     console.error("Error fetching payment methods:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }
 
 // POST create a new payment method
 export async function POST(request: Request) {
   try {
-    const session = await auth()
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
+    }
+    const { userId } = authResult
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Rate limiting for write operations
+    const rateLimitResult = checkRateLimit(userId, "write", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
     }
 
-    const { name, type, lastFour } = await request.json()
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse(ApiErrors.VALIDATION_ERROR("Invalid JSON body"))
+    }
 
-    if (!name || !type) {
-      return NextResponse.json(
-        { error: "Name and type are required" },
-        { status: 400 },
-      )
+    const { name, type, lastFour } = body as { 
+      name?: string
+      type?: string
+      lastFour?: string 
+    }
+
+    if (!name || typeof name !== "string" || name.trim().length === 0) {
+      return errorResponse(ApiErrors.VALIDATION_ERROR("Name is required"))
+    }
+
+    if (!type || typeof type !== "string" || type.trim().length === 0) {
+      return errorResponse(ApiErrors.VALIDATION_ERROR("Type is required"))
     }
 
     await dbConnect()
 
     const paymentMethod = await PaymentMethod.create({
-      name,
-      type,
+      name: name.trim(),
+      type: type.trim(),
       lastFour,
-      userId: session.user.id,
+      userId,
     })
 
-    return NextResponse.json(paymentMethod, { status: 201 })
+    return successResponse(paymentMethod, 201, rateLimitResult.headers)
   } catch (error) {
     console.error("Error creating payment method:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }

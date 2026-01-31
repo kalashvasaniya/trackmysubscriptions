@@ -2,9 +2,14 @@ import { Providers } from "@/components/Providers"
 import { SidebarProvider, SidebarTrigger } from "@/components/Sidebar"
 import { DashboardSidebar } from "@/components/ui/navigation/DashboardSidebar"
 import { Breadcrumbs } from "@/components/ui/navigation/Breadcrumbs"
+import { ErrorBoundary } from "@/components/ErrorBoundary"
 import type { Metadata } from "next"
 import localFont from "next/font/local"
 import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
+import { auth } from "@/lib/auth"
+import dbConnect from "@/lib/mongodb"
+import mongoose from "mongoose"
 import "../globals.css"
 import { siteConfig } from "../siteConfig"
 
@@ -23,6 +28,14 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://trackmysubscriptions.com"),
   title: `Dashboard | ${siteConfig.name}`,
   description: siteConfig.description,
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/logo.svg", type: "image/svg+xml" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 }
 
 export default async function DashboardLayout({
@@ -30,8 +43,28 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  const session = await auth()
+
+  if (!session?.user?.email) {
+    redirect("/login")
+  }
+
+  await dbConnect()
+  const db = mongoose.connection.db
+  const payment = await db?.collection("payments").findOne({
+    email: session.user.email,
+  })
+
+  const hasAccess =
+    payment?.status === "active" && payment?.plan === "lifetime"
+
+  if (!hasAccess) {
+    redirect("/?upgrade=1#pricing")
+  }
+
   const cookieStore = await cookies()
-  const defaultOpen = cookieStore.get("sidebar:state")?.value === "true"
+  // Default sidebar open; only closed when user explicitly set it to "false"
+  const defaultOpen = cookieStore.get("sidebar:state")?.value !== "false"
 
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
@@ -47,7 +80,9 @@ export default async function DashboardLayout({
                 <div className="mr-2 h-4 w-px bg-gray-200 dark:bg-gray-800" />
                 <Breadcrumbs />
               </header>
-              <main className="min-h-[calc(100vh-4rem)]">{children}</main>
+              <main className="min-h-[calc(100vh-4rem)]">
+                <ErrorBoundary>{children}</ErrorBoundary>
+              </main>
             </div>
           </SidebarProvider>
         </Providers>

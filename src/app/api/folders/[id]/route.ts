@@ -1,8 +1,17 @@
-import { auth } from "@/lib/auth"
 import dbConnect from "@/lib/mongodb"
 import Folder from "@/models/Folder"
 import Subscription from "@/models/Subscription"
-import { NextResponse } from "next/server"
+import {
+  requireAuth,
+  checkRateLimit,
+  validateObjectId,
+  errorResponse,
+  successResponse,
+  ApiErrors,
+  getClientIp,
+  handleMongoError,
+  cacheHeaders,
+} from "@/lib/api-utils"
 
 // GET single folder
 export async function GET(
@@ -10,40 +19,51 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth()
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
     }
+    const { userId } = authResult
 
     const { id } = await params
+
+    // Validate ObjectId format
+    const idValidation = validateObjectId(id)
+    if (!idValidation.success) {
+      return idValidation.response
+    }
+
+    // Rate limiting
+    const rateLimitResult = checkRateLimit(userId, "read", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
+    }
+
     await dbConnect()
 
     const folder = await Folder.findOne({
       _id: id,
-      userId: session.user.id,
+      userId,
     })
 
     if (!folder) {
-      return NextResponse.json({ error: "Folder not found" }, { status: 404 })
+      return errorResponse(ApiErrors.NOT_FOUND)
     }
 
     // Get subscription count
     const subscriptionCount = await Subscription.countDocuments({
       folderId: id,
-      userId: session.user.id,
+      userId,
     })
 
-    return NextResponse.json({
-      ...folder.toObject(),
-      subscriptionCount,
-    })
+    return successResponse(
+      { ...folder.toObject(), subscriptionCount },
+      200,
+      { ...cacheHeaders(60), ...rateLimitResult.headers }
+    )
   } catch (error) {
     console.error("Error fetching folder:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }
 
@@ -53,40 +73,51 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth()
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
     }
+    const { userId } = authResult
 
     const { id } = await params
-    const { name, color } = await request.json()
+
+    // Validate ObjectId format
+    const idValidation = validateObjectId(id)
+    if (!idValidation.success) {
+      return idValidation.response
+    }
+
+    // Rate limiting
+    const rateLimitResult = checkRateLimit(userId, "write", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
+    }
+
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse(ApiErrors.VALIDATION_ERROR("Invalid JSON body"))
+    }
+
+    const { name, color } = body as { name?: string; color?: string }
 
     await dbConnect()
 
     const folder = await Folder.findOneAndUpdate(
-      { _id: id, userId: session.user.id },
+      { _id: id, userId },
       { name, color },
       { new: true, runValidators: true },
     )
 
     if (!folder) {
-      return NextResponse.json({ error: "Folder not found" }, { status: 404 })
+      return errorResponse(ApiErrors.NOT_FOUND)
     }
 
-    return NextResponse.json(folder)
-  } catch (error: any) {
+    return successResponse(folder, 200, rateLimitResult.headers)
+  } catch (error) {
     console.error("Error updating folder:", error)
-    if (error.code === 11000) {
-      return NextResponse.json(
-        { error: "A folder with this name already exists" },
-        { status: 400 },
-      )
-    }
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return handleMongoError(error)
   }
 }
 
@@ -96,36 +127,46 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const session = await auth()
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
     }
+    const { userId } = authResult
 
     const { id } = await params
+
+    // Validate ObjectId format
+    const idValidation = validateObjectId(id)
+    if (!idValidation.success) {
+      return idValidation.response
+    }
+
+    // Rate limiting
+    const rateLimitResult = checkRateLimit(userId, "write", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
+    }
+
     await dbConnect()
 
     const folder = await Folder.findOneAndDelete({
       _id: id,
-      userId: session.user.id,
+      userId,
     })
 
     if (!folder) {
-      return NextResponse.json({ error: "Folder not found" }, { status: 404 })
+      return errorResponse(ApiErrors.NOT_FOUND)
     }
 
     // Remove folder reference from all subscriptions
     await Subscription.updateMany(
-      { folderId: id, userId: session.user.id },
+      { folderId: id, userId },
       { $unset: { folderId: "" } },
     )
 
-    return NextResponse.json({ success: true })
+    return successResponse({ success: true }, 200, rateLimitResult.headers)
   } catch (error) {
     console.error("Error deleting folder:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }

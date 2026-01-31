@@ -118,9 +118,15 @@ const SubscriptionSchema = new Schema<ISubscription>(
   },
 )
 
-// Index for efficient queries
+// Compound indexes for efficient queries
 SubscriptionSchema.index({ userId: 1, nextBillingDate: 1 })
 SubscriptionSchema.index({ userId: 1, status: 1 })
+// Additional indexes for common query patterns
+SubscriptionSchema.index({ userId: 1, folderId: 1 })
+SubscriptionSchema.index({ userId: 1, paymentMethodId: 1 })
+SubscriptionSchema.index({ userId: 1, status: 1, nextBillingDate: 1 })
+// Index for alert cron job queries
+SubscriptionSchema.index({ status: 1, alertEnabled: 1, nextBillingDate: 1 })
 
 const Subscription: Model<ISubscription> =
   mongoose.models.Subscription ||
