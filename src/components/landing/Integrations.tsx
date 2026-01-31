@@ -6,7 +6,7 @@ import {
   RiFlashlightLine,
   RiMailLine,
   RiCalendarLine,
-  RiLinkLine,
+  RiLinksLine,
 } from "@remixicon/react"
 
 const integrations = [
@@ -48,7 +48,7 @@ const integrations = [
   {
     name: "Webhooks",
     description: "Custom integrations via webhooks",
-    icon: RiLinkLine,
+    icon: RiLinksLine,
     color: "from-gray-500 to-gray-600",
     bgColor: "bg-gray-500/10",
   },

@@ -108,7 +108,7 @@ export function validateRequest<T>(
     return { success: true, data: result }
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const message = error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ")
+      const message = error.issues.map((e) => `${e.path.join(".")}: ${e.message}`).join(", ")
       return { success: false, error: message }
     }
     return { success: false, error: "Validation failed" }

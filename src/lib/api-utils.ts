@@ -33,14 +33,14 @@ export function successResponse<T>(
   return NextResponse.json(data, { status, headers })
 }
 
-// Auth check helper
+// Auth check helper - returns userId and user email
 export async function requireAuth(): Promise<
-  { success: true; userId: string; session: Awaited<ReturnType<typeof auth>> } |
+  { success: true; userId: string; userEmail: string } |
   { success: false; response: NextResponse }
 > {
-  const session = await auth()
+  const authSession = await auth()
   
-  if (!session?.user?.id) {
+  if (!authSession?.user?.id) {
     return {
       success: false,
       response: errorResponse(ApiErrors.UNAUTHORIZED),
@@ -49,8 +49,8 @@ export async function requireAuth(): Promise<
   
   return {
     success: true,
-    userId: session.user.id,
-    session,
+    userId: authSession.user.id,
+    userEmail: authSession.user.email || "",
   }
 }
 
@@ -85,7 +85,7 @@ export function validateBody<T extends z.ZodSchema>(
   const result = schema.safeParse(body)
   
   if (!result.success) {
-    const message = result.error.errors
+    const message = result.error.issues
       .map((e) => `${e.path.join(".")}: ${e.message}`)
       .join(", ")
     return {
