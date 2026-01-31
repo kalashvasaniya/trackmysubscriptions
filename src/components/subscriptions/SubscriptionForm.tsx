@@ -9,9 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/Select"
+import { RiLoader4Line } from "@remixicon/react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
+/** Subscription from API may have folderId/paymentMethodId as populated objects. */
 interface SubscriptionFormProps {
   subscription?: {
     _id: string
@@ -28,7 +30,40 @@ interface SubscriptionFormProps {
     notes?: string
     alertDays: number
     alertEnabled: boolean
+    folderId?: string | { _id: string; name?: string; color?: string }
+    tagIds?: string[] | Array<{ _id: string } | string>
+    paymentMethodId?: string | { _id: string; name?: string; type?: string; lastFour?: string }
   }
+}
+
+function normalizeId(value: string | { _id: string } | undefined): string {
+  if (value == null) return ""
+  if (typeof value === "string") return value
+  return value._id ?? ""
+}
+
+function normalizeTagIds(value: string[] | Array<{ _id: string } | string> | undefined): string[] {
+  if (!value || !Array.isArray(value)) return []
+  return value.map((t) => (t && typeof t === "object" && "_id" in t ? t._id : String(t)))
+}
+
+interface Folder {
+  _id: string
+  name: string
+  color: string
+}
+
+interface Tag {
+  _id: string
+  name: string
+  color: string
+}
+
+interface PaymentMethod {
+  _id: string
+  name: string
+  type: string
+  lastFour?: string
 }
 
 const billingCycles = [
@@ -59,11 +94,14 @@ const categories = [
   "Other",
 ]
 
+/** Sentinel value for "None" in Select; empty string is reserved by Radix for clearing. */
+const SELECT_NONE_VALUE = "__none__"
+
 export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
   const router = useRouter()
   const isEditing = !!subscription
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => ({
     name: subscription?.name || "",
     description: subscription?.description || "",
     amount: subscription?.amount?.toString() || "",
@@ -81,10 +119,89 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
     notes: subscription?.notes || "",
     alertDays: subscription?.alertDays?.toString() || "3",
     alertEnabled: subscription?.alertEnabled ?? true,
-  })
+    folderId: normalizeId(subscription?.folderId),
+    tagIds: normalizeTagIds(subscription?.tagIds),
+    paymentMethodId: normalizeId(subscription?.paymentMethodId),
+  }))
+
+  const [folders, setFolders] = useState<Folder[]>([])
+  const [tags, setTags] = useState<Tag[]>([])
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [loadingOptions, setLoadingOptions] = useState(true)
 
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+
+  // When editing, sync form state when subscription prop is set/updated (normalize populated refs)
+  useEffect(() => {
+    if (!subscription) return
+    setFormData({
+      name: subscription.name || "",
+      description: subscription.description || "",
+      amount: subscription.amount?.toString() || "",
+      currency: subscription.currency || "USD",
+      billingCycle: subscription.billingCycle || "monthly",
+      nextBillingDate: subscription.nextBillingDate
+        ? new Date(subscription.nextBillingDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      startDate: subscription.startDate
+        ? new Date(subscription.startDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      status: subscription.status || "active",
+      category: subscription.category || "",
+      url: subscription.url || "",
+      notes: subscription.notes || "",
+      alertDays: subscription.alertDays?.toString() || "3",
+      alertEnabled: subscription.alertEnabled ?? true,
+      folderId: normalizeId(subscription.folderId),
+      paymentMethodId: normalizeId(subscription.paymentMethodId),
+      tagIds: normalizeTagIds(subscription.tagIds),
+    })
+  }, [subscription?._id])
+
+  useEffect(() => {
+    async function fetchOptions() {
+      try {
+        const [profileRes, foldersRes, tagsRes, paymentMethodsRes] =
+          await Promise.all([
+            fetch("/api/users/profile"),
+            fetch("/api/folders"),
+            fetch("/api/tags"),
+            fetch("/api/payment-methods"),
+          ])
+
+        if (profileRes.ok && !isEditing) {
+          const profile = await profileRes.json()
+          const defaultDays =
+            profile.defaultAlertDays != null
+              ? String(profile.defaultAlertDays)
+              : "3"
+          setFormData((prev) => ({ ...prev, alertDays: defaultDays }))
+        }
+
+        if (foldersRes.ok) {
+          const foldersData = await foldersRes.json()
+          setFolders(foldersData)
+        }
+
+        if (tagsRes.ok) {
+          const tagsData = await tagsRes.json()
+          setTags(tagsData)
+        }
+
+        if (paymentMethodsRes.ok) {
+          const paymentMethodsData = await paymentMethodsRes.json()
+          setPaymentMethods(paymentMethodsData)
+        }
+      } catch (err) {
+        console.error("Failed to fetch options:", err)
+      } finally {
+        setLoadingOptions(false)
+      }
+    }
+
+    fetchOptions()
+  }, [isEditing])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -103,6 +220,9 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
           ...formData,
           amount: parseFloat(formData.amount),
           alertDays: parseInt(formData.alertDays),
+          folderId: formData.folderId || undefined,
+          paymentMethodId: formData.paymentMethodId || undefined,
+          tagIds: formData.tagIds.length > 0 ? formData.tagIds : undefined,
         }),
       })
 
@@ -118,6 +238,15 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleTagToggle = (tagId: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      tagIds: prev.tagIds.includes(tagId)
+        ? prev.tagIds.filter((id) => id !== tagId)
+        : [...prev.tagIds, tagId],
+    }))
   }
 
   return (
@@ -314,6 +443,115 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
         </div>
       </div>
 
+      {/* Organization Section */}
+      <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
+          Organization
+        </h2>
+
+        {loadingOptions ? (
+          <div className="flex items-center justify-center py-4">
+            <RiLoader4Line className="size-5 animate-spin text-gray-400" />
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Folder
+              </label>
+              <Select
+                value={formData.folderId || SELECT_NONE_VALUE}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    folderId: value === SELECT_NONE_VALUE ? "" : value,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select folder" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={SELECT_NONE_VALUE}>None</SelectItem>
+                  {folders.map((folder) => (
+                    <SelectItem key={folder._id} value={folder._id}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="size-3 rounded-full"
+                          style={{ backgroundColor: folder.color }}
+                        />
+                        {folder.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Payment Method
+              </label>
+              <Select
+                value={formData.paymentMethodId || SELECT_NONE_VALUE}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    paymentMethodId:
+                      value === SELECT_NONE_VALUE ? "" : value,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select payment method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={SELECT_NONE_VALUE}>None</SelectItem>
+                  {paymentMethods.map((method) => (
+                    <SelectItem key={method._id} value={method._id}>
+                      {method.name}
+                      {method.lastFour && ` •••• ${method.lastFour}`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="sm:col-span-2">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Tags
+              </label>
+              {tags.length === 0 ? (
+                <p className="text-sm text-gray-500">
+                  No tags available. Create tags in the Tags page.
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag) => (
+                    <button
+                      key={tag._id}
+                      type="button"
+                      onClick={() => handleTagToggle(tag._id)}
+                      className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition ${
+                        formData.tagIds.includes(tag._id)
+                          ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400"
+                          : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300"
+                      }`}
+                    >
+                      <div
+                        className="size-2.5 rounded-full"
+                        style={{ backgroundColor: tag.color }}
+                      />
+                      {tag.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
         <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-50">
           Alerts & Notifications
@@ -349,7 +587,7 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
                 className="size-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Enable alerts
+                Enable email alerts
               </span>
             </label>
           </div>

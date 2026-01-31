@@ -1,9 +1,14 @@
 import { auth } from "@/lib/auth"
+import {
+  fetchExchangeRates,
+  convertWithRates,
+} from "@/lib/currency"
 import dbConnect from "@/lib/mongodb"
 import Subscription from "@/models/Subscription"
+import User from "@/models/User"
 import { NextResponse } from "next/server"
 
-// GET all subscriptions for the current user
+// GET all subscriptions (with amounts in user's display currency)
 export async function GET() {
   try {
     const session = await auth()
@@ -14,12 +19,27 @@ export async function GET() {
 
     await dbConnect()
 
+    const user = await User.findById(session.user.id).select("currency").lean()
+    const displayCurrency = user?.currency ?? "USD"
+    const rates = await fetchExchangeRates("USD")
+    const toDisplay = (amount: number, fromCurrency: string) =>
+      convertWithRates(amount, fromCurrency, displayCurrency, rates)
+
     const subscriptions = await Subscription.find({ userId: session.user.id })
       .populate("folderId", "name color")
       .populate("paymentMethodId", "name type lastFour")
       .sort({ nextBillingDate: 1 })
+      .lean()
 
-    return NextResponse.json(subscriptions)
+    const subscriptionsWithDisplay = subscriptions.map((sub) => ({
+      ...sub,
+      displayAmount: Math.round(toDisplay(sub.amount, sub.currency) * 100) / 100,
+    }))
+
+    return NextResponse.json({
+      subscriptions: subscriptionsWithDisplay,
+      displayCurrency,
+    })
   } catch (error) {
     console.error("Error fetching subscriptions:", error)
     return NextResponse.json(

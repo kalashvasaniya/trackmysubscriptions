@@ -1,24 +1,36 @@
 "use client"
 
 import { Button } from "@/components/Button"
+import { formatCurrency } from "@/lib/currency"
 import { cx } from "@/lib/utils"
 import {
   RiArrowLeftSLine,
   RiArrowRightSLine,
   RiCalendarLine,
+  RiLoader4Line,
 } from "@remixicon/react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-// Mock data - will be replaced with API call
-const subscriptions = [
-  { id: "1", name: "Netflix", amount: 14.99, day: 5, color: "#E50914" },
-  { id: "2", name: "Spotify", amount: 9.99, day: 8, color: "#1DB954" },
-  { id: "3", name: "GitHub Pro", amount: 4.0, day: 12, color: "#333333" },
-  { id: "4", name: "Adobe CC", amount: 54.99, day: 15, color: "#FF0000" },
-  { id: "5", name: "AWS", amount: 120.0, day: 20, color: "#FF9900" },
-  { id: "6", name: "Microsoft 365", amount: 8.33, day: 25, color: "#0078D4" },
-  { id: "7", name: "Figma", amount: 12.0, day: 28, color: "#F24E1E" },
-]
+interface Subscription {
+  _id: string
+  name: string
+  amount: number
+  currency: string
+  displayAmount?: number
+  nextBillingDate: string
+  billingCycle: string
+  status: string
+  category?: string
+}
+
+interface CalendarSubscription {
+  id: string
+  name: string
+  amount: number
+  day: number
+  color: string
+  status: string
+}
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 const MONTHS = [
@@ -36,6 +48,17 @@ const MONTHS = [
   "December",
 ]
 
+// Color mapping for categories
+const categoryColors: Record<string, string> = {
+  Entertainment: "#E50914",
+  Music: "#1DB954",
+  Development: "#333333",
+  Design: "#F24E1E",
+  Cloud: "#FF9900",
+  Productivity: "#0078D4",
+  default: "#6B7280",
+}
+
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate()
 }
@@ -51,11 +74,75 @@ export default function CalendarPage() {
   )
   const [selectedDay, setSelectedDay] = useState<number | null>(null)
   const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar")
+  const [subscriptions, setSubscriptions] = useState<CalendarSubscription[]>([])
+  const [displayCurrency, setDisplayCurrency] = useState("USD")
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
   const daysInMonth = getDaysInMonth(year, month)
   const firstDayOfMonth = getFirstDayOfMonth(year, month)
+
+  useEffect(() => {
+    fetchSubscriptions()
+  }, [year, month])
+
+  async function fetchSubscriptions() {
+    try {
+      setLoading(true)
+      const response = await fetch("/api/subscriptions")
+      if (!response.ok) {
+        throw new Error("Failed to fetch subscriptions")
+      }
+      const data = await response.json()
+      const subs: Subscription[] = data.subscriptions ?? data
+      setDisplayCurrency(data.displayCurrency ?? "USD")
+
+      // Transform subscriptions to calendar format (use displayAmount for display)
+      const calendarSubs: CalendarSubscription[] = subs
+        .filter((sub) => sub.status === "active" || sub.status === "trial")
+        .map((sub) => {
+          const billingDate = new Date(sub.nextBillingDate)
+          let day = billingDate.getDate()
+
+          if (
+            billingDate.getMonth() === month &&
+            billingDate.getFullYear() === year
+          ) {
+            day = billingDate.getDate()
+          } else if (sub.billingCycle === "monthly") {
+            day = Math.min(billingDate.getDate(), daysInMonth)
+          } else if (sub.billingCycle === "weekly") {
+            const dayOfWeek = billingDate.getDay()
+            const firstOfMonth = new Date(year, month, 1)
+            const firstDayOfWeek = firstOfMonth.getDay()
+            day = 1 + ((7 + dayOfWeek - firstDayOfWeek) % 7)
+          } else if (sub.billingCycle === "yearly" || sub.billingCycle === "quarterly") {
+            if (billingDate.getMonth() !== month) {
+              return null
+            }
+            day = Math.min(billingDate.getDate(), daysInMonth)
+          }
+
+          return {
+            id: sub._id,
+            name: sub.name,
+            amount: sub.displayAmount ?? sub.amount,
+            day,
+            color: categoryColors[sub.category || ""] || categoryColors.default,
+            status: sub.status,
+          }
+        })
+        .filter((sub): sub is CalendarSubscription => sub !== null)
+
+      setSubscriptions(calendarSubs)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const prevMonth = () => {
     setCurrentDate(new Date(year, month - 1, 1))
@@ -90,6 +177,24 @@ export default function CalendarPage() {
   const selectedDaySubscriptions = selectedDay
     ? getSubscriptionsForDay(selectedDay)
     : []
+
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center p-4 sm:p-6 lg:p-8">
+        <RiLoader4Line className="size-8 animate-spin text-gray-400" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+          {error}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -223,65 +328,71 @@ export default function CalendarPage() {
             ) : (
               /* List View */
               <div className="divide-y divide-gray-200 dark:divide-gray-800">
-                {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(
-                  (day) => {
-                    const daySubs = getSubscriptionsForDay(day)
-                    if (daySubs.length === 0) return null
+                {subscriptions.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    No payments scheduled this month
+                  </div>
+                ) : (
+                  Array.from({ length: daysInMonth }, (_, i) => i + 1).map(
+                    (day) => {
+                      const daySubs = getSubscriptionsForDay(day)
+                      if (daySubs.length === 0) return null
 
-                    const date = new Date(year, month, day)
-                    const isToday =
-                      day === today.getDate() &&
-                      month === today.getMonth() &&
-                      year === today.getFullYear()
+                      const date = new Date(year, month, day)
+                      const isToday =
+                        day === today.getDate() &&
+                        month === today.getMonth() &&
+                        year === today.getFullYear()
 
-                    return (
-                      <div key={day} className="flex items-start gap-4 p-4">
-                        <div
-                          className={cx(
-                            "flex size-12 flex-col items-center justify-center rounded-lg",
-                            isToday
-                              ? "bg-blue-600 text-white"
-                              : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50",
-                          )}
-                        >
-                          <span className="text-xs font-medium">
-                            {DAYS[date.getDay()]}
-                          </span>
-                          <span className="text-lg font-bold">{day}</span>
-                        </div>
-                        <div className="flex-1 space-y-2">
-                          {daySubs.map((sub) => (
-                            <div
-                              key={sub.id}
-                              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
-                            >
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="size-8 rounded-lg"
-                                  style={{
-                                    backgroundColor: `${sub.color}20`,
-                                  }}
-                                >
+                      return (
+                        <div key={day} className="flex items-start gap-4 p-4">
+                          <div
+                            className={cx(
+                              "flex size-12 flex-col items-center justify-center rounded-lg",
+                              isToday
+                                ? "bg-blue-600 text-white"
+                                : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50",
+                            )}
+                          >
+                            <span className="text-xs font-medium">
+                              {DAYS[date.getDay()]}
+                            </span>
+                            <span className="text-lg font-bold">{day}</span>
+                          </div>
+                          <div className="flex-1 space-y-2">
+                            {daySubs.map((sub) => (
+                              <div
+                                key={sub.id}
+                                className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900"
+                              >
+                                <div className="flex items-center gap-3">
                                   <div
-                                    className="flex size-full items-center justify-center text-sm font-bold"
-                                    style={{ color: sub.color }}
+                                    className="size-8 rounded-lg"
+                                    style={{
+                                      backgroundColor: `${sub.color}20`,
+                                    }}
                                   >
-                                    {sub.name.charAt(0)}
+                                    <div
+                                      className="flex size-full items-center justify-center text-sm font-bold"
+                                      style={{ color: sub.color }}
+                                    >
+                                      {sub.name.charAt(0)}
+                                    </div>
                                   </div>
+                                  <span className="font-medium text-gray-900 dark:text-gray-50">
+                                    {sub.name}
+                                  </span>
                                 </div>
                                 <span className="font-medium text-gray-900 dark:text-gray-50">
-                                  {sub.name}
+                                  {formatCurrency(sub.amount, displayCurrency)}
                                 </span>
                               </div>
-                              <span className="font-medium text-gray-900 dark:text-gray-50">
-                                ${sub.amount.toFixed(2)}
-                              </span>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )
-                  },
+                      )
+                    },
+                  )
                 )}
               </div>
             )}
@@ -312,7 +423,7 @@ export default function CalendarPage() {
                   Total amount
                 </span>
                 <span className="font-medium text-gray-900 dark:text-gray-50">
-                  ${monthlyTotal.toFixed(2)}
+                  {formatCurrency(monthlyTotal, displayCurrency)}
                 </span>
               </div>
             </div>
@@ -341,7 +452,7 @@ export default function CalendarPage() {
                         </span>
                       </div>
                       <span className="text-sm font-medium text-gray-900 dark:text-gray-50">
-                        ${sub.amount.toFixed(2)}
+                        {formatCurrency(sub.amount, displayCurrency)}
                       </span>
                     </div>
                   ))}
@@ -351,10 +462,10 @@ export default function CalendarPage() {
                         Day total
                       </span>
                       <span className="font-semibold text-gray-900 dark:text-gray-50">
-                        $
-                        {selectedDaySubscriptions
-                          .reduce((sum, s) => sum + s.amount, 0)
-                          .toFixed(2)}
+                        {formatCurrency(
+                          selectedDaySubscriptions.reduce((sum, s) => sum + s.amount, 0),
+                          displayCurrency,
+                        )}
                       </span>
                     </div>
                   </div>
@@ -367,31 +478,37 @@ export default function CalendarPage() {
             </div>
           )}
 
-          {/* Upcoming This Month */}
+          {/* All Payments This Month */}
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
             <h3 className="font-semibold text-gray-900 dark:text-gray-50">
               All Payments
             </h3>
-            <div className="mt-4 space-y-3">
-              {subscriptions
-                .sort((a, b) => a.day - b.day)
-                .map((sub) => (
-                  <div
-                    key={sub.id}
-                    className="flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="w-6 text-xs text-gray-500">{sub.day}</span>
-                      <span className="text-sm text-gray-900 dark:text-gray-50">
-                        {sub.name}
+            {subscriptions.length === 0 ? (
+              <p className="mt-4 text-sm text-gray-500">
+                No payments this month
+              </p>
+            ) : (
+              <div className="mt-4 space-y-3">
+                {subscriptions
+                  .sort((a, b) => a.day - b.day)
+                  .map((sub) => (
+                    <div
+                      key={sub.id}
+                      className="flex items-center justify-between"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 text-xs text-gray-500">{sub.day}</span>
+                        <span className="text-sm text-gray-900 dark:text-gray-50">
+                          {sub.name}
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {formatCurrency(sub.amount, displayCurrency)}
                       </span>
                     </div>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      ${sub.amount.toFixed(2)}
-                    </span>
-                  </div>
-                ))}
-            </div>
+                  ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

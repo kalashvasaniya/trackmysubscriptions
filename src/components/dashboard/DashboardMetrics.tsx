@@ -1,52 +1,134 @@
 "use client"
 
+import { formatCurrency } from "@/lib/currency"
 import { cx } from "@/lib/utils"
 import {
-  RiArrowDownLine,
-  RiArrowUpLine,
   RiMoneyDollarCircleLine,
   RiCalendarCheckLine,
   RiFileListLine,
   RiAlertLine,
+  RiLoader4Line,
 } from "@remixicon/react"
+import { useEffect, useState } from "react"
 
-// Mock data - will be replaced with API call
-const metrics = [
-  {
-    name: "Monthly Spending",
-    value: "$247.00",
-    change: "-12%",
-    changeType: "decrease" as const,
-    icon: RiMoneyDollarCircleLine,
-    description: "vs last month",
-  },
-  {
-    name: "Active Subscriptions",
-    value: "24",
-    change: "+2",
-    changeType: "increase" as const,
-    icon: RiFileListLine,
-    description: "across 5 categories",
-  },
-  {
-    name: "Upcoming (7 days)",
-    value: "$89.97",
-    change: "3 renewals",
-    changeType: "neutral" as const,
-    icon: RiCalendarCheckLine,
-    description: "due this week",
-  },
-  {
-    name: "Needs Attention",
-    value: "2",
-    change: "trials ending",
-    changeType: "warning" as const,
-    icon: RiAlertLine,
-    description: "action required",
-  },
-]
+interface AnalyticsData {
+  displayCurrency?: string
+  metrics: {
+    totalSubscriptions: number
+    activeSubscriptions: number
+    monthlySpending: number
+    yearlySpending: number
+  }
+  upcomingPayments: Array<{
+    id: string
+    name: string
+    amount: number
+    nextBillingDate: string
+  }>
+  statusBreakdown: {
+    active: number
+    trial: number
+    paused: number
+    cancelled: number
+  }
+}
 
 export function DashboardMetrics() {
+  const [data, setData] = useState<AnalyticsData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    async function fetchAnalytics() {
+      try {
+        const response = await fetch("/api/analytics")
+        if (!response.ok) {
+          throw new Error("Failed to fetch analytics")
+        }
+        const analyticsData = await response.json()
+        setData(analyticsData)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "An error occurred")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAnalytics()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[...Array(4)].map((_, i) => (
+          <div
+            key={i}
+            className="flex h-32 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+          >
+            <RiLoader4Line className="size-6 animate-spin text-gray-400" />
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  if (error || !data) {
+    return (
+      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+        {error || "Failed to load metrics"}
+      </div>
+    )
+  }
+
+  const currency = data.displayCurrency || "USD"
+
+  // Calculate upcoming payments for next 7 days
+  const now = new Date()
+  const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+  const upcomingThisWeek = data.upcomingPayments.filter((p) => {
+    const date = new Date(p.nextBillingDate)
+    return date <= sevenDaysFromNow
+  })
+  const upcomingAmount = upcomingThisWeek.reduce((sum, p) => sum + p.amount, 0)
+
+  // Calculate needs attention (trials ending soon)
+  const needsAttention = data.statusBreakdown.trial
+
+  const metrics = [
+    {
+      name: "Monthly Spending",
+      value: formatCurrency(data.metrics.monthlySpending, currency),
+      change: `${formatCurrency(data.metrics.yearlySpending, currency, { compact: true })}/yr`,
+      changeType: "neutral" as const,
+      icon: RiMoneyDollarCircleLine,
+      description: "projected yearly cost",
+    },
+    {
+      name: "Active Subscriptions",
+      value: data.metrics.activeSubscriptions.toString(),
+      change: `${data.metrics.totalSubscriptions} total`,
+      changeType: "neutral" as const,
+      icon: RiFileListLine,
+      description: "being tracked",
+    },
+    {
+      name: "Upcoming (7 days)",
+      value: formatCurrency(upcomingAmount, currency),
+      change: `${upcomingThisWeek.length} renewals`,
+      changeType: "neutral" as const,
+      icon: RiCalendarCheckLine,
+      description: "due this week",
+    },
+    {
+      name: "Needs Attention",
+      value: needsAttention.toString(),
+      change: "trials ending",
+      changeType: needsAttention > 0 ? ("warning" as const) : ("neutral" as const),
+      icon: RiAlertLine,
+      description: needsAttention > 0 ? "action required" : "all good",
+    },
+  ]
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {metrics.map((metric) => (
@@ -74,22 +156,12 @@ export function DashboardMetrics() {
             <span
               className={cx(
                 "inline-flex items-center text-sm font-medium",
-                metric.changeType === "increase" &&
-                  "text-emerald-600 dark:text-emerald-400",
-                metric.changeType === "decrease" &&
-                  "text-red-600 dark:text-red-400",
                 metric.changeType === "neutral" &&
                   "text-blue-600 dark:text-blue-400",
                 metric.changeType === "warning" &&
                   "text-amber-600 dark:text-amber-400",
               )}
             >
-              {metric.changeType === "increase" && (
-                <RiArrowUpLine className="mr-0.5 size-4" />
-              )}
-              {metric.changeType === "decrease" && (
-                <RiArrowDownLine className="mr-0.5 size-4" />
-              )}
               {metric.change}
             </span>
           </div>

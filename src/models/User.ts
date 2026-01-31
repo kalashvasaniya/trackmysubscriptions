@@ -7,6 +7,7 @@ export interface IUser extends Document {
   password?: string
   image?: string
   currency: string
+  defaultAlertDays?: number
   emailVerified?: Date
   createdAt: Date
   updatedAt: Date
@@ -35,6 +36,10 @@ const UserSchema = new Schema<IUser>(
     currency: {
       type: String,
       default: "USD",
+    },
+    defaultAlertDays: {
+      type: Number,
+      default: 3,
     },
     emailVerified: {
       type: Date,

@@ -120,30 +120,59 @@ export function getCurrencyList(): { code: string; name: string; symbol: string 
   }))
 }
 
-// Fetch real exchange rates from a free API
+/** Free v4 API (no key required). Default base: USD. */
+const EXCHANGE_RATE_V4_URL = "https://api.exchangerate-api.com/v4/latest"
+
+/**
+ * Fetch live exchange rates from the free API (base USD by default).
+ * Falls back to static rates if the API fails.
+ */
 export async function fetchExchangeRates(
   baseCurrency: string = "USD",
-): Promise<Record<string, number> | null> {
-  const apiKey = process.env.EXCHANGE_RATE_API_KEY
-
-  if (!apiKey) {
-    console.warn("No exchange rate API key configured, using mock rates")
-    return exchangeRates
-  }
+): Promise<Record<string, number>> {
+  const url =
+    process.env.EXCHANGE_RATE_API_KEY &&
+    process.env.EXCHANGE_RATE_API_KEY.startsWith("http")
+      ? process.env.EXCHANGE_RATE_API_KEY.replace(/\/USD$/, `/${baseCurrency}`)
+      : `${EXCHANGE_RATE_V4_URL}/${baseCurrency}`
 
   try {
-    const response = await fetch(
-      `https://v6.exchangerate-api.com/v6/${apiKey}/latest/${baseCurrency}`,
-    )
+    const response = await fetch(url)
 
     if (!response.ok) {
-      throw new Error("Failed to fetch exchange rates")
+      throw new Error(`Exchange rate API responded with ${response.status}`)
     }
 
-    const data = await response.json()
-    return data.conversion_rates
+    const data = (await response.json()) as {
+      base?: string
+      rates?: Record<string, number>
+      conversion_rates?: Record<string, number>
+    }
+    const rates = data.rates ?? data.conversion_rates
+    if (rates && typeof rates === "object") {
+      return rates
+    }
+    throw new Error("Invalid response: missing rates")
   } catch (error) {
-    console.error("Error fetching exchange rates:", error)
-    return null
+    console.warn("Exchange rates fetch failed, using fallback rates:", error)
+    return exchangeRates
   }
+}
+
+/**
+ * Convert amount using a rates object (e.g. from fetchExchangeRates("USD")).
+ * Rates must be relative to the same base (USD).
+ */
+export function convertWithRates(
+  amount: number,
+  fromCurrency: string,
+  toCurrency: string,
+  rates: Record<string, number>,
+): number {
+  if (fromCurrency === toCurrency) return amount
+  const fromRate = rates[fromCurrency] ?? 1
+  const toRate = rates[toCurrency] ?? 1
+  if (fromRate === 0) return amount
+  const baseAmount = amount / fromRate
+  return baseAmount * toRate
 }

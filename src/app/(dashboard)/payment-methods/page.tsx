@@ -17,75 +17,176 @@ import {
   RiEditLine,
   RiPaypalLine,
   RiBankLine,
+  RiLoader4Line,
+  RiCheckLine,
+  RiCloseLine,
 } from "@remixicon/react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
-// Mock data
-const mockPaymentMethods = [
-  {
-    id: "1",
-    name: "Main Credit Card",
-    type: "credit_card",
-    lastFour: "4242",
-    subscriptionCount: 8,
-  },
-  {
-    id: "2",
-    name: "PayPal",
-    type: "paypal",
-    lastFour: null,
-    subscriptionCount: 3,
-  },
-  {
-    id: "3",
-    name: "Bank Account",
-    type: "bank_account",
-    lastFour: "9876",
-    subscriptionCount: 4,
-  },
-  {
-    id: "4",
-    name: "Debit Card",
-    type: "debit_card",
-    lastFour: "1234",
-    subscriptionCount: 2,
-  },
-]
+interface PaymentMethod {
+  _id: string
+  name: string
+  type: string
+  lastFour?: string | null
+  subscriptionCount?: number
+}
 
 const paymentTypes = [
   { value: "credit_card", label: "Credit Card", icon: RiBankCardLine },
   { value: "debit_card", label: "Debit Card", icon: RiBankCardLine },
   { value: "paypal", label: "PayPal", icon: RiPaypalLine },
   { value: "bank_account", label: "Bank Account", icon: RiBankLine },
+  { value: "other", label: "Other", icon: RiBankCardLine },
 ]
 
 export default function PaymentMethodsPage() {
-  const [paymentMethods, setPaymentMethods] = useState(mockPaymentMethods)
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [newName, setNewName] = useState("")
   const [newType, setNewType] = useState("credit_card")
   const [newLastFour, setNewLastFour] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editName, setEditName] = useState("")
+  const [editType, setEditType] = useState("")
+  const [editLastFour, setEditLastFour] = useState("")
+  const [deleting, setDeleting] = useState<string | null>(null)
 
-  const handleAddPaymentMethod = () => {
-    if (!newName.trim()) return
+  useEffect(() => {
+    fetchPaymentMethods()
+  }, [])
 
-    const newMethod = {
-      id: Date.now().toString(),
-      name: newName,
-      type: newType,
-      lastFour: newLastFour || null,
-      subscriptionCount: 0,
+  async function fetchPaymentMethods() {
+    try {
+      setLoading(true)
+      const response = await fetch("/api/payment-methods")
+      if (!response.ok) {
+        throw new Error("Failed to fetch payment methods")
+      }
+      const data = await response.json()
+
+      // Fetch subscription counts for each payment method
+      const methodsWithCounts = await Promise.all(
+        data.map(async (method: PaymentMethod) => {
+          try {
+            const countResponse = await fetch(`/api/payment-methods/${method._id}`)
+            if (countResponse.ok) {
+              const methodData = await countResponse.json()
+              return {
+                ...method,
+                subscriptionCount: methodData.subscriptionCount || 0,
+              }
+            }
+            return { ...method, subscriptionCount: 0 }
+          } catch {
+            return { ...method, subscriptionCount: 0 }
+          }
+        }),
+      )
+
+      setPaymentMethods(methodsWithCounts)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred")
+    } finally {
+      setLoading(false)
     }
-
-    setPaymentMethods([...paymentMethods, newMethod])
-    setNewName("")
-    setNewType("credit_card")
-    setNewLastFour("")
-    setIsAdding(false)
   }
 
-  const handleDelete = (id: string) => {
-    setPaymentMethods(paymentMethods.filter((m) => m.id !== id))
+  async function handleAddPaymentMethod() {
+    if (!newName.trim()) return
+
+    try {
+      setSaving(true)
+      const response = await fetch("/api/payment-methods", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newName,
+          type: newType,
+          lastFour: newLastFour || undefined,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to create payment method")
+      }
+
+      const newMethod = await response.json()
+      setPaymentMethods([...paymentMethods, { ...newMethod, subscriptionCount: 0 }])
+      setNewName("")
+      setNewType("credit_card")
+      setNewLastFour("")
+      setIsAdding(false)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to create payment method")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleUpdatePaymentMethod(id: string) {
+    if (!editName.trim()) return
+
+    try {
+      setSaving(true)
+      const response = await fetch(`/api/payment-methods/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editName,
+          type: editType,
+          lastFour: editLastFour || undefined,
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || "Failed to update payment method")
+      }
+
+      const updatedMethod = await response.json()
+      setPaymentMethods(
+        paymentMethods.map((m) =>
+          m._id === id ? { ...m, ...updatedMethod } : m,
+        ),
+      )
+      setEditingId(null)
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to update payment method")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Are you sure you want to delete this payment method?")) return
+
+    try {
+      setDeleting(id)
+      const response = await fetch(`/api/payment-methods/${id}`, {
+        method: "DELETE",
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to delete payment method")
+      }
+
+      setPaymentMethods(paymentMethods.filter((m) => m._id !== id))
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete payment method")
+    } finally {
+      setDeleting(null)
+    }
+  }
+
+  function startEdit(method: PaymentMethod) {
+    setEditingId(method._id)
+    setEditName(method.name)
+    setEditType(method.type)
+    setEditLastFour(method.lastFour || "")
   }
 
   const getTypeIcon = (type: string) => {
@@ -96,6 +197,24 @@ export default function PaymentMethodsPage() {
   const getTypeLabel = (type: string) => {
     const paymentType = paymentTypes.find((t) => t.value === type)
     return paymentType?.label || type
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-96 items-center justify-center p-4 sm:p-6 lg:p-8">
+        <RiLoader4Line className="size-8 animate-spin text-gray-400" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+          {error}
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -109,7 +228,7 @@ export default function PaymentMethodsPage() {
             Manage your payment methods for subscriptions
           </p>
         </div>
-        <Button onClick={() => setIsAdding(true)}>
+        <Button onClick={() => setIsAdding(true)} disabled={isAdding}>
           <RiAddLine className="mr-2 size-4" />
           Add Payment Method
         </Button>
@@ -148,7 +267,15 @@ export default function PaymentMethodsPage() {
               maxLength={4}
             />
             <div className="flex gap-2">
-              <Button onClick={handleAddPaymentMethod}>Add</Button>
+              <Button
+                onClick={handleAddPaymentMethod}
+                disabled={saving || !newName.trim()}
+              >
+                {saving ? (
+                  <RiLoader4Line className="mr-2 size-4 animate-spin" />
+                ) : null}
+                Add
+              </Button>
               <Button variant="secondary" onClick={() => setIsAdding(false)}>
                 Cancel
               </Button>
@@ -161,9 +288,69 @@ export default function PaymentMethodsPage() {
       <div className="mt-6 space-y-4">
         {paymentMethods.map((method) => {
           const Icon = getTypeIcon(method.type)
+
+          if (editingId === method._id) {
+            return (
+              <div
+                key={method._id}
+                className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
+              >
+                <div className="grid gap-4 sm:grid-cols-4">
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder="Name"
+                  />
+                  <Select value={editType} onValueChange={setEditType}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paymentTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    placeholder="Last 4 digits"
+                    value={editLastFour}
+                    onChange={(e) =>
+                      setEditLastFour(
+                        e.target.value.replace(/\D/g, "").slice(0, 4),
+                      )
+                    }
+                    maxLength={4}
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={() => handleUpdatePaymentMethod(method._id)}
+                      disabled={saving}
+                    >
+                      {saving ? (
+                        <RiLoader4Line className="mr-2 size-4 animate-spin" />
+                      ) : (
+                        <RiCheckLine className="mr-2 size-4" />
+                      )}
+                      Save
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => setEditingId(null)}
+                    >
+                      <RiCloseLine className="mr-2 size-4" />
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )
+          }
+
           return (
             <div
-              key={method.id}
+              key={method._id}
               className="group flex items-center justify-between rounded-lg border border-gray-200 bg-white p-4 transition hover:shadow-md dark:border-gray-800 dark:bg-gray-900"
             >
               <div className="flex items-center gap-4">
@@ -188,18 +375,27 @@ export default function PaymentMethodsPage() {
               </div>
               <div className="flex items-center gap-4">
                 <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {method.subscriptionCount} subscriptions
+                  {method.subscriptionCount || 0} subscriptions
                 </span>
                 <div className="flex gap-1 opacity-0 transition group-hover:opacity-100">
-                  <Button variant="ghost" className="!p-2">
+                  <Button
+                    variant="ghost"
+                    className="!p-2"
+                    onClick={() => startEdit(method)}
+                  >
                     <RiEditLine className="size-4 text-gray-500" />
                   </Button>
                   <Button
                     variant="ghost"
                     className="!p-2"
-                    onClick={() => handleDelete(method.id)}
+                    onClick={() => handleDelete(method._id)}
+                    disabled={deleting === method._id}
                   >
-                    <RiDeleteBinLine className="size-4 text-red-500" />
+                    {deleting === method._id ? (
+                      <RiLoader4Line className="size-4 animate-spin text-gray-500" />
+                    ) : (
+                      <RiDeleteBinLine className="size-4 text-red-500" />
+                    )}
                   </Button>
                 </div>
               </div>
