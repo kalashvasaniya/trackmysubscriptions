@@ -10,7 +10,7 @@ import { cx, focusRing } from "@/lib/utils"
 const buttonVariants = tv({
   base: [
     // base
-    "relative inline-flex items-center justify-center whitespace-nowrap rounded-md border px-3 py-2 text-center text-sm font-medium shadow-sm transition-all duration-100 ease-in-out",
+    "relative inline-flex items-center justify-center whitespace-nowrap rounded-md border text-center font-medium shadow-sm transition-all duration-100 ease-in-out",
     // disabled
     "disabled:pointer-events-none disabled:shadow-none",
     // focus
@@ -86,9 +86,15 @@ const buttonVariants = tv({
         "disabled:dark:bg-red-950 disabled:dark:text-red-400",
       ],
     },
+    size: {
+      sm: "px-2.5 py-1.5 text-xs",
+      md: "px-3 py-2 text-sm",
+      lg: "px-4 py-2.5 text-base",
+    },
   },
   defaultVariants: {
     variant: "primary",
+    size: "md",
   },
 })
 
@@ -109,6 +115,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       className,
       disabled,
       variant,
+      size,
       children,
       ...props
     }: ButtonProps,
@@ -118,7 +125,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Component
         ref={forwardedRef}
-        className={cx(buttonVariants({ variant }), className)}
+        className={cx(buttonVariants({ variant, size }), className)}
         disabled={disabled || isLoading}
         tremor-id="tremor-raw"
         {...props}

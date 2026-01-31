@@ -15,7 +15,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/DropdownMenu"
 import { ArrowUpRight, Monitor, Moon, Sun } from "lucide-react"
+import { signOut, useSession } from "next-auth/react"
 import { useTheme } from "next-themes"
+import Link from "next/link"
 import * as React from "react"
 
 export type DropdownUserProfileProps = {
@@ -29,6 +31,8 @@ export function DropdownUserProfile({
 }: DropdownUserProfileProps) {
   const [mounted, setMounted] = React.useState(false)
   const { theme, setTheme } = useTheme()
+  const { data: session } = useSession()
+
   React.useEffect(() => {
     setMounted(true)
   }, [])
@@ -36,6 +40,11 @@ export function DropdownUserProfile({
   if (!mounted) {
     return null
   }
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: "/" })
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -44,7 +53,16 @@ export function DropdownUserProfile({
           align={align}
           className="sm:!min-w-[calc(var(--radix-dropdown-menu-trigger-width))]"
         >
-          <DropdownMenuLabel>emma.stone@acme.com</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            {session?.user?.email || "User"}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <Link href="/settings">
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+            </Link>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuSubMenu>
               <DropdownMenuSubMenuTrigger>Theme</DropdownMenuSubMenuTrigger>
@@ -86,33 +104,24 @@ export function DropdownUserProfile({
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
-              Changelog
-              <ArrowUpRight
-                className="mb-1 ml-1 size-3 shrink-0 text-gray-500 dark:text-gray-500"
-                aria-hidden="true"
-              />
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              Documentation
-              <ArrowUpRight
-                className="mb-1 ml-1 size-3 shrink-0 text-gray-500"
-                aria-hidden="true"
-              />
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              Join Slack community
-              <ArrowUpRight
-                className="mb-1 ml-1 size-3 shrink-0 text-gray-500"
-                aria-hidden="true"
-              />
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex w-full items-center"
+              >
+                Help & Support
+                <ArrowUpRight
+                  className="mb-1 ml-1 size-3 shrink-0 text-gray-500"
+                  aria-hidden="true"
+                />
+              </a>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <a href="#" className="w-full">
-                Sign out
-              </a>
+            <DropdownMenuItem onClick={handleSignOut}>
+              Sign out
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
