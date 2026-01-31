@@ -18,7 +18,7 @@ import { cx, focusRing } from "@/lib/utils"
 import { RiArrowDownSFill } from "@remixicon/react"
 import { BookText, House, PackageSearch } from "lucide-react"
 import * as React from "react"
-import { Logo } from "../../../../public/Logo"
+import { Logo } from "@/components/Logo"
 import { UserProfile } from "./UserProfile"
 
 const navigation = [

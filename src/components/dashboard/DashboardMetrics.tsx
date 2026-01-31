@@ -1,9 +1,8 @@
 "use client"
 
 import { formatCurrency } from "@/lib/currency"
-import { cx } from "@/lib/utils"
 import {
-  RiMoneyDollarCircleLine,
+  RiWalletLine,
   RiCalendarCheckLine,
   RiFileListLine,
   RiAlertLine,
@@ -63,7 +62,7 @@ export function DashboardMetrics() {
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
-            className="flex h-32 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+            className="flex h-36 items-center justify-center rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900"
           >
             <RiLoader4Line className="size-6 animate-spin text-gray-400" />
           </div>
@@ -74,7 +73,7 @@ export function DashboardMetrics() {
 
   if (error || !data) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
         {error || "Failed to load metrics"}
       </div>
     )
@@ -98,34 +97,39 @@ export function DashboardMetrics() {
     {
       name: "Monthly Spending",
       value: formatCurrency(data.metrics.monthlySpending, currency),
-      change: `${formatCurrency(data.metrics.yearlySpending, currency, { compact: true })}/yr`,
-      changeType: "neutral" as const,
-      icon: RiMoneyDollarCircleLine,
-      description: "projected yearly cost",
+      subValue: `${formatCurrency(data.metrics.yearlySpending, currency, { compact: true })}/yr`,
+      description: "projected yearly",
+      icon: RiWalletLine,
+      gradient: "from-blue-500 to-blue-600",
+      iconBg: "bg-blue-400/20",
     },
     {
       name: "Active Subscriptions",
       value: data.metrics.activeSubscriptions.toString(),
-      change: `${data.metrics.totalSubscriptions} total`,
-      changeType: "neutral" as const,
-      icon: RiFileListLine,
+      subValue: `${data.metrics.totalSubscriptions} total`,
       description: "being tracked",
+      icon: RiFileListLine,
+      gradient: "from-emerald-500 to-emerald-600",
+      iconBg: "bg-emerald-400/20",
     },
     {
-      name: "Upcoming (7 days)",
+      name: "Due This Week",
       value: formatCurrency(upcomingAmount, currency),
-      change: `${upcomingThisWeek.length} renewals`,
-      changeType: "neutral" as const,
+      subValue: `${upcomingThisWeek.length} payments`,
+      description: "next 7 days",
       icon: RiCalendarCheckLine,
-      description: "due this week",
+      gradient: "from-purple-500 to-purple-600",
+      iconBg: "bg-purple-400/20",
     },
     {
       name: "Needs Attention",
       value: needsAttention.toString(),
-      change: "trials ending",
-      changeType: needsAttention > 0 ? ("warning" as const) : ("neutral" as const),
+      subValue: needsAttention > 0 ? "trials ending" : "all good",
+      description: needsAttention > 0 ? "action required" : "no issues",
       icon: RiAlertLine,
-      description: needsAttention > 0 ? "action required" : "all good",
+      gradient: needsAttention > 0 ? "from-amber-500 to-orange-500" : "from-gray-400 to-gray-500",
+      iconBg: needsAttention > 0 ? "bg-amber-400/20" : "bg-gray-400/20",
+      isWarning: needsAttention > 0,
     },
   ]
 
@@ -134,40 +138,27 @@ export function DashboardMetrics() {
       {metrics.map((metric) => (
         <div
           key={metric.name}
-          className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900"
+          className={`group relative overflow-hidden rounded-2xl bg-gradient-to-br ${metric.gradient} p-6 text-white shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02]`}
         >
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-              {metric.name}
-            </span>
-            <metric.icon
-              className={cx(
-                "size-5",
-                metric.changeType === "warning"
-                  ? "text-amber-500"
-                  : "text-gray-400 dark:text-gray-500",
-              )}
-            />
+          {/* Background decoration */}
+          <div className="absolute -right-4 -top-4 size-24 rounded-full bg-white/10 transition-transform duration-300 group-hover:scale-110" />
+          <div className="absolute -right-2 -top-2 size-16 rounded-full bg-white/5" />
+          
+          {/* Icon */}
+          <div className={`mb-4 inline-flex rounded-xl ${metric.iconBg} p-2.5`}>
+            <metric.icon className="size-6" />
           </div>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-              {metric.value}
-            </span>
-            <span
-              className={cx(
-                "inline-flex items-center text-sm font-medium",
-                metric.changeType === "neutral" &&
-                  "text-blue-600 dark:text-blue-400",
-                metric.changeType === "warning" &&
-                  "text-amber-600 dark:text-amber-400",
-              )}
-            >
-              {metric.change}
-            </span>
+          
+          {/* Content */}
+          <p className="text-sm font-medium text-white/80">{metric.name}</p>
+          <p className="mt-1 text-3xl font-bold tracking-tight">{metric.value}</p>
+          
+          {/* Sub info */}
+          <div className="mt-2 flex items-center gap-1.5 text-sm text-white/70">
+            <span className="font-medium text-white/90">{metric.subValue}</span>
+            <span>•</span>
+            <span>{metric.description}</span>
           </div>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-            {metric.description}
-          </p>
         </div>
       ))}
     </div>

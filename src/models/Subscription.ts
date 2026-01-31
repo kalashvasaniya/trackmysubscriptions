@@ -19,6 +19,7 @@ export interface ISubscription extends Document {
   notes?: string
   alertDays: number
   alertEnabled: boolean
+  lastAlertSent?: Date
   userId: mongoose.Types.ObjectId
   folderId?: mongoose.Types.ObjectId
   tagIds: mongoose.Types.ObjectId[]
@@ -87,6 +88,9 @@ const SubscriptionSchema = new Schema<ISubscription>(
     alertEnabled: {
       type: Boolean,
       default: true,
+    },
+    lastAlertSent: {
+      type: Date,
     },
     userId: {
       type: Schema.Types.ObjectId,

@@ -6,7 +6,11 @@ import {
 import dbConnect from "@/lib/mongodb"
 import Subscription from "@/models/Subscription"
 import User from "@/models/User"
+import Folder from "@/models/Folder" // Required for populate
 import { NextResponse } from "next/server"
+
+// Ensure Folder model is registered for populate
+void Folder
 
 // GET analytics data (amounts converted to user's display currency)
 export async function GET() {
@@ -83,14 +87,26 @@ export async function GET() {
 
     // Get spending by month (last 12 months, in display currency)
     const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth()
     const monthlyTrends: Array<{ month: string; amount: number }> = []
 
     for (let i = 11; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
-      const monthName = date.toLocaleDateString("en-US", {
-        month: "short",
-        year: "2-digit",
-      })
+      // Calculate the target month and year
+      let targetMonth = currentMonth - i
+      let targetYear = currentYear
+
+      // Handle negative months (wrap to previous year)
+      while (targetMonth < 0) {
+        targetMonth += 12
+        targetYear -= 1
+      }
+
+      const date = new Date(targetYear, targetMonth, 1)
+      // Use format: "Jan 26" for chart display (month + 2-digit year)
+      const month = date.toLocaleDateString("en-US", { month: "short" })
+      const year = targetYear.toString().slice(-2)
+      const monthName = `${month} ${year}`
 
       const monthSpending = subscriptions
         .filter((sub) => {
@@ -159,6 +175,91 @@ export async function GET() {
       yearly: subscriptions.filter((s) => s.billingCycle === "yearly").length,
     }
 
+    // Cost breakdown by billing cycle (monthly equivalent)
+    const billingCycleCost = {
+      weekly: 0,
+      monthly: 0,
+      quarterly: 0,
+      yearly: 0,
+    }
+    subscriptions
+      .filter((s) => s.status === "active")
+      .forEach((sub) => {
+        let monthlyAmount: number
+        switch (sub.billingCycle) {
+          case "weekly":
+            monthlyAmount = sub.amount * 4.33
+            break
+          case "monthly":
+            monthlyAmount = sub.amount
+            break
+          case "quarterly":
+            monthlyAmount = sub.amount / 3
+            break
+          case "yearly":
+            monthlyAmount = sub.amount / 12
+            break
+          default:
+            monthlyAmount = sub.amount
+        }
+        const converted = toDisplay(monthlyAmount, sub.currency)
+        billingCycleCost[sub.billingCycle as keyof typeof billingCycleCost] += converted
+      })
+
+    // Top 5 most expensive subscriptions (monthly equivalent)
+    const topSubscriptions = subscriptions
+      .filter((s) => s.status === "active")
+      .map((sub) => {
+        let monthlyAmount: number
+        switch (sub.billingCycle) {
+          case "weekly":
+            monthlyAmount = sub.amount * 4.33
+            break
+          case "monthly":
+            monthlyAmount = sub.amount
+            break
+          case "quarterly":
+            monthlyAmount = sub.amount / 3
+            break
+          case "yearly":
+            monthlyAmount = sub.amount / 12
+            break
+          default:
+            monthlyAmount = sub.amount
+        }
+        return {
+          id: sub._id,
+          name: sub.name,
+          monthlyAmount: Math.round(toDisplay(monthlyAmount, sub.currency) * 100) / 100,
+          actualAmount: Math.round(toDisplay(sub.amount, sub.currency) * 100) / 100,
+          billingCycle: sub.billingCycle,
+          category: sub.category || "Uncategorized",
+        }
+      })
+      .sort((a, b) => b.monthlyAmount - a.monthlyAmount)
+      .slice(0, 5)
+
+    // Average subscription cost
+    const avgSubscriptionCost = activeSubscriptions > 0 
+      ? monthlySpending / activeSubscriptions 
+      : 0
+
+    // Spending by day of week (for upcoming 30 days)
+    const weekdaySpending: Record<string, number> = {
+      Sunday: 0,
+      Monday: 0,
+      Tuesday: 0,
+      Wednesday: 0,
+      Thursday: 0,
+      Friday: 0,
+      Saturday: 0,
+    }
+    const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+    upcomingPayments.forEach((payment) => {
+      const day = weekdays[new Date(payment.nextBillingDate).getDay()]
+      weekdaySpending[day] += payment.amount
+    })
+
     // Recent subscriptions (last 5 added)
     const recentSubscriptions = await Subscription.find({ userId })
       .sort({ createdAt: -1 })
@@ -172,6 +273,7 @@ export async function GET() {
         activeSubscriptions,
         monthlySpending: Math.round(monthlySpending * 100) / 100,
         yearlySpending: Math.round(yearlySpending * 100) / 100,
+        avgSubscriptionCost: Math.round(avgSubscriptionCost * 100) / 100,
       },
       categorySpending: Object.entries(categorySpending)
         .map(([category, amount]) => ({
@@ -183,6 +285,17 @@ export async function GET() {
       upcomingPayments,
       statusBreakdown,
       billingCycleBreakdown,
+      billingCycleCost: {
+        weekly: Math.round(billingCycleCost.weekly * 100) / 100,
+        monthly: Math.round(billingCycleCost.monthly * 100) / 100,
+        quarterly: Math.round(billingCycleCost.quarterly * 100) / 100,
+        yearly: Math.round(billingCycleCost.yearly * 100) / 100,
+      },
+      topSubscriptions,
+      weekdaySpending: Object.entries(weekdaySpending).map(([day, amount]) => ({
+        day,
+        amount: Math.round(amount * 100) / 100,
+      })),
       recentSubscriptions: recentSubscriptions.map((sub) => ({
         id: sub._id,
         name: sub.name,

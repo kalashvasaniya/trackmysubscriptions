@@ -6,7 +6,7 @@ import useScroll from "@/lib/useScroll"
 import { RiMenuLine, RiCloseLine } from "@remixicon/react"
 import Link from "next/link"
 import { useState } from "react"
-import { Logo } from "../../../public/Logo"
+import { Logo } from "@/components/Logo"
 
 const navigation = [
   { name: "Features", href: "#features" },

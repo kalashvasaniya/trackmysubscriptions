@@ -16,6 +16,11 @@ import {
   RiDeleteBinLine,
   RiDownloadLine,
   RiLoader4Line,
+  RiUserLine,
+  RiSettings4Line,
+  RiNotification3Line,
+  RiDatabase2Line,
+  RiAlertLine,
 } from "@remixicon/react"
 import { useSession, signOut } from "next-auth/react"
 import { useState, useEffect } from "react"
@@ -50,7 +55,6 @@ export default function SettingsPage() {
 
   useEffect(() => {
     fetchUserProfile()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function fetchUserProfile() {
@@ -61,11 +65,7 @@ export default function SettingsPage() {
         setName(user.name || "")
         setEmail(user.email || "")
         setCurrency(user.currency || "USD")
-        setDefaultAlertDays(
-          user.defaultAlertDays != null
-            ? String(user.defaultAlertDays)
-            : "3",
-        )
+        setDefaultAlertDays(user.defaultAlertDays != null ? String(user.defaultAlertDays) : "3")
         setEmailAlerts(user.emailAlerts ?? true)
         setWeeklyDigest(user.weeklyDigest ?? false)
       }
@@ -95,9 +95,7 @@ export default function SettingsPage() {
 
       setPreferencesMessage("Preferences saved successfully!")
     } catch (err) {
-      setPreferencesMessage(
-        err instanceof Error ? err.message : "Failed to save preferences",
-      )
+      setPreferencesMessage(err instanceof Error ? err.message : "Failed to save preferences")
     } finally {
       setIsSavingPreferences(false)
     }
@@ -136,10 +134,7 @@ export default function SettingsPage() {
       const response = await fetch("/api/users/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          emailAlerts,
-          weeklyDigest,
-        }),
+        body: JSON.stringify({ emailAlerts, weeklyDigest }),
       })
 
       if (!response.ok) {
@@ -148,14 +143,11 @@ export default function SettingsPage() {
       }
 
       const data = await response.json()
-      // Update state with server response to confirm save
       setEmailAlerts(data.emailAlerts ?? true)
       setWeeklyDigest(data.weeklyDigest ?? false)
       setNotificationsMessage("Notification settings saved successfully!")
     } catch (err) {
-      setNotificationsMessage(
-        err instanceof Error ? err.message : "Failed to save notification settings",
-      )
+      setNotificationsMessage(err instanceof Error ? err.message : "Failed to save notification settings")
     } finally {
       setIsSavingNotifications(false)
     }
@@ -181,9 +173,7 @@ export default function SettingsPage() {
   }
 
   const handleDeleteAccount = async () => {
-    const confirmText = prompt(
-      'Type "DELETE" to confirm account deletion:',
-    )
+    const confirmText = prompt('Type "DELETE" to confirm account deletion:')
     if (confirmText !== "DELETE") {
       if (confirmText !== null) {
         alert("Account deletion cancelled. You must type DELETE exactly.")
@@ -191,12 +181,7 @@ export default function SettingsPage() {
       return
     }
 
-    if (
-      !confirm(
-        "Are you absolutely sure? This will permanently delete your account and all your data. This action cannot be undone.",
-      )
-    )
-      return
+    if (!confirm("Are you absolutely sure? This will permanently delete your account and all your data.")) return
 
     setIsDeleting(true)
 
@@ -221,42 +206,36 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
-          Settings
-        </h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Manage your account preferences
+    <div className="min-h-screen bg-gray-50 p-4 dark:bg-gray-950 sm:p-6 lg:p-8">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Settings</h1>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">
+          Manage your account preferences and settings
         </p>
       </div>
 
-      <div className="mt-8 max-w-2xl space-y-8">
+      <div className="max-w-3xl space-y-6">
         {/* Profile Settings */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-            Profile
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Update your account information
-          </p>
-
-          <div className="mt-6 space-y-4">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30">
+              <RiUserLine className="size-5 text-blue-600 dark:text-blue-400" />
+            </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Name
-              </label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-              />
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Profile</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Update your account information</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Email
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
               <Input
                 type="email"
                 value={email}
@@ -264,46 +243,39 @@ export default function SettingsPage() {
                 placeholder="you@example.com"
                 className="bg-gray-50 dark:bg-gray-800"
               />
-              <p className="mt-1 text-xs text-gray-500">
-                Email is managed by your Google account
-              </p>
+              <p className="mt-1.5 text-xs text-gray-500">Email is managed by your Google account</p>
             </div>
 
             {message && (
-              <p
-                className={`text-sm ${message.includes("success") ? "text-emerald-600" : "text-red-600"}`}
-              >
+              <div className={`rounded-lg p-3 text-sm ${message.includes("success") ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"}`}>
                 {message}
-              </p>
+              </div>
             )}
 
             <Button onClick={handleSaveProfile} disabled={isSaving}>
-              {isSaving ? (
-                <RiLoader4Line className="mr-2 size-4 animate-spin" />
-              ) : (
-                <RiSaveLine className="mr-2 size-4" />
-              )}
+              {isSaving ? <RiLoader4Line className="mr-2 size-4 animate-spin" /> : <RiSaveLine className="mr-2 size-4" />}
               Save Changes
             </Button>
           </div>
         </div>
 
         {/* Preferences */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-            Preferences
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Customize your experience
-          </p>
-
-          <div className="mt-6 space-y-4">
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-900/30">
+              <RiSettings4Line className="size-5 text-purple-600 dark:text-purple-400" />
+            </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Display Currency
-              </label>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Preferences</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Customize your experience</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Display Currency</label>
               <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger className="w-full sm:w-64">
+                <SelectTrigger className="w-full sm:w-72">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -314,20 +286,13 @@ export default function SettingsPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="mt-1 text-xs text-gray-500">
-                All amounts will be converted and displayed in this currency
-              </p>
+              <p className="mt-1.5 text-xs text-gray-500">All amounts will be converted and displayed in this currency</p>
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Default Alert Time
-              </label>
-              <Select
-                value={defaultAlertDays}
-                onValueChange={setDefaultAlertDays}
-              >
-                <SelectTrigger className="w-full sm:w-64">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Default Alert Time</label>
+              <Select value={defaultAlertDays} onValueChange={setDefaultAlertDays}>
+                <SelectTrigger className="w-full sm:w-72">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -338,105 +303,81 @@ export default function SettingsPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="mt-1 text-xs text-gray-500">
-                Default reminder time for new subscriptions
-              </p>
+              <p className="mt-1.5 text-xs text-gray-500">Default reminder time for new subscriptions</p>
             </div>
 
             {preferencesMessage && (
-              <p
-                className={`text-sm ${preferencesMessage.includes("success") ? "text-emerald-600" : "text-red-600"}`}
-              >
+              <div className={`rounded-lg p-3 text-sm ${preferencesMessage.includes("success") ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"}`}>
                 {preferencesMessage}
-              </p>
+              </div>
             )}
 
-            <Button
-              onClick={handleSavePreferences}
-              disabled={isSavingPreferences}
-            >
-              {isSavingPreferences ? (
-                <RiLoader4Line className="mr-2 size-4 animate-spin" />
-              ) : (
-                <RiSaveLine className="mr-2 size-4" />
-              )}
+            <Button onClick={handleSavePreferences} disabled={isSavingPreferences}>
+              {isSavingPreferences ? <RiLoader4Line className="mr-2 size-4 animate-spin" /> : <RiSaveLine className="mr-2 size-4" />}
               Save Preferences
             </Button>
           </div>
         </div>
 
         {/* Notifications */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-            Notifications
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Choose how you want to be notified
-          </p>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30">
+              <RiNotification3Line className="size-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Notifications</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Choose how you want to be notified</p>
+            </div>
+          </div>
 
-          <div className="mt-6 space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
               <div>
-                <span className="font-medium text-gray-900 dark:text-gray-50">
-                  Email Alerts
-                </span>
+                <span className="font-medium text-gray-900 dark:text-gray-50">Email Alerts</span>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Receive email notifications before subscription renewals
                 </p>
               </div>
-              <Switch
-                checked={emailAlerts}
-                onCheckedChange={setEmailAlerts}
-              />
+              <Switch checked={emailAlerts} onCheckedChange={setEmailAlerts} />
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between rounded-xl bg-gray-50 p-4 dark:bg-gray-800">
               <div>
-                <span className="font-medium text-gray-900 dark:text-gray-50">
-                  Weekly Digest
-                </span>
+                <span className="font-medium text-gray-900 dark:text-gray-50">Weekly Digest</span>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Get a weekly summary of your upcoming payments
                 </p>
               </div>
-              <Switch
-                checked={weeklyDigest}
-                onCheckedChange={setWeeklyDigest}
-              />
+              <Switch checked={weeklyDigest} onCheckedChange={setWeeklyDigest} />
             </div>
 
             {notificationsMessage && (
-              <p
-                className={`text-sm ${notificationsMessage.includes("success") ? "text-emerald-600" : "text-red-600"}`}
-              >
+              <div className={`rounded-lg p-3 text-sm ${notificationsMessage.includes("success") ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400" : "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400"}`}>
                 {notificationsMessage}
-              </p>
+              </div>
             )}
 
-            <Button
-              onClick={handleSaveNotifications}
-              disabled={isSavingNotifications}
-            >
-              {isSavingNotifications ? (
-                <RiLoader4Line className="mr-2 size-4 animate-spin" />
-              ) : (
-                <RiSaveLine className="mr-2 size-4" />
-              )}
+            <Button onClick={handleSaveNotifications} disabled={isSavingNotifications}>
+              {isSavingNotifications ? <RiLoader4Line className="mr-2 size-4 animate-spin" /> : <RiSaveLine className="mr-2 size-4" />}
               Save Notifications
             </Button>
           </div>
         </div>
 
         {/* Data Management */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
-            Data Management
-          </h2>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Export or delete your data
-          </p>
+        <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+              <RiDatabase2Line className="size-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">Data Management</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Export or manage your data</p>
+            </div>
+          </div>
 
-          <div className="mt-6 flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button variant="secondary" onClick={handleExportData}>
               <RiDownloadLine className="mr-2 size-4" />
               Export All Data
@@ -451,29 +392,24 @@ export default function SettingsPage() {
         </div>
 
         {/* Danger Zone */}
-        <div className="rounded-lg border border-red-200 bg-red-50 p-6 dark:border-red-900 dark:bg-red-900/20">
-          <h2 className="text-lg font-semibold text-red-900 dark:text-red-400">
-            Danger Zone
-          </h2>
-          <p className="mt-1 text-sm text-red-700 dark:text-red-300">
-            Irreversible actions for your account
-          </p>
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-6 dark:border-red-900/50 dark:bg-red-900/20">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-red-100 dark:bg-red-900/30">
+              <RiAlertLine className="size-5 text-red-600 dark:text-red-400" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-red-900 dark:text-red-400">Danger Zone</h2>
+              <p className="text-sm text-red-700 dark:text-red-300">Irreversible actions for your account</p>
+            </div>
+          </div>
 
-          <div className="mt-6">
-            <Button
-              variant="destructive"
-              onClick={handleDeleteAccount}
-              disabled={isDeleting}
-            >
-              {isDeleting ? (
-                <RiLoader4Line className="mr-2 size-4 animate-spin" />
-              ) : (
-                <RiDeleteBinLine className="mr-2 size-4" />
-              )}
+          <div>
+            <Button variant="destructive" onClick={handleDeleteAccount} disabled={isDeleting}>
+              {isDeleting ? <RiLoader4Line className="mr-2 size-4 animate-spin" /> : <RiDeleteBinLine className="mr-2 size-4" />}
               Delete Account
             </Button>
-            <p className="mt-2 text-xs text-red-600 dark:text-red-400">
-              This will permanently delete your account and all associated data.
+            <p className="mt-3 text-xs text-red-600 dark:text-red-400">
+              This will permanently delete your account and all associated data. This action cannot be undone.
             </p>
           </div>
         </div>

@@ -1,83 +1,143 @@
 import { NextResponse } from "next/server"
 import dbConnect from "@/lib/mongodb"
 import Subscription from "@/models/Subscription"
-import User from "@/models/User"
+import clientPromise from "@/lib/mongodb-client"
+import { ObjectId } from "mongodb"
 import { sendSubscriptionAlert } from "@/lib/email"
+import { auth } from "@/lib/auth"
+import {
+  requireAuth,
+  validateObjectId,
+  checkRateLimit,
+  errorResponse,
+  successResponse,
+  ApiErrors,
+  logSecurityEvent,
+  getClientIp,
+} from "@/lib/api-utils"
+import { sendAlertSchema } from "@/lib/validations"
 
-// This endpoint can be called by a cron job (e.g., Vercel Cron, GitHub Actions, or external service)
-// Add ?secret=YOUR_CRON_SECRET to verify the request
+// Helper function to calculate days until a date (using date only, ignoring time)
+function calculateDaysUntil(targetDate: Date): number {
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const target = new Date(
+    targetDate.getFullYear(),
+    targetDate.getMonth(),
+    targetDate.getDate()
+  )
+  const diffTime = target.getTime() - today.getTime()
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24))
+  return diffDays
+}
+
+// GET - Cron job endpoint (called by Vercel Cron or external scheduler)
+// Uses header-based authentication instead of query params for security
 export async function GET(request: Request) {
   try {
-    // Verify cron secret
-    const { searchParams } = new URL(request.url)
-    const secret = searchParams.get("secret")
+    // Verify cron secret via Authorization header (more secure than query param)
+    const authHeader = request.headers.get("authorization")
+    const querySecret = new URL(request.url).searchParams.get("secret")
+    const cronSecret = process.env.CRON_SECRET
 
-    if (secret !== process.env.CRON_SECRET) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Check both header and query param for backward compatibility
+    const providedSecret = authHeader?.replace("Bearer ", "") || querySecret
+
+    if (!cronSecret || providedSecret !== cronSecret) {
+      logSecurityEvent("unauthorized_cron_access", {
+        ip: getClientIp(request),
+        hasAuthHeader: !!authHeader,
+        hasQuerySecret: !!querySecret,
+      })
+      return errorResponse(ApiErrors.UNAUTHORIZED)
     }
 
     await dbConnect()
 
-    const now = new Date()
+    const client = await clientPromise
+    const db = client.db()
+    const usersCollection = db.collection("users")
+
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const todayStr = today.toISOString().split("T")[0]
+
     const alerts: Array<{
       userId: string
       subscriptionId: string
       email: string
       status: string
+      daysUntil: number
     }> = []
 
-    // Find all active subscriptions with alerts enabled
     const subscriptions = await Subscription.find({
       status: "active",
       alertEnabled: true,
-    }).populate("userId")
+    }).lean()
 
     for (const subscription of subscriptions) {
       const nextBillingDate = new Date(subscription.nextBillingDate)
-      const daysUntil = Math.ceil(
-        (nextBillingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-      )
+      const daysUntil = calculateDaysUntil(nextBillingDate)
 
-      // Check if we should send an alert based on alertDays setting
-      if (daysUntil === subscription.alertDays || daysUntil === 1 || daysUntil === 0) {
-        // Get user email
-        const user = await User.findById(subscription.userId)
+      if (daysUntil < 0) continue
 
-        // Skip if user has disabled email alerts
-        if (user && user.email && user.emailAlerts !== false) {
-          try {
-            const result = await sendSubscriptionAlert(user.email, {
-              subscriptionName: subscription.name,
-              amount: subscription.amount,
-              currency: subscription.currency,
-              billingDate: nextBillingDate,
-              daysUntil,
-              userName: user.name,
-            })
+      const shouldSendAlert =
+        daysUntil === subscription.alertDays ||
+        daysUntil === 1 ||
+        daysUntil === 0
 
-            alerts.push({
-              userId: subscription.userId.toString(),
-              subscriptionId: subscription._id.toString(),
-              email: user.email,
-              status: result.success ? "sent" : "failed",
-            })
-          } catch (error) {
-            console.error(
-              `Failed to send alert for subscription ${subscription._id}:`,
-              error,
-            )
-            alerts.push({
-              userId: subscription.userId.toString(),
-              subscriptionId: subscription._id.toString(),
-              email: user.email,
-              status: "error",
-            })
-          }
+      if (!shouldSendAlert) continue
+
+      const lastAlertSent = (subscription as { lastAlertSent?: Date }).lastAlertSent
+      const lastAlertDate = lastAlertSent
+        ? new Date(lastAlertSent).toISOString().split("T")[0]
+        : null
+
+      if (lastAlertDate === todayStr) continue
+
+      const userId = subscription.userId.toString()
+      const user = await usersCollection.findOne({
+        _id: new ObjectId(userId),
+      })
+
+      if (!user || !user.email || user.emailAlerts === false) continue
+
+      try {
+        const result = await sendSubscriptionAlert(user.email, {
+          subscriptionName: subscription.name,
+          amount: subscription.amount,
+          currency: subscription.currency,
+          billingDate: nextBillingDate,
+          daysUntil,
+          userName: user.name,
+        })
+
+        if (result.success) {
+          await Subscription.findByIdAndUpdate(subscription._id, {
+            lastAlertSent: new Date(),
+          })
         }
+
+        alerts.push({
+          userId,
+          subscriptionId: subscription._id.toString(),
+          email: user.email,
+          status: result.success ? "sent" : "failed",
+          daysUntil,
+        })
+      } catch (error) {
+        console.error(`Failed to send alert for subscription ${subscription._id}:`, error)
+        alerts.push({
+          userId,
+          subscriptionId: subscription._id.toString(),
+          email: user.email,
+          status: "error",
+          daysUntil,
+        })
       }
     }
 
-    return NextResponse.json({
+    return successResponse({
       success: true,
       alertsSent: alerts.filter((a) => a.status === "sent").length,
       alertsFailed: alerts.filter((a) => a.status !== "sent").length,
@@ -85,61 +145,84 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error("Error sending subscription alerts:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }
 
-// POST endpoint for manually triggering alerts for a specific user
+// POST - Manual alert trigger (authenticated users only)
 export async function POST(request: Request) {
   try {
-    const { userId, subscriptionId } = await request.json()
+    // Require authentication
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
+    }
+    const { userId } = authResult
 
-    if (!userId || !subscriptionId) {
-      return NextResponse.json(
-        { error: "userId and subscriptionId are required" },
-        { status: 400 },
+    // Rate limiting
+    const rateLimitResult = checkRateLimit(userId, "email", getClientIp(request))
+    if (!rateLimitResult.success) {
+      logSecurityEvent("rate_limit_exceeded", { userId, operation: "manual_alert" })
+      return rateLimitResult.response
+    }
+
+    // Parse and validate request body
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse(ApiErrors.VALIDATION_ERROR("Invalid JSON body"))
+    }
+
+    const validation = sendAlertSchema.safeParse(body)
+    if (!validation.success) {
+      return errorResponse(
+        ApiErrors.VALIDATION_ERROR(
+          validation.error.issues.map((e) => e.message).join(", ")
+        )
       )
+    }
+
+    const { subscriptionId } = validation.data
+
+    // Validate ObjectId format
+    const idValidation = validateObjectId(subscriptionId)
+    if (!idValidation.success) {
+      return idValidation.response
     }
 
     await dbConnect()
 
+    const client = await clientPromise
+    const db = client.db()
+    const usersCollection = db.collection("users")
+
+    // CRITICAL: Only allow users to trigger alerts for their OWN subscriptions
     const subscription = await Subscription.findOne({
       _id: subscriptionId,
-      userId,
+      userId, // Security: Must match authenticated user
     })
 
     if (!subscription) {
-      return NextResponse.json(
-        { error: "Subscription not found" },
-        { status: 404 },
-      )
+      return errorResponse(ApiErrors.NOT_FOUND)
     }
 
-    const user = await User.findById(userId)
+    const user = await usersCollection.findOne({
+      _id: new ObjectId(userId),
+    })
 
     if (!user || !user.email) {
-      return NextResponse.json(
-        { error: "User not found or no email" },
-        { status: 404 },
-      )
+      return errorResponse(ApiErrors.NOT_FOUND)
     }
 
-    // Check if user has disabled email alerts
     if (user.emailAlerts === false) {
-      return NextResponse.json(
-        { error: "Email alerts are disabled for this user" },
-        { status: 400 },
+      return errorResponse(
+        ApiErrors.VALIDATION_ERROR("Email alerts are disabled in your settings")
       )
     }
 
     const nextBillingDate = new Date(subscription.nextBillingDate)
-    const now = new Date()
-    const daysUntil = Math.ceil(
-      (nextBillingDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-    )
+    const daysUntil = calculateDaysUntil(nextBillingDate)
 
     const result = await sendSubscriptionAlert(user.email, {
       subscriptionName: subscription.name,
@@ -150,12 +233,15 @@ export async function POST(request: Request) {
       userName: user.name,
     })
 
-    return NextResponse.json(result)
+    if (result.success) {
+      await Subscription.findByIdAndUpdate(subscription._id, {
+        lastAlertSent: new Date(),
+      })
+    }
+
+    return successResponse(result, 200, rateLimitResult.headers)
   } catch (error) {
     console.error("Error sending manual alert:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }

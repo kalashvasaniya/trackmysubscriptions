@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Logo } from "../../../public/Logo"
+import { Logo } from "@/components/Logo"
 
 const navigation = {
   product: [

@@ -24,7 +24,7 @@ import {
 } from "@remixicon/react"
 import { usePathname } from "next/navigation"
 import * as React from "react"
-import { Logo } from "../../../../public/Logo"
+import { Logo } from "@/components/Logo"
 import { UserProfile } from "./UserProfile"
 
 const mainNavigation = [

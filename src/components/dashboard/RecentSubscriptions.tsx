@@ -2,18 +2,9 @@
 
 import { Badge } from "@/components/Badge"
 import { Button } from "@/components/Button"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeaderCell,
-  TableRoot,
-  TableRow,
-} from "@/components/Table"
 import { formatCurrency } from "@/lib/currency"
 import { cx } from "@/lib/utils"
-import { RiArrowRightLine, RiMoreLine, RiLoader4Line } from "@remixicon/react"
+import { RiArrowRightLine, RiLoader4Line } from "@remixicon/react"
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
@@ -29,10 +20,20 @@ interface Subscription {
 }
 
 const statusConfig = {
-  active: { variant: "success" as const, label: "Active" },
-  trial: { variant: "warning" as const, label: "Trial" },
-  cancelled: { variant: "neutral" as const, label: "Cancelled" },
-  paused: { variant: "default" as const, label: "Paused" },
+  active: { variant: "success" as const, label: "Active", color: "emerald" },
+  trial: { variant: "warning" as const, label: "Trial", color: "amber" },
+  cancelled: { variant: "neutral" as const, label: "Cancelled", color: "gray" },
+  paused: { variant: "default" as const, label: "Paused", color: "blue" },
+}
+
+const categoryColors: Record<string, string> = {
+  Entertainment: "#E50914",
+  Music: "#1DB954",
+  Development: "#6366F1",
+  Design: "#F24E1E",
+  Cloud: "#FF9900",
+  Productivity: "#0078D4",
+  default: "#6B7280",
 }
 
 export function RecentSubscriptions() {
@@ -61,7 +62,7 @@ export function RecentSubscriptions() {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+      <div className="flex h-64 items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
         <RiLoader4Line className="size-6 animate-spin text-gray-400" />
       </div>
     )
@@ -69,33 +70,38 @@ export function RecentSubscriptions() {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
         {error}
       </div>
     )
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
-      <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-800">
+    <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+      <div className="flex items-center justify-between border-b border-gray-200 p-6 dark:border-gray-800">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
             Recent Subscriptions
           </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Your latest subscription activities
           </p>
         </div>
-        <Button variant="secondary" size="sm" asChild>
+        <Button variant="secondary" asChild className="group">
           <Link href="/subscriptions">
             View All
-            <RiArrowRightLine className="ml-2 size-4" />
+            <RiArrowRightLine className="ml-2 size-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </Button>
       </div>
 
       {subscriptions.length === 0 ? (
         <div className="px-6 py-12 text-center">
+          <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+            <svg className="size-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             No subscriptions yet. Add your first subscription to get started.
           </p>
@@ -104,85 +110,69 @@ export function RecentSubscriptions() {
           </Button>
         </div>
       ) : (
-        <TableRoot>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeaderCell>Name</TableHeaderCell>
-                <TableHeaderCell>Amount</TableHeaderCell>
-                <TableHeaderCell>Cycle</TableHeaderCell>
-                <TableHeaderCell>Next Billing</TableHeaderCell>
-                <TableHeaderCell>Status</TableHeaderCell>
-                <TableHeaderCell className="w-10"></TableHeaderCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {subscriptions.map((sub) => {
-                const status =
-                  statusConfig[sub.status as keyof typeof statusConfig] ||
-                  statusConfig.active
-                return (
-                  <TableRow key={sub.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="flex size-8 items-center justify-center rounded-md bg-gray-100 text-sm font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-300">
-                          {sub.name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-50">
-                            {sub.name}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {sub.category || "Uncategorized"}
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="font-medium">
-                        {formatCurrency(sub.amount, sub.currency)}
-                      </span>
-                    </TableCell>
-                    <TableCell>
+        <div className="divide-y divide-gray-100 dark:divide-gray-800">
+          {subscriptions.map((sub) => {
+            const status =
+              statusConfig[sub.status as keyof typeof statusConfig] ||
+              statusConfig.active
+            const color = categoryColors[sub.category || ""] || categoryColors.default
+            
+            return (
+              <Link
+                key={sub.id}
+                href={`/subscriptions/${sub.id}`}
+                className="flex items-center justify-between p-4 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className="flex size-12 items-center justify-center rounded-xl text-lg font-bold"
+                    style={{
+                      backgroundColor: `${color}15`,
+                      color: color,
+                    }}
+                  >
+                    {sub.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-gray-50">
+                      {sub.name}
+                    </p>
+                    <div className="mt-1 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                      <span>{sub.category || "Uncategorized"}</span>
+                      <span>•</span>
                       <span className="capitalize">{sub.billingCycle}</span>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(sub.nextBillingDate).toLocaleDateString(
-                        "en-US",
-                        {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        },
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="font-semibold text-gray-900 dark:text-gray-50">
+                      {formatCurrency(sub.amount, sub.currency)}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Next: {new Date(sub.nextBillingDate).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </p>
+                  </div>
+                  <Badge variant={status.variant} className="rounded-full">
+                    <span
+                      className={cx(
+                        "mr-1.5 size-1.5 rounded-full",
+                        status.color === "emerald" && "bg-emerald-500",
+                        status.color === "amber" && "bg-amber-500",
+                        status.color === "gray" && "bg-gray-500",
+                        status.color === "blue" && "bg-blue-500",
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={status.variant} className="rounded-full">
-                        <span
-                          className={cx(
-                            "mr-1.5 size-1.5 rounded-full",
-                            status.variant === "success" && "bg-emerald-500",
-                            status.variant === "warning" && "bg-amber-500",
-                            status.variant === "neutral" && "bg-gray-500",
-                            status.variant === "default" && "bg-blue-500",
-                          )}
-                        />
-                        {status.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Link href={`/subscriptions/${sub.id}`}>
-                        <Button variant="ghost" className="!p-1">
-                          <RiMoreLine className="size-4 text-gray-500" />
-                        </Button>
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </TableRoot>
+                    />
+                    {status.label}
+                  </Badge>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
       )}
     </div>
   )

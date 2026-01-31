@@ -1,4 +1,3 @@
-import { auth } from "@/lib/auth"
 import {
   fetchExchangeRates,
   convertWithRates,
@@ -6,26 +5,47 @@ import {
 import dbConnect from "@/lib/mongodb"
 import Subscription from "@/models/Subscription"
 import User from "@/models/User"
-import { NextResponse } from "next/server"
+import Folder from "@/models/Folder"
+import PaymentMethod from "@/models/PaymentMethod"
+import {
+  requireAuth,
+  checkRateLimit,
+  validateBody,
+  errorResponse,
+  successResponse,
+  ApiErrors,
+  getClientIp,
+} from "@/lib/api-utils"
+import { createSubscriptionSchema } from "@/lib/validations"
+
+// Ensure models are registered for populate
+void Folder
+void PaymentMethod
 
 // GET all subscriptions (with amounts in user's display currency)
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const session = await auth()
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
+    }
+    const { userId } = authResult
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Rate limit
+    const rateLimitResult = checkRateLimit(userId, "api", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
     }
 
     await dbConnect()
 
-    const user = await User.findById(session.user.id).select("currency").lean()
+    const user = await User.findById(userId).select("currency").lean()
     const displayCurrency = user?.currency ?? "USD"
     const rates = await fetchExchangeRates("USD")
     const toDisplay = (amount: number, fromCurrency: string) =>
       convertWithRates(amount, fromCurrency, displayCurrency, rates)
 
-    const subscriptions = await Subscription.find({ userId: session.user.id })
+    const subscriptions = await Subscription.find({ userId })
       .populate("folderId", "name color")
       .populate("paymentMethodId", "name type lastFour")
       .sort({ nextBillingDate: 1 })
@@ -36,86 +56,78 @@ export async function GET() {
       displayAmount: Math.round(toDisplay(sub.amount, sub.currency) * 100) / 100,
     }))
 
-    return NextResponse.json({
-      subscriptions: subscriptionsWithDisplay,
-      displayCurrency,
-    })
+    return successResponse(
+      { subscriptions: subscriptionsWithDisplay, displayCurrency },
+      200,
+      rateLimitResult.headers
+    )
   } catch (error) {
     console.error("Error fetching subscriptions:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }
 
 // POST create a new subscription
 export async function POST(request: Request) {
   try {
-    const session = await auth()
+    const authResult = await requireAuth()
+    if (!authResult.success) {
+      return authResult.response
+    }
+    const { userId } = authResult
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    // Rate limit for create operations
+    const rateLimitResult = checkRateLimit(userId, "create", getClientIp(request))
+    if (!rateLimitResult.success) {
+      return rateLimitResult.response
     }
 
-    const body = await request.json()
-
-    const {
-      name,
-      description,
-      amount,
-      currency,
-      billingCycle,
-      nextBillingDate,
-      startDate,
-      status,
-      category,
-      url,
-      logo,
-      notes,
-      alertDays,
-      alertEnabled,
-      folderId,
-      tagIds,
-      paymentMethodId,
-    } = body
-
-    if (!name || amount === undefined || !billingCycle || !nextBillingDate) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 },
-      )
+    // Parse request body
+    let body: unknown
+    try {
+      body = await request.json()
+    } catch {
+      return errorResponse(ApiErrors.VALIDATION_ERROR("Invalid JSON body"))
     }
+
+    // Validate request body
+    const validation = validateBody(createSubscriptionSchema, body)
+    if (!validation.success) {
+      return validation.response
+    }
+
+    const data = validation.data
 
     await dbConnect()
 
+    // Validate date is not in the past (for start date)
+    const startDate = data.startDate ? new Date(data.startDate) : new Date()
+    const nextBillingDate = new Date(data.nextBillingDate)
+
+    // Sanitize and create subscription
     const subscription = await Subscription.create({
-      name,
-      description,
-      amount,
-      currency: currency || "USD",
-      billingCycle,
-      nextBillingDate: new Date(nextBillingDate),
-      startDate: startDate ? new Date(startDate) : new Date(),
-      status: status || "active",
-      category,
-      url,
-      logo,
-      notes,
-      alertDays: alertDays ?? 3,
-      alertEnabled: alertEnabled ?? true,
-      userId: session.user.id,
-      folderId,
-      tagIds: tagIds || [],
-      paymentMethodId,
+      name: data.name.trim(),
+      description: data.description?.trim(),
+      amount: data.amount,
+      currency: data.currency || "USD",
+      billingCycle: data.billingCycle,
+      nextBillingDate,
+      startDate,
+      status: data.status || "active",
+      category: data.category,
+      url: data.url || undefined,
+      logo: data.logo || undefined,
+      alertDays: data.alertDays ?? 3,
+      alertEnabled: true,
+      userId,
+      folderId: data.folderId || undefined,
+      tagIds: data.tagIds || [],
+      paymentMethodId: data.paymentMethodId || undefined,
     })
 
-    return NextResponse.json(subscription, { status: 201 })
+    return successResponse(subscription, 201, rateLimitResult.headers)
   } catch (error) {
     console.error("Error creating subscription:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    )
+    return errorResponse(ApiErrors.INTERNAL_ERROR)
   }
 }

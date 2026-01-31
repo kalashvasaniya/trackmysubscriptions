@@ -35,7 +35,7 @@ export default function EditSubscriptionPage() {
   if (isLoading) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto max-w-2xl space-y-6">
+        <div className="max-w-2xl space-y-6">
           <Skeleton className="h-8 w-48" />
           <Skeleton className="h-64 w-full" />
           <Skeleton className="h-32 w-full" />
@@ -47,7 +47,7 @@ export default function EditSubscriptionPage() {
   if (error) {
     return (
       <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mx-auto max-w-2xl">
+        <div className="max-w-2xl">
           <div className="rounded-md bg-red-50 p-4 text-red-600 dark:bg-red-900/20 dark:text-red-400">
             {error}
           </div>
@@ -58,7 +58,7 @@ export default function EditSubscriptionPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto max-w-2xl">
+      <div className="max-w-2xl">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-50">
             Edit Subscription
