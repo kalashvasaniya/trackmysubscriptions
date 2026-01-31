@@ -1,47 +1,39 @@
-import { NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
-import dbConnect from "@/lib/mongodb"
-import mongoose from "mongoose"
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import clientPromise from '@/lib/mongodb-client';
 
-// Check user's payment/access status (one-time purchase model)
 export async function GET() {
   try {
-    const session = await auth()
-    
+    const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      )
+        { paid: false },
+        { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+      );
     }
 
-    await dbConnect()
-    const db = mongoose.connection.db
+    const email = session.user.email;
 
-    const payment = await db?.collection("payments").findOne({
-      email: session.user.email,
-    })
-
-    if (!payment) {
-      return NextResponse.json({
-        isPro: false,
-        status: "free",
-        plan: "free",
-      })
+    // Check user document first
+    const client = await clientPromise;
+    const db = client.db();
+    const usersCollection = db.collection('users');
+    const user = await usersCollection.findOne({ email });
+    if (user?.payment) {
+      return NextResponse.json(
+        { paid: true },
+        { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+      );
     }
 
-    return NextResponse.json({
-      isPro: payment.status === "active" && payment.plan === "lifetime",
-      status: payment.status,
-      plan: payment.plan,
-      paidAt: payment.paidAt,
-      paymentId: payment.paymentId,
-    })
-  } catch (error) {
-    console.error("Status check error:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+      { paid: false },
+      { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+    );
+  } catch (err) {
+    return NextResponse.json(
+      { paid: false },
+      { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+    );
   }
 }

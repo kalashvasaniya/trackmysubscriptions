@@ -12,6 +12,24 @@ function PaymentSuccessContent() {
 
   useEffect(() => {
     async function verifyAndSave() {
+      // First check if user already has payment access
+      try {
+        const statusResponse = await fetch("/api/payments/status")
+        const statusResult = await statusResponse.json()
+        
+        if (statusResult.paid) {
+          // User already has access, redirect to dashboard
+          setStatus("success")
+          setMessage("You already have access! Redirecting to dashboard...")
+          setTimeout(() => {
+            router.push("/dashboard")
+          }, 1500)
+          return
+        }
+      } catch (e) {
+        // Continue with verification if status check fails
+      }
+
       // Dodo may send payment_id, subscription_id, session_id, or checkout_id
       const paymentId =
         searchParams.get("payment_id") ||
@@ -28,18 +46,14 @@ function PaymentSuccessContent() {
       }
 
       try {
-        const response = await fetch("/api/payments/verify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            paymentId,
-            status: paymentStatus || "active",
-          }),
-        })
-
+        // Build query params for GET request
+        const params = new URLSearchParams()
+        if (paymentId) params.set("payment_id", paymentId)
+        
+        const response = await fetch(`/api/payments/verify?${params.toString()}`)
         const result = await response.json()
 
-        if (response.ok && result.success) {
+        if (response.ok && result.ok && (result.status === "succeeded" || result.status === "paid")) {
           setStatus("success")
           setMessage("Payment verified! Redirecting to dashboard...")
 

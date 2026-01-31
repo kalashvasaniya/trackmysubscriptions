@@ -1,77 +1,112 @@
-import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
-import dbConnect from "@/lib/mongodb"
-import mongoose from "mongoose"
+import { NextRequest, NextResponse } from 'next/server';
+import clientPromise from '@/lib/mongodb-client';
+import { z } from 'zod';
 
-// Verify one-time payment and grant lifetime access
-export async function POST(request: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const session = await auth()
-    
-    if (!session?.user?.email) {
+    const bearerToken = process.env.DODO_PAYMENTS_API_KEY;
+    const env = process.env.DODO_PAYMENTS_ENV || 'test';
+    const baseUrl = env === 'live' ? 'https://live.dodopayments.com' : 'https://test.dodopayments.com';
+    if (!bearerToken) {
       return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 }
-      )
+        { ok: false, error: 'Server not configured' },
+        { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+      );
     }
 
-    const body = await request.json().catch(() => ({}))
-    const paymentId = body.paymentId ?? body.subscriptionId ?? body.sessionId ?? body.checkoutId
-    const paymentStatus = body.status
+    const url = new URL(req.url);
+    const sessionId = url.searchParams.get('session_id') || url.searchParams.get('sessionId') || '';
+    const paymentId = url.searchParams.get('payment_id') || url.searchParams.get('paymentId') || '';
+    const checkId = sessionId || paymentId;
 
-    // Save when user landed from success redirect (Dodo confirmed payment)
-    const isSuccess =
-      paymentStatus === "active" ||
-      paymentStatus === "succeeded" ||
-      paymentId
+    if (!checkId) {
+      // Nothing to verify
+      return NextResponse.json(
+        { ok: false },
+        { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+      );
+    }
 
-    if (isSuccess) {
-      await dbConnect()
-      const db = mongoose.connection.db
+    // Validate ID to prevent path injection/SSRF
+    const idSchema = z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/);
+    const parsed = idSchema.safeParse(checkId);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { ok: false, error: 'Invalid ID' },
+        { status: 400, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+      );
+    }
 
-      if (!db) {
-        throw new Error("Database connection failed")
-      }
+    // Try checkout sessions endpoint first (new API)
+    let resp = await fetch(`${baseUrl}/checkouts/${checkId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${bearerToken}`,
+      },
+    });
 
-      // Save one-time payment data - grants lifetime access
-      await db.collection("payments").updateOne(
-        { email: session.user.email },
-        {
-          $set: {
-            email: session.user.email,
-            name: session.user.name || "Customer",
-            paymentId: paymentId || null,
-            status: "active",
-            plan: "lifetime",
-            isPro: true,
-            paidAt: new Date(),
-            updatedAt: new Date(),
-          },
+    let data = await resp.json().catch(() => ({} as any));
+    
+    // If checkout not found and we have a paymentId, try the old payments endpoint
+    if (!resp.ok && paymentId) {
+      resp = await fetch(`${baseUrl}/payments/${paymentId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${bearerToken}`,
         },
-        { upsert: true }
-      )
-
-      console.log(`Lifetime access granted for ${session.user.email}`)
-
-      return NextResponse.json({
-        success: true,
-        isPro: true,
-        status: "active",
-        plan: "lifetime",
-        paymentId,
-        message: "Lifetime access activated successfully",
-      })
+      });
+      data = await resp.json().catch(() => ({} as any));
     }
 
-    return NextResponse.json({
-      success: false,
-      message: "Invalid payment status",
-    })
-  } catch (error) {
-    console.error("Payment verification error:", error)
+    if (!resp.ok) {
+      return NextResponse.json(
+        { ok: false, error: data?.message || 'Failed to verify' },
+        { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+      );
+    }
+
+    // Check if payment succeeded
+    const paymentStatus = data?.status || data?.payment_status;
+    
+    if (paymentStatus === 'succeeded' || paymentStatus === 'paid') {
+      try {
+        const client = await clientPromise;
+        const db = client.db();
+        const usersCollection = db.collection('users');
+        // Check all possible email locations in Dodo response
+        const userEmail = 
+          data?.metadata?.userEmail || 
+          data?.customer?.email || 
+          data?.customer_email ||  // Dodo uses snake_case
+          data?.email || 
+          null;
+        
+        if (userEmail) {
+          const emailSchema = z.string().email();
+          const parsedEmail = emailSchema.safeParse(String(userEmail));
+          
+          if (parsedEmail.success) {
+            await usersCollection.updateOne(
+              { email: parsedEmail.data },
+              { $set: { payment: true, updatedAt: new Date() } }
+            );
+          }
+        }
+      } catch (e) {
+        // Silently handle database errors
+      }
+    }
+
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    )
+      { ok: true, status: paymentStatus || 'unknown' },
+      { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+    );
+  } catch (err) {
+    return NextResponse.json(
+      { ok: false },
+      { status: 200, headers: { 'Cache-Control': 'no-store, no-cache, must-revalidate', Pragma: 'no-cache' } }
+    );
   }
 }

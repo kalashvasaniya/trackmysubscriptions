@@ -8,8 +8,7 @@ import localFont from "next/font/local"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
-import dbConnect from "@/lib/mongodb"
-import mongoose from "mongoose"
+import clientPromise from "@/lib/mongodb-client"
 import "../globals.css"
 import { siteConfig } from "../siteConfig"
 
@@ -49,16 +48,14 @@ export default async function DashboardLayout({
     redirect("/login")
   }
 
-  await dbConnect()
-  const db = mongoose.connection.db
-  const payment = await db?.collection("payments").findOne({
+  // Check if user has payment: true in users collection
+  const client = await clientPromise
+  const db = client.db()
+  const user = await db.collection("users").findOne({
     email: session.user.email,
   })
 
-  const hasAccess =
-    payment?.status === "active" && payment?.plan === "lifetime"
-
-  if (!hasAccess) {
+  if (!user?.payment) {
     redirect("/?upgrade=1#pricing")
   }
 
