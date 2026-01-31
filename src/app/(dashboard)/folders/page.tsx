@@ -206,16 +206,16 @@ export default function FoldersPage() {
         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
         
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="relative mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="text-white">
-              <div className="flex items-center gap-3">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
-                  <RiFolderLine className="size-6" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm sm:size-12">
+                  <RiFolderLine className="size-5 sm:size-6" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold sm:text-3xl">Folders</h1>
-                  <p className="mt-1 text-amber-100">Organize your subscriptions into folders</p>
+                  <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">Folders</h1>
+                  <p className="mt-0.5 text-sm text-amber-100 sm:mt-1">Organize your subscriptions into folders</p>
                 </div>
               </div>
             </div>
@@ -223,29 +223,29 @@ export default function FoldersPage() {
             <Button 
               onClick={() => setIsAdding(true)} 
               disabled={isAdding}
-              className="bg-white text-amber-600 hover:bg-amber-50 shadow-lg"
+              className="bg-white text-amber-600 hover:bg-amber-50 shadow-lg text-sm sm:text-base"
             >
-              <RiAddLine className="mr-2 size-4" />
+              <RiAddLine className="mr-1.5 size-4 sm:mr-2" />
               Add Folder
             </Button>
           </div>
 
           {/* Quick Stats Pills */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiFolderLine className="size-4" />
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiFolderLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{folders.length} Folders</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiFileListLine className="size-4" />
-              <span className="font-medium">{stats.totalSubscriptions} Subscriptions</span>
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiFileListLine className="size-3.5 sm:size-4" />
+              <span className="font-medium">{stats.totalSubscriptions} Subs</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiFolderOpenLine className="size-4" />
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiFolderOpenLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{stats.activeFolders} Active</span>
             </div>
             {stats.emptyFolders > 0 && (
-              <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white/80 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs text-white/80 backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
                 <span className="font-medium">{stats.emptyFolders} Empty</span>
               </div>
             )}
@@ -253,45 +253,45 @@ export default function FoldersPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl p-3 sm:p-6 lg:p-8">
         {/* Quick Stats Cards */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiFolderLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Total Folders</span>
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-4 lg:grid-cols-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiFolderLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Total Folders</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{folders.length}</p>
-            <p className="mt-1 text-xs text-gray-500">folders created</p>
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">{folders.length}</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">folders created</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiFileListLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Subscriptions</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiFileListLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Subscriptions</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{stats.totalSubscriptions}</p>
-            <p className="mt-1 text-xs text-gray-500">organized in folders</p>
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">{stats.totalSubscriptions}</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">organized in folders</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiFolderOpenLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Active</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiFolderOpenLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Active</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{stats.activeFolders}</p>
-            <p className="mt-1 text-xs text-gray-500">folders with items</p>
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">{stats.activeFolders}</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">folders with items</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiFolderLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Largest</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiFolderLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Largest</span>
             </div>
-            <p className="mt-2 truncate text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 truncate text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {stats.largestFolder?.name || "—"}
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">
               {stats.largestFolder ? `${stats.largestFolder.subscriptionCount} items` : "no folders"}
             </p>
           </div>
@@ -299,17 +299,17 @@ export default function FoldersPage() {
 
         {/* Add Folder Form */}
         {isAdding && (
-          <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30">
-                <RiAddLine className="size-5 text-amber-600 dark:text-amber-400" />
+          <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:mb-6 sm:rounded-2xl sm:p-6">
+            <div className="mb-3 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
+              <div className="flex size-8 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30 sm:size-10">
+                <RiAddLine className="size-4 text-amber-600 dark:text-amber-400 sm:size-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-50">Create New Folder</h3>
-                <p className="text-sm text-gray-500">Add a new folder to organize your subscriptions</p>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-base">Create New Folder</h3>
+                <p className="text-xs text-gray-500 sm:text-sm">Add a new folder to organize your subscriptions</p>
               </div>
             </div>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
               <div className="flex-1">
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Folder Name
@@ -356,21 +356,21 @@ export default function FoldersPage() {
 
         {/* Folders Grid */}
         {folders.length === 0 && !isAdding ? (
-          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30">
-              <RiFolderLine className="size-10 text-amber-500" />
+          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl sm:p-12">
+            <div className="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 sm:mb-4 sm:size-20">
+              <RiFolderLine className="size-8 text-amber-500 sm:size-10" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-50">No folders yet</h3>
-            <p className="mt-2 text-gray-500 dark:text-gray-400">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 sm:text-xl">No folders yet</h3>
+            <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400 sm:mt-2">
               Create folders to organize your subscriptions
             </p>
-            <Button className="mt-6" onClick={() => setIsAdding(true)}>
+            <Button className="mt-4 sm:mt-6" onClick={() => setIsAdding(true)}>
               <RiAddLine className="mr-2 size-4" />
               Create your first folder
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
             {folders.map((folder) => (
               <div
                 key={folder._id}
@@ -471,22 +471,22 @@ export default function FoldersPage() {
         )}
 
         {/* Pro Tip Footer */}
-        <div className="mt-8 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 p-6 text-white">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-4">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                <RiFolderOpenLine className="size-6" />
+        <div className="mt-6 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 p-4 text-white sm:mt-8 sm:rounded-2xl sm:p-6">
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-start gap-3 sm:items-center sm:gap-4">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm sm:size-12">
+                <RiFolderOpenLine className="size-5 sm:size-6" />
               </div>
               <div>
-                <p className="text-lg font-semibold">Pro Tip: Organize Better</p>
-                <p className="mt-1 text-amber-100">
+                <p className="text-base font-semibold sm:text-lg">Pro Tip: Organize Better</p>
+                <p className="mt-0.5 text-sm text-amber-100 sm:mt-1">
                   Assign subscriptions to folders when creating or editing them for better organization and tracking.
                 </p>
               </div>
             </div>
             <Link
               href="/subscriptions/new"
-              className="inline-flex items-center rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/30"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/30 sm:w-auto sm:px-5 sm:py-2.5"
             >
               Add Subscription
               <RiArrowRightLine className="ml-2 size-4" />

@@ -145,25 +145,25 @@ function InsightCard({
   }
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
+    <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-3 shadow-sm transition-all hover:shadow-md dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl sm:p-5">
       <div className="flex items-start justify-between">
-        <div className={cx("flex size-12 items-center justify-center rounded-xl", colorClasses[color])}>
-          <Icon className="size-6" />
+        <div className={cx("flex size-9 items-center justify-center rounded-lg sm:size-12 sm:rounded-xl", colorClasses[color])}>
+          <Icon className="size-4 sm:size-6" />
         </div>
         {trend && (
           <div className={cx(
-            "flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium",
+            "flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-medium sm:gap-1 sm:px-2 sm:py-1 sm:text-xs",
             trend.isUp ? "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400" : "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
           )}>
-            {trend.isUp ? <RiArrowUpLine className="size-3" /> : <RiArrowDownLine className="size-3" />}
+            {trend.isUp ? <RiArrowUpLine className="size-2.5 sm:size-3" /> : <RiArrowDownLine className="size-2.5 sm:size-3" />}
             {Math.abs(trend.value).toFixed(1)}%
           </div>
         )}
       </div>
-      <div className="mt-4">
-        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
-        <p className="mt-1 text-2xl font-bold text-gray-900 dark:text-gray-50">{value}</p>
-        {subtitle && <p className="mt-1 text-xs text-gray-500">{subtitle}</p>}
+      <div className="mt-2.5 sm:mt-4">
+        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 sm:text-sm">{title}</p>
+        <p className="mt-0.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-1 sm:text-2xl">{value}</p>
+        {subtitle && <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">{subtitle}</p>}
       </div>
     </div>
   )
@@ -458,16 +458,16 @@ export default function SubscriptionsPage() {
         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
         
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="relative mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="text-white">
-              <div className="flex items-center gap-3">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
-                  <RiFileListLine className="size-6" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm sm:size-12">
+                  <RiFileListLine className="size-5 sm:size-6" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold sm:text-3xl">Subscriptions</h1>
-                  <p className="mt-1 text-blue-100">Manage and track all your subscriptions</p>
+                  <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">Subscriptions</h1>
+                  <p className="mt-0.5 text-sm text-blue-100 sm:mt-1">Manage and track all your subscriptions</p>
                 </div>
               </div>
             </div>
@@ -484,56 +484,56 @@ export default function SubscriptionsPage() {
                 variant="secondary" 
                 size="sm" 
                 onClick={() => fileInputRef.current?.click()}
-                className="bg-white/20 text-white hover:bg-white/30 border-white/20"
+                className="bg-white/20 text-white hover:bg-white/30 border-white/20 text-xs sm:text-sm"
               >
-                <RiUploadLine className="mr-2 size-4" />
+                <RiUploadLine className="mr-1.5 size-3.5 sm:mr-2 sm:size-4" />
                 Import
               </Button>
               <Button 
                 variant="secondary" 
                 size="sm" 
                 onClick={handleExport}
-                className="bg-white/20 text-white hover:bg-white/30 border-white/20"
+                className="bg-white/20 text-white hover:bg-white/30 border-white/20 text-xs sm:text-sm"
               >
-                <RiDownloadLine className="mr-2 size-4" />
+                <RiDownloadLine className="mr-1.5 size-3.5 sm:mr-2 sm:size-4" />
                 Export
               </Button>
-              <Button asChild className="bg-white text-blue-700 hover:bg-blue-50 shadow-lg">
+              <Button asChild className="bg-white text-blue-700 hover:bg-blue-50 shadow-lg text-xs sm:text-sm">
                 <Link href="/subscriptions/new">
-                  <RiAddLine className="mr-2 size-4" />
-                  Add Subscription
+                  <RiAddLine className="mr-1.5 size-3.5 sm:mr-2 sm:size-4" />
+                  <span className="hidden xs:inline">Add </span>Subscription
                 </Link>
               </Button>
             </div>
           </div>
 
           {/* Quick Stats Pills */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiFileListLine className="size-4" />
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiFileListLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{stats.total} Total</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-emerald-500/30 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiPlayCircleLine className="size-4" />
+            <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/30 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiPlayCircleLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{stats.statusCounts.active} Active</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiWalletLine className="size-4" />
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiWalletLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{formatCurrency(stats.monthlyTotal, displayCurrency)}/mo</span>
             </div>
             {stats.upcoming7Days > 0 && (
-              <div className="flex items-center gap-2 rounded-full bg-amber-500/30 px-4 py-2 text-sm text-white backdrop-blur-sm">
-                <RiTimeLine className="size-4" />
-                <span className="font-medium">{stats.upcoming7Days} due this week</span>
+              <div className="flex items-center gap-1.5 rounded-full bg-amber-500/30 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+                <RiTimeLine className="size-3.5 sm:size-4" />
+                <span className="font-medium">{stats.upcoming7Days} due<span className="hidden sm:inline"> this week</span></span>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl p-3 sm:p-6 lg:p-8">
         {/* Enhanced Stats Cards */}
-        <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-4 lg:grid-cols-4">
           <InsightCard
             icon={RiFileListLine}
             title="Total Subscriptions"
@@ -566,22 +566,22 @@ export default function SubscriptionsPage() {
 
         {/* Quick Insights Banner */}
         {(stats.topCategory || stats.mostExpensive) && stats.total > 0 && (
-          <div className="mb-6 rounded-2xl border border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 dark:border-gray-800 dark:from-blue-900/20 dark:to-indigo-900/20">
-            <div className="flex flex-wrap items-center gap-6">
+          <div className="mb-4 rounded-xl border border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-3 dark:border-gray-800 dark:from-blue-900/20 dark:to-indigo-900/20 sm:mb-6 sm:rounded-2xl sm:p-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 lg:gap-6">
               <div className="flex items-center gap-2">
-                <RiLightbulbLine className="size-5 text-amber-500" />
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Insights:</span>
+                <RiLightbulbLine className="size-4 text-amber-500 sm:size-5" />
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-300 sm:text-sm">Quick Insights:</span>
               </div>
               {stats.topCategory && (
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex flex-wrap items-center gap-1 text-xs text-gray-600 dark:text-gray-400 sm:gap-2 sm:text-sm">
                   <span className="font-medium text-gray-900 dark:text-gray-50">{stats.topCategory[0]}</span>
-                  <span>is your top category</span>
+                  <span>is top category</span>
                   <span className="text-gray-400">•</span>
                   <span className="font-medium text-gray-900 dark:text-gray-50">{formatCurrency(stats.topCategory[1], displayCurrency)}/mo</span>
                 </div>
               )}
               {stats.mostExpensive && (
-                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex flex-wrap items-center gap-1 text-xs text-gray-600 dark:text-gray-400 sm:gap-2 sm:text-sm">
                   <span className="font-medium text-gray-900 dark:text-gray-50">{stats.mostExpensive.name}</span>
                   <span>is most expensive</span>
                   <span className="text-gray-400">•</span>
@@ -593,10 +593,10 @@ export default function SubscriptionsPage() {
         )}
 
         {/* Toolbar */}
-        <div className="mb-4 flex flex-col gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-3 flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:mb-4 sm:gap-4 sm:rounded-2xl sm:p-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
             {/* Search & Filters */}
-            <div className="flex flex-1 flex-col gap-3 sm:flex-row">
+            <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:gap-3">
               <div className="relative flex-1 sm:max-w-xs">
                 <RiSearchLine className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
                 <Input
@@ -604,19 +604,19 @@ export default function SubscriptionsPage() {
                   placeholder="Search subscriptions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+                  className="pl-9 text-sm"
                 />
               </div>
               <Button
                 variant={showFilters ? "primary" : "secondary"}
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
-                className="sm:hidden"
+                className="sm:hidden text-xs"
               >
-                <RiFilterLine className="mr-2 size-4" />
+                <RiFilterLine className="mr-1.5 size-3.5" />
                 Filters
                 {hasActiveFilters && (
-                  <span className="ml-2 rounded-full bg-blue-500 px-1.5 text-xs text-white">!</span>
+                  <span className="ml-1.5 rounded-full bg-blue-500 px-1.5 text-xs text-white">!</span>
                 )}
               </Button>
               <div className="hidden gap-2 sm:flex">
@@ -783,27 +783,27 @@ export default function SubscriptionsPage() {
 
         {/* Content */}
         {filteredSubscriptions.length === 0 ? (
-          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700">
-              <RiFileListLine className="size-10 text-gray-400" />
+          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl sm:p-12">
+            <div className="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 sm:mb-4 sm:size-20">
+              <RiFileListLine className="size-8 text-gray-400 sm:size-10" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-50">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 sm:text-xl">
               {subscriptions.length === 0 ? "No subscriptions yet" : "No results found"}
             </h3>
-            <p className="mt-2 text-gray-500 dark:text-gray-400">
+            <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400 sm:mt-2">
               {subscriptions.length === 0
                 ? "Add your first subscription to start tracking your expenses."
                 : "Try adjusting your filters to find what you're looking for."}
             </p>
             {subscriptions.length === 0 ? (
-              <Button asChild className="mt-6">
+              <Button asChild className="mt-4 sm:mt-6">
                 <Link href="/subscriptions/new">
                   <RiAddLine className="mr-2 size-4" />
                   Add Subscription
                 </Link>
               </Button>
             ) : (
-              <Button variant="secondary" className="mt-6" onClick={clearFilters}>
+              <Button variant="secondary" className="mt-4 sm:mt-6" onClick={clearFilters}>
                 <RiRefreshLine className="mr-2 size-4" />
                 Clear Filters
               </Button>
@@ -811,7 +811,7 @@ export default function SubscriptionsPage() {
           </div>
         ) : viewMode === "grid" ? (
           // Grid View
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
             {filteredSubscriptions.map((sub) => {
               const status = statusConfig[sub.status as keyof typeof statusConfig] || statusConfig.active
               const color = categoryColors[sub.category || ""] || categoryColors.default
@@ -1047,7 +1047,7 @@ export default function SubscriptionsPage() {
           </div>
         ) : (
           // Kanban View
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
             {(["active", "trial", "paused", "cancelled"] as const).map((statusKey) => {
               const statusSubs = filteredSubscriptions.filter((s) => s.status === statusKey)
               const statusInfo = statusConfig[statusKey]
@@ -1128,13 +1128,13 @@ export default function SubscriptionsPage() {
 
         {/* Results count */}
         {filteredSubscriptions.length > 0 && (
-          <div className="mt-6 flex items-center justify-center gap-4 text-sm text-gray-500">
+          <div className="mt-4 flex flex-col items-center justify-center gap-2 text-xs text-gray-500 sm:mt-6 sm:flex-row sm:gap-4 sm:text-sm">
             <span>
               Showing {filteredSubscriptions.length} of {subscriptions.length} subscription{subscriptions.length !== 1 ? "s" : ""}
             </span>
             {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-blue-600 hover:text-blue-700">
-                <RiCloseLine className="mr-1 size-4" />
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="text-blue-600 hover:text-blue-700 text-xs sm:text-sm">
+                <RiCloseLine className="mr-1 size-3.5 sm:size-4" />
                 Clear filters
               </Button>
             )}

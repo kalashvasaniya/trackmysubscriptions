@@ -321,23 +321,23 @@ export default function CalendarPage() {
         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
         
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="relative mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="text-white">
-              <div className="flex items-center gap-3">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
-                  <RiCalendarLine className="size-6" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm sm:size-12">
+                  <RiCalendarLine className="size-5 sm:size-6" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold sm:text-3xl">Payment Calendar</h1>
-                  <p className="mt-1 text-cyan-100">Track and visualize your subscription payments</p>
+                  <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">Payment Calendar</h1>
+                  <p className="mt-0.5 text-sm text-cyan-100 sm:mt-1">Track and visualize your subscription payments</p>
                 </div>
               </div>
             </div>
             
             {/* View Mode Switcher */}
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex rounded-lg bg-white/10 p-1 backdrop-blur-sm">
+              <div className="flex rounded-lg bg-white/10 p-0.5 backdrop-blur-sm sm:p-1">
                 {[
                   { mode: "month" as ViewMode, icon: RiCalendar2Line, label: "Month" },
                   { mode: "week" as ViewMode, icon: RiGridLine, label: "Week" },
@@ -348,14 +348,14 @@ export default function CalendarPage() {
                     key={mode}
                     onClick={() => setViewMode(mode)}
                     className={cx(
-                      "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-all",
+                      "flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-all sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-sm",
                       viewMode === mode
                         ? "bg-white text-teal-700 shadow-sm"
                         : "text-white/80 hover:text-white hover:bg-white/10"
                     )}
                   >
-                    <Icon className="size-4" />
-                    <span className="hidden sm:inline">{label}</span>
+                    <Icon className="size-3.5 sm:size-4" />
+                    <span className="hidden xs:inline">{label}</span>
                   </button>
                 ))}
               </div>
@@ -363,30 +363,30 @@ export default function CalendarPage() {
           </div>
 
           {/* Quick Stats Pills */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiWalletLine className="size-4" />
-              <span className="font-medium">{formatCurrency(monthlyTotal, displayCurrency)} this month</span>
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiWalletLine className="size-3.5 sm:size-4" />
+              <span className="font-medium">{formatCurrency(monthlyTotal, displayCurrency)}<span className="hidden sm:inline"> this month</span></span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiCalendarCheckLine className="size-4" />
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiCalendarCheckLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{subscriptions.length} payments</span>
             </div>
             {calendarStats.nextPayment && (
               <div className={cx(
-                "flex items-center gap-2 rounded-full px-4 py-2 text-sm text-white backdrop-blur-sm",
+                "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm",
                 calendarStats.daysUntilNext !== null && calendarStats.daysUntilNext <= 3 
                   ? "bg-amber-500/40" 
                   : "bg-white/20"
               )}>
-                <RiTimeLine className="size-4" />
+                <RiTimeLine className="size-3.5 sm:size-4" />
                 <span className="font-medium">
-                  Next: {calendarStats.daysUntilNext === 0 ? "Today" : `${calendarStats.daysUntilNext}d`} ({calendarStats.nextPayment.name})
+                  Next: {calendarStats.daysUntilNext === 0 ? "Today" : `${calendarStats.daysUntilNext}d`}<span className="hidden sm:inline"> ({calendarStats.nextPayment.name})</span>
                 </span>
               </div>
             )}
             {calendarStats.paymentDays > 0 && (
-              <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
+              <div className="hidden items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm sm:flex">
                 <RiFireLine className="size-4" />
                 <span className="font-medium">{calendarStats.paymentDays} payment days</span>
               </div>
@@ -395,94 +395,94 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl p-3 sm:p-6 lg:p-8">
         {/* Quick Stats Row */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiWalletLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">This Month</span>
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-4 lg:grid-cols-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiWalletLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">This Month</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {formatCurrency(monthlyTotal, displayCurrency)}
             </p>
-            <p className="mt-1 text-xs text-gray-500">{subscriptions.length} payments</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">{subscriptions.length} payments</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiTimeLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Next Payment</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiTimeLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Next Payment</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {calendarStats.daysUntilNext !== null ? (
                 calendarStats.daysUntilNext === 0 ? "Today" : `${calendarStats.daysUntilNext}d`
               ) : "—"}
             </p>
-            <p className="mt-1 truncate text-xs text-gray-500">
+            <p className="mt-0.5 truncate text-[10px] text-gray-500 sm:mt-1 sm:text-xs">
               {calendarStats.nextPayment?.name || "No upcoming"}
             </p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiFireLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Busiest Day</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiFireLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Busiest Day</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {calendarStats.busiestDay > 0 ? MONTHS_SHORT[month] + " " + calendarStats.busiestDay : "—"}
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">
               {calendarStats.maxDaySpend > 0 ? formatCurrency(calendarStats.maxDaySpend, displayCurrency) : "No payments"}
             </p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiCalendarCheckLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Payment Days</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiCalendarCheckLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Payment Days</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {calendarStats.paymentDays}
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">
               Avg {formatCurrency(calendarStats.avgPerPaymentDay, displayCurrency)}/day
             </p>
           </div>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-4">
+        <div className="grid gap-4 sm:gap-6 xl:grid-cols-4">
           {/* Main Calendar Area */}
           <div className="xl:col-span-3">
             <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
               {/* Calendar Navigation */}
-              <div className="flex items-center justify-between border-b border-gray-200 p-4 dark:border-gray-800 sm:p-6">
-                <div className="flex items-center gap-4">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-50 sm:text-2xl">
+              <div className="flex items-center justify-between border-b border-gray-200 p-3 dark:border-gray-800 sm:p-4 lg:p-6">
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <h2 className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-xl lg:text-2xl">
                     {viewMode === "year" ? year : `${MONTHS[month]} ${year}`}
                   </h2>
                   {viewMode !== "year" && (
-                    <span className="hidden rounded-full bg-blue-100 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 sm:inline-block">
+                    <span className="hidden rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/50 dark:text-blue-300 sm:inline-block sm:px-3 sm:py-1 sm:text-sm">
                       Week {getWeekNumber(new Date(year, month, selectedDay || 1))}
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button variant="secondary" size="sm" onClick={goToToday}>
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <Button variant="secondary" size="sm" onClick={goToToday} className="text-xs sm:text-sm">
                     Today
                   </Button>
                   <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
                     <button
                       onClick={viewMode === "year" ? () => setCurrentDate(new Date(year - 1, 0, 1)) : prevMonth}
-                      className="p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50"
+                      className="p-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 sm:p-2"
                     >
-                      <RiArrowLeftSLine className="size-5" />
+                      <RiArrowLeftSLine className="size-4 sm:size-5" />
                     </button>
                     <button
                       onClick={viewMode === "year" ? () => setCurrentDate(new Date(year + 1, 0, 1)) : nextMonth}
-                      className="p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50"
+                      className="p-1.5 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-50 sm:p-2"
                     >
-                      <RiArrowRightSLine className="size-5" />
+                      <RiArrowRightSLine className="size-4 sm:size-5" />
                     </button>
                   </div>
                 </div>
@@ -525,7 +525,7 @@ export default function CalendarPage() {
                           onMouseLeave={() => setHoveredDay(null)}
                           disabled={!day}
                           className={cx(
-                            "group relative min-h-[90px] border-b border-r border-gray-100 p-1.5 text-left transition-all dark:border-gray-800 sm:min-h-[110px] sm:p-2",
+                            "group relative min-h-[70px] border-b border-r border-gray-100 p-1 text-left transition-all dark:border-gray-800 sm:min-h-[90px] sm:p-1.5 lg:min-h-[110px] lg:p-2",
                             !day && "bg-gray-50/50 dark:bg-gray-900/30",
                             day && !isSelected && "hover:bg-gray-50 dark:hover:bg-gray-800/50",
                             isSelected && "bg-blue-50 ring-2 ring-inset ring-blue-500 dark:bg-blue-900/20",
@@ -597,8 +597,8 @@ export default function CalendarPage() {
 
               {/* Week View */}
               {viewMode === "week" && (
-                <div className="p-4 sm:p-6">
-                  <div className="grid grid-cols-7 gap-2 sm:gap-4">
+                <div className="p-3 sm:p-4 lg:p-6">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-7 lg:gap-4">
                     {DAYS.map((dayName, dayIndex) => {
                       // Find the first day of the current week
                       const currentWeekStart = new Date(year, month, selectedDay || today.getDate())
@@ -617,7 +617,7 @@ export default function CalendarPage() {
                         <div
                           key={dayName}
                           className={cx(
-                            "min-h-[200px] rounded-xl border p-3 transition-all sm:min-h-[280px] sm:p-4",
+                            "min-h-[140px] rounded-xl border p-2.5 transition-all sm:min-h-[180px] sm:p-3 lg:min-h-[280px] lg:p-4",
                             isToday
                               ? "border-blue-300 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/20"
                               : "border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50",
@@ -671,8 +671,8 @@ export default function CalendarPage() {
 
               {/* Year View */}
               {viewMode === "year" && (
-                <div className="p-4 sm:p-6">
-                  <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                <div className="p-3 sm:p-4 lg:p-6">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
                     {MONTHS.map((monthName, monthIndex) => {
                       const monthDays = getDaysInMonth(year, monthIndex)
                       const monthFirstDay = getFirstDayOfMonth(year, monthIndex)
@@ -855,7 +855,7 @@ export default function CalendarPage() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-1 xl:space-y-0">
             {/* Mini Calendar Navigator */}
             {viewMode !== "year" && (
               <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900">

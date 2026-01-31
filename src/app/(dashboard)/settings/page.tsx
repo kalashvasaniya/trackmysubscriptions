@@ -220,63 +220,63 @@ export default function SettingsPage() {
         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/5 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/5 blur-3xl" />
         
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="relative mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="text-white">
-              <div className="flex items-center gap-3">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
-                  <RiSettings4Line className="size-6" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm sm:size-12">
+                  <RiSettings4Line className="size-5 sm:size-6" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold sm:text-3xl">Settings</h1>
-                  <p className="mt-1 text-gray-300">Manage your account preferences and settings</p>
+                  <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">Settings</h1>
+                  <p className="mt-0.5 text-sm text-gray-300 sm:mt-1">Manage your account preferences and settings</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Quick Settings Summary Pills */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiGlobalLine className="size-4" />
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiGlobalLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{currencies.find(c => c.code === currency)?.code || "USD"}</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiTimeLine className="size-4" />
-              <span className="font-medium">{defaultAlertDays} day alert</span>
+            <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiTimeLine className="size-3.5 sm:size-4" />
+              <span className="font-medium">{defaultAlertDays}d alert</span>
             </div>
             {emailAlerts && (
-              <div className="flex items-center gap-2 rounded-full bg-emerald-500/30 px-4 py-2 text-sm text-white backdrop-blur-sm">
-                <RiMailLine className="size-4" />
+              <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/30 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+                <RiMailLine className="size-3.5 sm:size-4" />
                 <span className="font-medium">Email alerts on</span>
               </div>
             )}
-            <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiShieldCheckLine className="size-4" />
-              <span className="font-medium">Account secured</span>
+            <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiShieldCheckLine className="size-3.5 sm:size-4" />
+              <span className="font-medium">Secured</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
-        <div className="grid gap-6 lg:grid-cols-12">
+      <div className="mx-auto max-w-7xl p-3 sm:p-6 lg:p-8">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-12">
           {/* Main Content */}
-          <div className="space-y-6 lg:col-span-8">
+          <div className="space-y-4 sm:space-y-6 lg:col-span-8">
             {/* Profile Settings */}
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-              <div className="flex items-center gap-3 border-b border-gray-200 p-5 dark:border-gray-800">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30">
-                  <RiUserLine className="size-5 text-blue-600 dark:text-blue-400" />
+            <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl">
+              <div className="flex items-center gap-2.5 border-b border-gray-200 p-4 dark:border-gray-800 sm:gap-3 sm:p-5">
+                <div className="flex size-8 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-900/30 sm:size-10">
+                  <RiUserLine className="size-4 text-blue-600 dark:text-blue-400 sm:size-5" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-gray-900 dark:text-gray-50">Profile</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Update your account information</p>
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-base">Profile</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Update your account information</p>
                 </div>
               </div>
 
-              <div className="p-5 space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-3 p-4 sm:space-y-4 sm:p-5">
+                <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
                     <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name" />
@@ -312,19 +312,19 @@ export default function SettingsPage() {
             </div>
 
             {/* Preferences */}
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-              <div className="flex items-center gap-3 border-b border-gray-200 p-5 dark:border-gray-800">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-900/30">
-                  <RiGlobalLine className="size-5 text-purple-600 dark:text-purple-400" />
+            <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl">
+              <div className="flex items-center gap-2.5 border-b border-gray-200 p-4 dark:border-gray-800 sm:gap-3 sm:p-5">
+                <div className="flex size-8 items-center justify-center rounded-xl bg-purple-100 dark:bg-purple-900/30 sm:size-10">
+                  <RiGlobalLine className="size-4 text-purple-600 dark:text-purple-400 sm:size-5" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-gray-900 dark:text-gray-50">Preferences</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Customize your experience</p>
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-base">Preferences</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Customize your experience</p>
                 </div>
               </div>
 
-              <div className="p-5 space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-3 p-4 sm:space-y-4 sm:p-5">
+                <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Display Currency</label>
                     <Select value={currency} onValueChange={setCurrency}>
@@ -377,26 +377,26 @@ export default function SettingsPage() {
             </div>
 
             {/* Notifications */}
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
-              <div className="flex items-center gap-3 border-b border-gray-200 p-5 dark:border-gray-800">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30">
-                  <RiNotification3Line className="size-5 text-amber-600 dark:text-amber-400" />
+            <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl">
+              <div className="flex items-center gap-2.5 border-b border-gray-200 p-4 dark:border-gray-800 sm:gap-3 sm:p-5">
+                <div className="flex size-8 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30 sm:size-10">
+                  <RiNotification3Line className="size-4 text-amber-600 dark:text-amber-400 sm:size-5" />
                 </div>
                 <div>
-                  <h2 className="font-semibold text-gray-900 dark:text-gray-50">Notifications</h2>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Choose how you want to be notified</p>
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-base">Notifications</h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Choose how you want to be notified</p>
                 </div>
               </div>
 
-              <div className="p-5 space-y-4">
-                <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-4 transition-colors hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-800 dark:hover:bg-gray-750">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                      <RiMailLine className="size-5 text-blue-600 dark:text-blue-400" />
+              <div className="space-y-3 p-4 sm:space-y-4 sm:p-5">
+                <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-3 transition-colors hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-800 dark:hover:bg-gray-750 sm:p-4">
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30 sm:size-10">
+                      <RiMailLine className="size-4 text-blue-600 dark:text-blue-400 sm:size-5" />
                     </div>
                     <div>
-                      <span className="font-medium text-gray-900 dark:text-gray-50">Email Alerts</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-50">Email Alerts</span>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
                         Get notified before subscription renewals
                       </p>
                     </div>
@@ -404,14 +404,14 @@ export default function SettingsPage() {
                   <Switch checked={emailAlerts} onCheckedChange={setEmailAlerts} />
                 </div>
 
-                <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-4 transition-colors hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-800 dark:hover:bg-gray-750">
-                  <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                      <RiTimeLine className="size-5 text-purple-600 dark:text-purple-400" />
+                <div className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 p-3 transition-colors hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-800 dark:hover:bg-gray-750 sm:p-4">
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    <div className="flex size-8 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30 sm:size-10">
+                      <RiTimeLine className="size-4 text-purple-600 dark:text-purple-400 sm:size-5" />
                     </div>
                     <div>
-                      <span className="font-medium text-gray-900 dark:text-gray-50">Weekly Digest</span>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-50">Weekly Digest</span>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
                         Weekly summary of upcoming payments
                       </p>
                     </div>
@@ -437,23 +437,23 @@ export default function SettingsPage() {
           </div>
 
           {/* Right Sidebar */}
-          <div className="space-y-6 lg:col-span-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:col-span-4 lg:grid-cols-1 lg:space-y-0">
             {/* Data Management */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-              <div className="mb-4 flex items-center gap-2">
-                <RiDatabase2Line className="size-5 text-emerald-500" />
-                <h3 className="font-semibold text-gray-900 dark:text-gray-50">Data Management</h3>
+            <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl sm:p-5">
+              <div className="mb-3 flex items-center gap-2 sm:mb-4">
+                <RiDatabase2Line className="size-4 text-emerald-500 sm:size-5" />
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-base">Data Management</h3>
               </div>
-              <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">Export or manage your subscription data</p>
+              <p className="mb-3 text-xs text-gray-500 dark:text-gray-400 sm:mb-4 sm:text-sm">Export or manage your subscription data</p>
 
-              <div className="space-y-2">
-                <Button variant="secondary" className="w-full justify-start" onClick={handleExportData}>
-                  <RiDownloadLine className="mr-2 size-4" />
+              <div className="space-y-1.5 sm:space-y-2">
+                <Button variant="secondary" className="w-full justify-start text-xs sm:text-sm" onClick={handleExportData}>
+                  <RiDownloadLine className="mr-1.5 size-3.5 sm:mr-2 sm:size-4" />
                   Export All Data
                 </Button>
-                <Button variant="secondary" className="w-full justify-start" asChild>
+                <Button variant="secondary" className="w-full justify-start text-xs sm:text-sm" asChild>
                   <a href="/api/subscriptions/template" download>
-                    <RiDownloadLine className="mr-2 size-4" />
+                    <RiDownloadLine className="mr-1.5 size-3.5 sm:mr-2 sm:size-4" />
                     Download CSV Template
                   </a>
                 </Button>
@@ -461,14 +461,14 @@ export default function SettingsPage() {
             </div>
 
             {/* Account Security */}
-            <div className="rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 p-5 text-white">
-              <div className="flex items-start gap-3">
-                <div className="flex size-10 items-center justify-center rounded-xl bg-white/20">
-                  <RiShieldCheckLine className="size-5" />
+            <div className="rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 p-4 text-white sm:rounded-2xl sm:p-5">
+              <div className="flex items-start gap-2.5 sm:gap-3">
+                <div className="flex size-8 items-center justify-center rounded-xl bg-white/20 sm:size-10">
+                  <RiShieldCheckLine className="size-4 sm:size-5" />
                 </div>
                 <div>
-                  <p className="font-semibold">Account Secured</p>
-                  <p className="mt-1 text-sm text-emerald-100">
+                  <p className="text-sm font-semibold sm:text-base">Account Secured</p>
+                  <p className="mt-0.5 text-xs text-emerald-100 sm:mt-1 sm:text-sm">
                     Your account is protected with Google authentication
                   </p>
                 </div>
@@ -476,18 +476,18 @@ export default function SettingsPage() {
             </div>
 
             {/* Danger Zone */}
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-5 dark:border-red-900/50 dark:bg-red-900/20">
-              <div className="mb-4 flex items-center gap-2">
-                <RiAlertLine className="size-5 text-red-600 dark:text-red-400" />
-                <h3 className="font-semibold text-red-900 dark:text-red-400">Danger Zone</h3>
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20 sm:rounded-2xl sm:p-5">
+              <div className="mb-3 flex items-center gap-2 sm:mb-4">
+                <RiAlertLine className="size-4 text-red-600 dark:text-red-400 sm:size-5" />
+                <h3 className="text-sm font-semibold text-red-900 dark:text-red-400 sm:text-base">Danger Zone</h3>
               </div>
 
-              <p className="mb-4 text-sm text-red-700 dark:text-red-300">
+              <p className="mb-3 text-xs text-red-700 dark:text-red-300 sm:mb-4 sm:text-sm">
                 Permanently delete your account and all data. This action cannot be undone.
               </p>
 
-              <Button variant="destructive" className="w-full" onClick={handleDeleteAccount} disabled={isDeleting}>
-                {isDeleting ? <RiLoader4Line className="mr-2 size-4 animate-spin" /> : <RiDeleteBinLine className="mr-2 size-4" />}
+              <Button variant="destructive" className="w-full text-xs sm:text-sm" onClick={handleDeleteAccount} disabled={isDeleting}>
+                {isDeleting ? <RiLoader4Line className="mr-1.5 size-3.5 animate-spin sm:mr-2 sm:size-4" /> : <RiDeleteBinLine className="mr-1.5 size-3.5 sm:mr-2 sm:size-4" />}
                 Delete Account
               </Button>
             </div>

@@ -332,139 +332,139 @@ export default function AnalyticsPage() {
         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
         
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="relative mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="text-white">
-              <div className="flex items-center gap-3">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
-                  <RiLineChartLine className="size-6" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm sm:size-12">
+                  <RiLineChartLine className="size-5 sm:size-6" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold sm:text-3xl">Financial Insights</h1>
-                  <p className="mt-1 text-purple-100">Understand where your money goes</p>
+                  <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">Financial Insights</h1>
+                  <p className="mt-0.5 text-sm text-purple-100 sm:mt-1">Understand where your money goes</p>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Quick Stats Pills */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiMoneyDollarCircleLine className="size-4" />
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiMoneyDollarCircleLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{formatCurrency(insights.monthly, currency)}/mo</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiCalendarCheckLine className="size-4" />
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiCalendarCheckLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{formatCurrency(insights.yearly, currency)}/yr</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiPercentLine className="size-4" />
-              <span className="font-medium">{insights.efficiencyScore}% Efficiency</span>
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiPercentLine className="size-3.5 sm:size-4" />
+              <span className="font-medium">{insights.efficiencyScore}%<span className="hidden sm:inline"> Efficiency</span></span>
             </div>
             {insights.monthlyChange !== 0 && (
               <div className={cx(
-                "flex items-center gap-1.5 rounded-full px-4 py-2 text-sm backdrop-blur-sm",
+                "flex items-center gap-1 rounded-full px-3 py-1.5 text-xs backdrop-blur-sm sm:gap-1.5 sm:px-4 sm:py-2 sm:text-sm",
                 insights.isIncreasing ? "bg-red-500/30 text-white" : "bg-emerald-500/30 text-white"
               )}>
-                {insights.isIncreasing ? <RiArrowUpLine className="size-4" /> : <RiArrowDownLine className="size-4" />}
-                <span className="font-medium">{Math.abs(insights.monthlyChange).toFixed(1)}% vs last month</span>
+                {insights.isIncreasing ? <RiArrowUpLine className="size-3.5 sm:size-4" /> : <RiArrowDownLine className="size-3.5 sm:size-4" />}
+                <span className="font-medium">{Math.abs(insights.monthlyChange).toFixed(1)}%<span className="hidden sm:inline"> vs last month</span></span>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl p-3 sm:p-6 lg:p-8">
         {/* Quick Stats Row */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiMoneyDollarCircleLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Monthly</span>
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-4 lg:grid-cols-5">
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiMoneyDollarCircleLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Monthly</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {formatCurrency(insights.monthly, currency)}
             </p>
-            <p className="mt-1 text-xs text-gray-500">total spending</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">total spending</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiCalendarCheckLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Yearly</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiCalendarCheckLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Yearly</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {formatCurrency(insights.yearly, currency)}
             </p>
             <div className={cx(
-              "mt-1 flex items-center gap-1 text-xs font-medium",
+              "mt-0.5 flex items-center gap-0.5 text-[10px] font-medium sm:mt-1 sm:gap-1 sm:text-xs",
               insights.isIncreasing ? "text-red-500" : "text-emerald-500"
             )}>
-              {insights.isIncreasing ? <RiArrowUpLine className="size-3" /> : <RiArrowDownLine className="size-3" />}
-              {Math.abs(insights.monthlyChange).toFixed(1)}% vs last month
+              {insights.isIncreasing ? <RiArrowUpLine className="size-2.5 sm:size-3" /> : <RiArrowDownLine className="size-2.5 sm:size-3" />}
+              {Math.abs(insights.monthlyChange).toFixed(1)}%<span className="hidden sm:inline"> vs last month</span>
             </div>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiWalletLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Avg/Sub</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiWalletLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Avg/Sub</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {formatCurrency(insights.avgSubscriptionCost, currency)}
             </p>
-            <p className="mt-1 text-xs text-gray-500">per subscription</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">per subscription</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiTimeLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Next 7 Days</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiTimeLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Next 7 Days</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {formatCurrency(insights.next7DaysTotal, currency)}
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">
               {insights.next7Days.length} payment{insights.next7Days.length !== 1 ? "s" : ""} due
             </p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiPercentLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Efficiency</span>
+          <div className="col-span-2 rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4 lg:col-span-1">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiPercentLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Efficiency</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {insights.efficiencyScore}%
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">
               {insights.efficiencyScore >= 80 ? "Excellent" : insights.efficiencyScore >= 60 ? "Good" : "Needs review"}
             </p>
           </div>
         </div>
 
         {/* Main Content Grid */}
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
           {/* Left Column - Charts */}
-          <div className="space-y-6 lg:col-span-2">
+          <div className="space-y-4 sm:space-y-6 lg:col-span-2">
             {/* Spending Trend - Area Chart */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-              <div className="mb-6 flex items-start justify-between">
+            <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl sm:p-6">
+              <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-50">
+                  <h2 className="text-base font-semibold text-gray-900 dark:text-gray-50 sm:text-lg">
                     Spending Trend
                   </h2>
-                  <p className="mt-1 text-sm text-gray-500">Monthly spending over the past year</p>
+                  <p className="mt-0.5 text-xs text-gray-500 sm:mt-1 sm:text-sm">Monthly spending over the past year</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">
+                <div className="sm:text-right">
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-50 sm:text-2xl">
                     {formatCurrency(insights.yearly, currency)}
                   </p>
-                  <p className="text-xs text-gray-500">yearly total</p>
+                  <p className="text-[10px] text-gray-500 sm:text-xs">yearly total</p>
                 </div>
               </div>
 
-              <div className="h-64">
+              <div className="h-48 sm:h-64">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={data.monthlyTrends} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <defs>
@@ -500,22 +500,22 @@ export default function AnalyticsPage() {
                 </ResponsiveContainer>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-4 border-t border-gray-100 pt-4 dark:border-gray-800">
+              <div className="mt-3 grid grid-cols-3 gap-2 border-t border-gray-100 pt-3 dark:border-gray-800 sm:mt-4 sm:gap-4 sm:pt-4">
                 <div className="text-center">
-                  <p className="text-xs text-gray-500">Average</p>
-                  <p className="mt-1 font-semibold text-gray-900 dark:text-gray-50">
+                  <p className="text-[10px] text-gray-500 sm:text-xs">Average</p>
+                  <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:mt-1">
                     {formatCurrency(insights.avgMonthly, currency)}
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-gray-500">Highest</p>
-                  <p className="mt-1 font-semibold text-gray-900 dark:text-gray-50">
+                  <p className="text-[10px] text-gray-500 sm:text-xs">Highest</p>
+                  <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:mt-1">
                     {formatCurrency(Math.max(...insights.trends), currency)}
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs text-gray-500">Lowest</p>
-                  <p className="mt-1 font-semibold text-gray-900 dark:text-gray-50">
+                  <p className="text-[10px] text-gray-500 sm:text-xs">Lowest</p>
+                  <p className="mt-0.5 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:mt-1">
                     {formatCurrency(Math.min(...insights.trends.filter((t) => t > 0)) || 0, currency)}
                   </p>
                 </div>
@@ -524,14 +524,14 @@ export default function AnalyticsPage() {
 
             {/* Category Pie Chart */}
             {insights.categoryPieData.length > 0 && (
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
-                <h2 className="mb-1 text-lg font-semibold text-gray-900 dark:text-gray-50">
+              <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl sm:p-6">
+                <h2 className="mb-0.5 text-base font-semibold text-gray-900 dark:text-gray-50 sm:mb-1 sm:text-lg">
                   Spending Distribution
                 </h2>
-                <p className="mb-6 text-sm text-gray-500">How your monthly spending is divided</p>
+                <p className="mb-4 text-xs text-gray-500 sm:mb-6 sm:text-sm">How your monthly spending is divided</p>
 
-                <div className="grid gap-6 lg:grid-cols-2">
-                  <div className="h-64">
+                <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+                  <div className="h-48 sm:h-64">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -709,7 +709,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Right Column - Insights & Actions */}
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-1 lg:space-y-0">
             {/* Status Distribution with Pie */}
             <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900">
               <h3 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">

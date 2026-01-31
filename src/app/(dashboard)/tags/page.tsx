@@ -208,16 +208,16 @@ export default function TagsPage() {
         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
         
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="relative mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="text-white">
-              <div className="flex items-center gap-3">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
-                  <RiPriceTag3Line className="size-6" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm sm:size-12">
+                  <RiPriceTag3Line className="size-5 sm:size-6" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold sm:text-3xl">Tags</h1>
-                  <p className="mt-1 text-emerald-100">Categorize and filter your subscriptions with tags</p>
+                  <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">Tags</h1>
+                  <p className="mt-0.5 text-sm text-emerald-100 sm:mt-1">Categorize and filter your subscriptions with tags</p>
                 </div>
               </div>
             </div>
@@ -225,29 +225,29 @@ export default function TagsPage() {
             <Button 
               onClick={() => setIsAdding(true)} 
               disabled={isAdding}
-              className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-lg"
+              className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-lg text-sm sm:text-base"
             >
-              <RiAddLine className="mr-2 size-4" />
+              <RiAddLine className="mr-1.5 size-4 sm:mr-2" />
               Add Tag
             </Button>
           </div>
 
           {/* Quick Stats Pills */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiPriceTag3Line className="size-4" />
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiPriceTag3Line className="size-3.5 sm:size-4" />
               <span className="font-medium">{tags.length} Tags</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiFileListLine className="size-4" />
-              <span className="font-medium">{stats.totalSubscriptions} Tagged Items</span>
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiFileListLine className="size-3.5 sm:size-4" />
+              <span className="font-medium">{stats.totalSubscriptions} Tagged</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiHashtag className="size-4" />
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiHashtag className="size-3.5 sm:size-4" />
               <span className="font-medium">{stats.activeTags} In Use</span>
             </div>
             {stats.uniqueColors > 0 && (
-              <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white/80 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs text-white/80 backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
                 <span className="font-medium">{stats.uniqueColors} Colors</span>
               </div>
             )}
@@ -255,45 +255,45 @@ export default function TagsPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl p-3 sm:p-6 lg:p-8">
         {/* Quick Stats Cards */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiPriceTag3Line className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Total Tags</span>
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-4 lg:grid-cols-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiPriceTag3Line className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Total Tags</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{tags.length}</p>
-            <p className="mt-1 text-xs text-gray-500">tags created</p>
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">{tags.length}</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">tags created</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiFileListLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Tagged</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiFileListLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Tagged</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{stats.totalSubscriptions}</p>
-            <p className="mt-1 text-xs text-gray-500">subscriptions tagged</p>
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">{stats.totalSubscriptions}</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">subscriptions tagged</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiHashtag className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Active</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiHashtag className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Active</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{stats.activeTags}</p>
-            <p className="mt-1 text-xs text-gray-500">tags in use</p>
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">{stats.activeTags}</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">tags in use</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiSparklingLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Most Used</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiSparklingLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Most Used</span>
             </div>
-            <p className="mt-2 truncate text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 truncate text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {stats.mostUsedTag?.name || "—"}
             </p>
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">
               {stats.mostUsedTag ? `${stats.mostUsedTag.subscriptionCount} items` : "no tags"}
             </p>
           </div>
@@ -301,17 +301,17 @@ export default function TagsPage() {
 
         {/* Add Tag Form */}
         {isAdding && (
-          <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
-                <RiAddLine className="size-5 text-emerald-600 dark:text-emerald-400" />
+          <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:mb-6 sm:rounded-2xl sm:p-6">
+            <div className="mb-3 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
+              <div className="flex size-8 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30 sm:size-10">
+                <RiAddLine className="size-4 text-emerald-600 dark:text-emerald-400 sm:size-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-50">Create New Tag</h3>
-                <p className="text-sm text-gray-500">Add a new tag to categorize your subscriptions</p>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-base">Create New Tag</h3>
+                <p className="text-xs text-gray-500 sm:text-sm">Add a new tag to categorize your subscriptions</p>
               </div>
             </div>
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-4">
               <div className="flex-1">
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Tag Name
@@ -356,24 +356,24 @@ export default function TagsPage() {
           </div>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-12">
+        {tags.length === 0 && !isAdding ? (
+          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl sm:p-12">
+            <div className="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 sm:mb-4 sm:size-20">
+              <RiPriceTag3Line className="size-8 text-emerald-500 sm:size-10" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 sm:text-xl">No tags yet</h3>
+            <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400 sm:mt-2">
+              Create tags to categorize your subscriptions
+            </p>
+            <Button className="mt-4 sm:mt-6" onClick={() => setIsAdding(true)}>
+              <RiAddLine className="mr-2 size-4" />
+              Create your first tag
+            </Button>
+          </div>
+        ) : (
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-12">
           {/* Tags Display */}
           <div className="lg:col-span-8">
-            {tags.length === 0 && !isAdding ? (
-              <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30">
-                  <RiPriceTag3Line className="size-10 text-emerald-500" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-50">No tags yet</h3>
-                <p className="mt-2 text-gray-500 dark:text-gray-400">
-                  Create tags to categorize your subscriptions
-                </p>
-                <Button className="mt-6" onClick={() => setIsAdding(true)}>
-                  <RiAddLine className="mr-2 size-4" />
-                  Create your first tag
-                </Button>
-              </div>
-            ) : (
               <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
                 <div className="flex items-center justify-between border-b border-gray-200 p-5 dark:border-gray-800">
                   <div className="flex items-center gap-3">
@@ -462,11 +462,10 @@ export default function TagsPage() {
                   </div>
                 </div>
               </div>
-            )}
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6 lg:col-span-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:col-span-4 lg:grid-cols-1 lg:space-y-0">
             {/* Color Overview */}
             {tags.length > 0 && (
               <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -517,24 +516,25 @@ export default function TagsPage() {
             )}
           </div>
         </div>
+        )}
 
         {/* Pro Tip Footer */}
-        <div className="mt-8 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 p-6 text-white">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-4">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                <RiSparklingLine className="size-6" />
+        <div className="mt-6 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 p-4 text-white sm:mt-8 sm:rounded-2xl sm:p-6">
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-start gap-3 sm:items-center sm:gap-4">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm sm:size-12">
+                <RiSparklingLine className="size-5 sm:size-6" />
               </div>
               <div>
-                <p className="text-lg font-semibold">Pro Tip: Filter & Organize</p>
-                <p className="mt-1 text-emerald-100">
+                <p className="text-base font-semibold sm:text-lg">Pro Tip: Filter & Organize</p>
+                <p className="mt-0.5 text-sm text-emerald-100 sm:mt-1">
                   Use tags to quickly filter subscriptions by type, priority, or any custom category you prefer.
                 </p>
               </div>
             </div>
             <Link
               href="/subscriptions"
-              className="inline-flex items-center rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/30"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/30 sm:w-auto sm:px-5 sm:py-2.5"
             >
               Browse Subscriptions
               <RiArrowRightLine className="ml-2 size-4" />

@@ -341,70 +341,70 @@ export default function DashboardPage() {
         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
         
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+        <div className="relative mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div className="text-white">
-              <p className="text-sm font-medium text-blue-200">
+              <p className="text-xs font-medium text-blue-200 sm:text-sm">
                 {currentDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
               </p>
-              <h1 className="mt-1 text-3xl font-bold sm:text-4xl">
+              <h1 className="mt-1 text-2xl font-bold sm:text-3xl lg:text-4xl">
                 {getGreeting()}, {userName}!
               </h1>
-              <p className="mt-2 text-blue-100">
+              <p className="mt-1.5 text-sm text-blue-100 sm:mt-2 sm:text-base">
                 {insights.todayPayments.length > 0 
                   ? `You have ${insights.todayPayments.length} payment${insights.todayPayments.length > 1 ? "s" : ""} due today`
                   : "No payments due today - you're all caught up!"}
               </p>
             </div>
             
-            <div className="flex flex-wrap gap-3">
-              <Button asChild variant="secondary" className="bg-white/20 text-white hover:bg-white/30 border-white/20">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              <Button asChild variant="secondary" className="bg-white/20 text-white hover:bg-white/30 border-white/20 text-sm sm:text-base">
                 <Link href="/analytics">
-                  <RiBarChartBoxLine className="mr-2 size-4" />
-                  View Analytics
+                  <RiBarChartBoxLine className="mr-1.5 size-4 sm:mr-2" />
+                  <span className="hidden xs:inline">View </span>Analytics
                 </Link>
               </Button>
-              <Button asChild className="bg-white text-blue-700 hover:bg-blue-50 shadow-lg">
+              <Button asChild className="bg-white text-blue-700 hover:bg-blue-50 shadow-lg text-sm sm:text-base">
                 <Link href="/subscriptions/new">
-                  <RiAddLine className="mr-2 size-4" />
-                  Add Subscription
+                  <RiAddLine className="mr-1.5 size-4 sm:mr-2" />
+                  <span className="hidden xs:inline">Add </span>Subscription
                 </Link>
               </Button>
             </div>
           </div>
 
           {/* Quick Stats Pills */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiWalletLine className="size-4" />
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiWalletLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{formatCurrency(data.metrics.monthlySpending, currency)}/mo</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiPlayCircleLine className="size-4" />
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiPlayCircleLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{data.statusBreakdown.active} Active</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiCalendarCheckLine className="size-4" />
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiCalendarCheckLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{insights.upcomingThisWeek.length} due this week</span>
             </div>
             {insights.monthlyChange !== 0 && (
               <div className={cx(
-                "flex items-center gap-1.5 rounded-full px-4 py-2 text-sm backdrop-blur-sm",
+                "flex items-center gap-1 rounded-full px-3 py-1.5 text-xs backdrop-blur-sm sm:gap-1.5 sm:px-4 sm:py-2 sm:text-sm",
                 insights.monthlyChange > 0 ? "bg-red-500/30 text-white" : "bg-emerald-500/30 text-white"
               )}>
-                {insights.monthlyChange > 0 ? <RiArrowUpLine className="size-4" /> : <RiArrowDownLine className="size-4" />}
-                <span className="font-medium">{Math.abs(insights.monthlyChange).toFixed(1)}% vs last month</span>
+                {insights.monthlyChange > 0 ? <RiArrowUpLine className="size-3.5 sm:size-4" /> : <RiArrowDownLine className="size-3.5 sm:size-4" />}
+                <span className="font-medium">{Math.abs(insights.monthlyChange).toFixed(1)}%<span className="hidden sm:inline"> vs last month</span></span>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl p-3 sm:p-6 lg:p-8">
         {/* Main Grid */}
-        <div className="grid gap-6 lg:grid-cols-12">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-12">
           {/* Left Column - Action Center */}
-          <div className="space-y-6 lg:col-span-8">
+          <div className="space-y-4 sm:space-y-6 lg:col-span-8">
             {/* Action Items */}
             {insights.actionItems.length > 0 && (
               <div className="rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -620,16 +620,16 @@ export default function DashboardPage() {
             </div>
 
             {/* Quick Access */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-900/30">
-                    <RiFlashlightLine className="size-5 text-indigo-600 dark:text-indigo-400" />
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5">
+              <div className="mb-3 flex items-center justify-between sm:mb-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="flex size-8 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-900/30 sm:size-10">
+                    <RiFlashlightLine className="size-4 text-indigo-600 dark:text-indigo-400 sm:size-5" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 dark:text-gray-50">Quick Access</h3>
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-base">Quick Access</h3>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
                 {[
                   { href: "/analytics", icon: RiLineChartLine, label: "Analytics", color: "text-blue-600 bg-blue-100 dark:bg-blue-900/50" },
                   { href: "/calendar", icon: RiCalendarLine, label: "Calendar", color: "text-purple-600 bg-purple-100 dark:bg-purple-900/50" },
@@ -641,12 +641,12 @@ export default function DashboardPage() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex flex-col items-center gap-2 rounded-xl border border-gray-100 bg-gray-50 p-4 transition-all hover:border-gray-200 hover:bg-white hover:shadow-sm dark:border-gray-800 dark:bg-gray-800/50 dark:hover:bg-gray-800"
+                    className="flex flex-col items-center gap-1.5 rounded-xl border border-gray-100 bg-gray-50 p-2.5 transition-all hover:border-gray-200 hover:bg-white hover:shadow-sm dark:border-gray-800 dark:bg-gray-800/50 dark:hover:bg-gray-800 sm:gap-2 sm:p-4"
                   >
-                    <div className={cx("flex size-10 items-center justify-center rounded-xl", item.color)}>
-                      <item.icon className="size-5" />
+                    <div className={cx("flex size-8 items-center justify-center rounded-xl sm:size-10", item.color)}>
+                      <item.icon className="size-4 sm:size-5" />
                     </div>
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{item.label}</span>
+                    <span className="text-xs font-medium text-gray-600 dark:text-gray-400 sm:text-sm">{item.label}</span>
                   </Link>
                 ))}
               </div>
@@ -654,30 +654,30 @@ export default function DashboardPage() {
           </div>
 
           {/* Right Column - Sidebar */}
-          <div className="space-y-6 lg:col-span-4">
+          <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:col-span-4 lg:grid-cols-1 lg:space-y-0">
             {/* Subscription Health */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-              <div className="mb-4 flex items-center gap-2">
-                <RiHeartPulseLine className="size-5 text-rose-500" />
-                <h3 className="font-semibold text-gray-900 dark:text-gray-50">Subscription Health</h3>
+            <div className="col-span-2 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6 lg:col-span-1">
+              <div className="mb-3 flex items-center gap-2 sm:mb-4">
+                <RiHeartPulseLine className="size-4 text-rose-500 sm:size-5" />
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-base">Subscription Health</h3>
               </div>
               <HealthScoreGauge score={insights.healthScore} />
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-gray-50 p-3 text-center dark:bg-gray-800">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">{data.statusBreakdown.active}</p>
+              <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-4 sm:gap-3">
+                <div className="rounded-xl bg-gray-50 p-2.5 text-center dark:bg-gray-800 sm:p-3">
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-50 sm:text-2xl">{data.statusBreakdown.active}</p>
                   <p className="text-xs text-gray-500">Active</p>
                 </div>
-                <div className="rounded-xl bg-gray-50 p-3 text-center dark:bg-gray-800">
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-50">{data.metrics.totalSubscriptions}</p>
+                <div className="rounded-xl bg-gray-50 p-2.5 text-center dark:bg-gray-800 sm:p-3">
+                  <p className="text-xl font-bold text-gray-900 dark:text-gray-50 sm:text-2xl">{data.metrics.totalSubscriptions}</p>
                   <p className="text-xs text-gray-500">Total</p>
                 </div>
               </div>
             </div>
 
             {/* Status Overview */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-              <h3 className="mb-4 font-semibold text-gray-900 dark:text-gray-50">Status Overview</h3>
-              <div className="space-y-3">
+            <div className="col-span-1 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-6">
+              <h3 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:mb-4 sm:text-base">Status Overview</h3>
+              <div className="space-y-2 sm:space-y-3">
                 {Object.entries(statusConfig).map(([key, config]) => {
                   const count = data.statusBreakdown[key as keyof typeof data.statusBreakdown] || 0
                   const Icon = config.icon
@@ -686,15 +686,15 @@ export default function DashboardPage() {
                     <Link
                       key={key}
                       href={`/subscriptions?status=${key}`}
-                      className="flex items-center justify-between rounded-xl p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+                      className="flex items-center justify-between rounded-xl p-2.5 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 sm:p-3"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={cx("flex size-8 items-center justify-center rounded-lg", config.color, "bg-opacity-20")}>
-                          <Icon className={cx("size-4", config.color.replace("bg-", "text-"))} />
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className={cx("flex size-7 items-center justify-center rounded-lg sm:size-8", config.color, "bg-opacity-20")}>
+                          <Icon className={cx("size-3.5 sm:size-4", config.color.replace("bg-", "text-"))} />
                         </div>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">{config.label}</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400 sm:text-sm">{config.label}</span>
                       </div>
-                      <span className="text-lg font-bold text-gray-900 dark:text-gray-50">{count}</span>
+                      <span className="text-base font-bold text-gray-900 dark:text-gray-50 sm:text-lg">{count}</span>
                     </Link>
                   )
                 })}
@@ -702,36 +702,36 @@ export default function DashboardPage() {
             </div>
 
             {/* Monthly Spending Indicator */}
-            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-              <h3 className="mb-3 text-sm font-medium text-gray-500">This Month&apos;s Spending</h3>
-              <p className="text-3xl font-bold text-gray-900 dark:text-gray-50">
+            <div className="col-span-1 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5">
+              <h3 className="mb-2 text-xs font-medium text-gray-500 sm:mb-3 sm:text-sm">This Month&apos;s Spending</h3>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-50 sm:text-3xl">
                 {formatCurrency(data.metrics.monthlySpending, currency)}
               </p>
-              <div className="mt-4 flex items-center gap-2">
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+              <div className="mt-3 flex items-center gap-2 sm:mt-4">
+                <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800 sm:h-2">
                   <div 
                     className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all"
                     style={{ width: `${Math.min(100, (data.metrics.monthlySpending / (data.metrics.yearlySpending / 12 || 1)) * 100)}%` }}
                   />
                 </div>
               </div>
-              <p className="mt-2 text-xs text-gray-500">
-                Yearly projection: {formatCurrency(data.metrics.yearlySpending, currency)}
+              <p className="mt-1.5 text-xs text-gray-500 sm:mt-2">
+                Yearly: {formatCurrency(data.metrics.yearlySpending, currency)}
               </p>
             </div>
           </div>
         </div>
 
         {/* Pro Tip Footer */}
-        <div className="mt-8 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 p-6 text-white">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-4">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                <RiSparklingLine className="size-6" />
+        <div className="mt-6 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 p-4 text-white sm:mt-8 sm:p-6">
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-start gap-3 sm:items-center sm:gap-4">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm sm:size-12">
+                <RiSparklingLine className="size-5 sm:size-6" />
               </div>
               <div>
-                <p className="text-lg font-semibold">Did you know?</p>
-                <p className="mt-1 text-indigo-100">
+                <p className="text-base font-semibold sm:text-lg">Did you know?</p>
+                <p className="mt-0.5 text-sm text-indigo-100 sm:mt-1">
                   {data.statusBreakdown.trial > 0
                     ? `Review your ${data.statusBreakdown.trial} trial subscription${data.statusBreakdown.trial > 1 ? "s" : ""} to avoid unexpected charges.`
                     : insights.monthlyChange > 5
@@ -742,7 +742,7 @@ export default function DashboardPage() {
             </div>
             <Link
               href={data.statusBreakdown.trial > 0 ? "/subscriptions?status=trial" : "/analytics"}
-              className="inline-flex items-center rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/30"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/30 sm:w-auto sm:px-5 sm:py-2.5"
             >
               {data.statusBreakdown.trial > 0 ? "Review Trials" : "View Analytics"}
               <RiArrowRightLine className="ml-2 size-4" />

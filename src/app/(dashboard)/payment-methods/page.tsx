@@ -237,16 +237,16 @@ export default function PaymentMethodsPage() {
         <div className="absolute -right-20 -top-20 size-64 rounded-full bg-white/10 blur-3xl" />
         <div className="absolute -bottom-20 -left-20 size-64 rounded-full bg-white/10 blur-3xl" />
         
-        <div className="relative mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="relative mx-auto max-w-7xl px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="text-white">
-              <div className="flex items-center gap-3">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm">
-                  <RiBankCardLine className="size-6" />
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                <div className="flex size-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-sm sm:size-12">
+                  <RiBankCardLine className="size-5 sm:size-6" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold sm:text-3xl">Payment Methods</h1>
-                  <p className="mt-1 text-pink-100">Manage your cards and payment accounts</p>
+                  <h1 className="text-xl font-bold sm:text-2xl lg:text-3xl">Payment Methods</h1>
+                  <p className="mt-0.5 text-sm text-pink-100 sm:mt-1">Manage your cards and payment accounts</p>
                 </div>
               </div>
             </div>
@@ -254,29 +254,29 @@ export default function PaymentMethodsPage() {
             <Button 
               onClick={() => setIsAdding(true)} 
               disabled={isAdding}
-              className="bg-white text-pink-600 hover:bg-pink-50 shadow-lg"
+              className="bg-white text-pink-600 hover:bg-pink-50 shadow-lg text-sm sm:text-base"
             >
-              <RiAddLine className="mr-2 size-4" />
-              Add Payment Method
+              <RiAddLine className="mr-1.5 size-4 sm:mr-2" />
+              <span className="hidden xs:inline">Add </span>Payment Method
             </Button>
           </div>
 
           {/* Quick Stats Pills */}
-          <div className="mt-6 flex flex-wrap gap-3">
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiBankCardLine className="size-4" />
+          <div className="mt-4 flex flex-wrap gap-2 sm:mt-6 sm:gap-3">
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiBankCardLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{paymentMethods.length} Methods</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiFileListLine className="size-4" />
-              <span className="font-medium">{stats.totalSubscriptions} Subscriptions</span>
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiFileListLine className="size-3.5 sm:size-4" />
+              <span className="font-medium">{stats.totalSubscriptions} Subs</span>
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2 text-sm text-white backdrop-blur-sm">
-              <RiWalletLine className="size-4" />
+            <div className="flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1.5 text-xs text-white backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+              <RiWalletLine className="size-3.5 sm:size-4" />
               <span className="font-medium">{stats.activePaymentMethods} In Use</span>
             </div>
             {stats.unusedMethods > 0 && (
-              <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm text-white/80 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs text-white/80 backdrop-blur-sm sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
                 <span className="font-medium">{stats.unusedMethods} Unused</span>
               </div>
             )}
@@ -284,63 +284,63 @@ export default function PaymentMethodsPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl p-3 sm:p-6 lg:p-8">
         {/* Quick Stats Cards */}
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiBankCardLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Total</span>
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-6 sm:gap-4 lg:grid-cols-4">
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiBankCardLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Total</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{paymentMethods.length}</p>
-            <p className="mt-1 text-xs text-gray-500">payment methods</p>
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">{paymentMethods.length}</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">payment methods</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiFileListLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Linked</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiFileListLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Linked</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{stats.totalSubscriptions}</p>
-            <p className="mt-1 text-xs text-gray-500">subscriptions linked</p>
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">{stats.totalSubscriptions}</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">subscriptions linked</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiWalletLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Active</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiWalletLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Active</span>
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-gray-50">{stats.activePaymentMethods}</p>
-            <p className="mt-1 text-xs text-gray-500">methods in use</p>
+            <p className="mt-1.5 text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">{stats.activePaymentMethods}</p>
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">methods in use</p>
           </div>
 
-          <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-              <RiShieldCheckLine className="size-4" />
-              <span className="text-xs font-medium uppercase tracking-wide">Primary</span>
+          <div className="rounded-xl border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900 sm:p-4">
+            <div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 sm:gap-2">
+              <RiShieldCheckLine className="size-3.5 sm:size-4" />
+              <span className="text-[10px] font-medium uppercase tracking-wide sm:text-xs">Primary</span>
             </div>
-            <p className="mt-2 truncate text-2xl font-bold text-gray-900 dark:text-gray-50">
+            <p className="mt-1.5 truncate text-lg font-bold text-gray-900 dark:text-gray-50 sm:mt-2 sm:text-2xl">
               {stats.mostUsedMethod?.name || "—"}
             </p>
-            <p className="mt-1 text-xs text-gray-500">
-              {stats.mostUsedMethod ? `${stats.mostUsedMethod.subscriptionCount} subscriptions` : "none set"}
+            <p className="mt-0.5 text-[10px] text-gray-500 sm:mt-1 sm:text-xs">
+              {stats.mostUsedMethod ? `${stats.mostUsedMethod.subscriptionCount} subs` : "none set"}
             </p>
           </div>
         </div>
 
         {/* Add Form */}
         {isAdding && (
-          <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-pink-100 dark:bg-pink-900/30">
-                <RiAddLine className="size-5 text-pink-600 dark:text-pink-400" />
+          <div className="mb-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:mb-6 sm:rounded-2xl sm:p-6">
+            <div className="mb-3 flex items-center gap-2.5 sm:mb-4 sm:gap-3">
+              <div className="flex size-8 items-center justify-center rounded-xl bg-pink-100 dark:bg-pink-900/30 sm:size-10">
+                <RiAddLine className="size-4 text-pink-600 dark:text-pink-400 sm:size-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 dark:text-gray-50">Add New Payment Method</h3>
-                <p className="text-sm text-gray-500">Add a card or payment account to track</p>
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 sm:text-base">Add New Payment Method</h3>
+                <p className="text-xs text-gray-500 sm:text-sm">Add a card or payment account to track</p>
               </div>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
               <div>
                 <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
                 <Input
@@ -386,25 +386,25 @@ export default function PaymentMethodsPage() {
           </div>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-12">
+        {paymentMethods.length === 0 && !isAdding ? (
+          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:rounded-2xl sm:p-12">
+            <div className="mx-auto mb-3 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 sm:mb-4 sm:size-20">
+              <RiBankCardLine className="size-8 text-pink-500 sm:size-10" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 sm:text-xl">No payment methods</h3>
+            <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400 sm:mt-2">
+              Add payment methods to track which cards/accounts are used
+            </p>
+            <Button className="mt-4 sm:mt-6" onClick={() => setIsAdding(true)}>
+              <RiAddLine className="mr-2 size-4" />
+              Add your first payment method
+            </Button>
+          </div>
+        ) : (
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-12">
           {/* Payment Methods */}
           <div className="lg:col-span-8">
-            {paymentMethods.length === 0 && !isAdding ? (
-              <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-                <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30">
-                  <RiBankCardLine className="size-10 text-pink-500" />
-                </div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-50">No payment methods</h3>
-                <p className="mt-2 text-gray-500 dark:text-gray-400">
-                  Add payment methods to track which cards/accounts are used
-                </p>
-                <Button className="mt-6" onClick={() => setIsAdding(true)}>
-                  <RiAddLine className="mr-2 size-4" />
-                  Add your first payment method
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                 {paymentMethods.map((method) => {
                   const typeConfig = getTypeConfig(method.type)
                   const Icon = typeConfig.icon
@@ -517,11 +517,10 @@ export default function PaymentMethodsPage() {
                   )
                 })}
               </div>
-            )}
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6 lg:col-span-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:col-span-4 lg:grid-cols-1 lg:space-y-0">
             {/* Type Distribution */}
             {paymentMethods.length > 0 && (
               <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -573,24 +572,25 @@ export default function PaymentMethodsPage() {
             )}
           </div>
         </div>
+        )}
 
         {/* Pro Tip Footer */}
-        <div className="mt-8 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 p-6 text-white">
-          <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-4">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                <RiShieldCheckLine className="size-6" />
+        <div className="mt-6 rounded-xl bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 p-4 text-white sm:mt-8 sm:rounded-2xl sm:p-6">
+          <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
+            <div className="flex items-start gap-3 sm:items-center sm:gap-4">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm sm:size-12">
+                <RiShieldCheckLine className="size-5 sm:size-6" />
               </div>
               <div>
-                <p className="text-lg font-semibold">Pro Tip: Secure Storage</p>
-                <p className="mt-1 text-pink-100">
+                <p className="text-base font-semibold sm:text-lg">Pro Tip: Secure Storage</p>
+                <p className="mt-0.5 text-sm text-pink-100 sm:mt-1">
                   Only the last 4 digits are stored for your reference. Full card details are never saved in our system.
                 </p>
               </div>
             </div>
             <Link
               href="/subscriptions/new"
-              className="inline-flex items-center rounded-xl bg-white/20 px-5 py-2.5 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/30"
+              className="inline-flex w-full items-center justify-center rounded-xl bg-white/20 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/30 sm:w-auto sm:px-5 sm:py-2.5"
             >
               Add Subscription
               <RiArrowRightLine className="ml-2 size-4" />
