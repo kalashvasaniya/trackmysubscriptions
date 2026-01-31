@@ -297,9 +297,6 @@ export function HowItWorks() {
               <RiArrowRightLine className="size-4" />
             </Link>
           </Button>
-          <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
-            Free forever. No credit card required.
-          </p>
         </div>
       </div>
 

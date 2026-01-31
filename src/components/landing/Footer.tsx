@@ -17,20 +17,20 @@ const navigation = {
   ],
   support: [
     { name: "Help Center", href: "#" },
-    { name: "Contact", href: "mailto:support@trackmysubscriptions.com" },
+    { name: "Contact", href: "mailto:kalashvasaniya@gmail.com" },
     { name: "Status", href: "#" },
   ],
   legal: [
     { name: "Privacy", href: "/privacy" },
     { name: "Terms", href: "/terms" },
-    { name: "Cookies", href: "#" },
+    { name: "Refund Policy", href: "/terms#refund" },
   ],
 }
 
 const social = [
-  { name: "Twitter", href: "#", icon: RiTwitterXLine },
-  { name: "GitHub", href: "#", icon: RiGithubLine },
-  { name: "LinkedIn", href: "#", icon: RiLinkedinLine },
+  { name: "Twitter", href: "https://x.com/kalashbuilds", icon: RiTwitterXLine },
+  { name: "GitHub", href: "https://github.com/kalashvasaniya", icon: RiGithubLine },
+  { name: "LinkedIn", href: "https://www.linkedin.com/in/kalashvasaniya/", icon: RiLinkedinLine },
 ]
 
 export function Footer() {

@@ -21,38 +21,37 @@ import {
 } from "@remixicon/react"
 import Link from "next/link"
 import dynamic from "next/dynamic"
-import { useEffect, useState, useMemo, Suspense } from "react"
-import { ChartSkeleton, PieChartSkeleton } from "@/components/Skeleton"
+import { useEffect, useState, useMemo } from "react"
 
 // Dynamic imports for chart components - reduces initial bundle by ~200KB
 const SpendingTrendChart = dynamic(
   () => import("@/components/analytics/AnalyticsCharts").then((mod) => mod.SpendingTrendChart),
-  { ssr: false, loading: () => <ChartSkeleton className="h-64" /> }
+  { ssr: false }
 )
 
 const CategoryPieChart = dynamic(
   () => import("@/components/analytics/AnalyticsCharts").then((mod) => mod.CategoryPieChart),
-  { ssr: false, loading: () => <ChartSkeleton className="h-64" /> }
+  { ssr: false }
 )
 
 const TopSubscriptionsChart = dynamic(
   () => import("@/components/analytics/AnalyticsCharts").then((mod) => mod.TopSubscriptionsChart),
-  { ssr: false, loading: () => <ChartSkeleton className="h-64" /> }
+  { ssr: false }
 )
 
 const MonthOverMonthChart = dynamic(
   () => import("@/components/analytics/AnalyticsCharts").then((mod) => mod.MonthOverMonthChart),
-  { ssr: false, loading: () => <ChartSkeleton className="h-64" /> }
+  { ssr: false }
 )
 
 const StatusPieChart = dynamic(
   () => import("@/components/analytics/AnalyticsCharts").then((mod) => mod.StatusPieChart),
-  { ssr: false, loading: () => <PieChartSkeleton className="h-48" /> }
+  { ssr: false }
 )
 
 const BillingCyclePieChart = dynamic(
   () => import("@/components/analytics/AnalyticsCharts").then((mod) => mod.BillingCyclePieChart),
-  { ssr: false, loading: () => <PieChartSkeleton className="h-48" /> }
+  { ssr: false }
 )
 
 interface AnalyticsData {

@@ -105,7 +105,7 @@ export function DropdownUserProfile({
           <DropdownMenuGroup>
             <DropdownMenuItem>
               <a
-                href="https://github.com"
+                href="mailto:kalashvasaniya@gmail.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex w-full items-center"
