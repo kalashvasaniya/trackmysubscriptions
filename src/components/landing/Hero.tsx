@@ -177,7 +177,7 @@ export function Hero() {
                         <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Spotify</span>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">$9.99</p>
+                        <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">$5</p>
                         <p className="text-[10px] sm:text-xs text-gray-400">in 5 days</p>
                       </div>
                     </div>

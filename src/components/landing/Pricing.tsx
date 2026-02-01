@@ -83,7 +83,7 @@ export function Pricing() {
             <div className="text-center">
               <p className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Lifetime Access</p>
               <div className="mt-3 sm:mt-4 flex items-baseline justify-center gap-1">
-                <span className="text-5xl sm:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">$9</span>
+                <span className="text-5xl sm:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">$5</span>
                 <span className="text-lg sm:text-xl text-gray-500">one-time</span>
               </div>
               <p className="mt-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">

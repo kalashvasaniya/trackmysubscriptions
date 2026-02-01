@@ -166,7 +166,7 @@ export function HowItWorks() {
                       </div>
                       <span className="text-xs sm:text-sm font-medium text-gray-900 dark:text-white">Spotify</span>
                     </div>
-                    <span className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400">$9.99</span>
+                    <span className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400">$5</span>
                   </div>
                   {/* Adobe CC */}
                   <div 

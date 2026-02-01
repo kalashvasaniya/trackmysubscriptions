@@ -6,7 +6,7 @@ import { RiArrowRightLine, RiCheckLine, RiSparklingLine } from "@remixicon/react
 import Link from "next/link"
 
 const benefits = [
-  "$9 one-time payment",
+  "$5 one-time payment",
   "Lifetime access", 
   "Set up in 2 minutes",
 ]
