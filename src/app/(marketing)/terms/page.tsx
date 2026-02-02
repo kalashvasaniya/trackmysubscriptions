@@ -62,33 +62,21 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              4. Subscription and Payments
+              4. Free Service
             </h2>
             <p className="mb-4">
-              TrackMySubscriptions offers a lifetime access option for a one-time payment. By purchasing:
+              TrackMySubscriptions is completely free to use. By creating an account:
             </p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>You receive permanent access to all current features</li>
-              <li>Payment is processed securely through our payment provider</li>
-              <li>Prices are subject to change for new customers</li>
+              <li>You receive full access to all features at no cost</li>
+              <li>No credit card or payment information is required</li>
+              <li>All features are included in the free tier</li>
             </ul>
-          </section>
-
-          <section id="refund">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              5. Refund Policy
-            </h2>
-            <p className="font-medium text-gray-900 dark:text-white">
-              All sales are final. We do not offer refunds for any purchases.
-            </p>
-            <p className="mt-2">
-              Due to the digital nature of our product and immediate access upon purchase, we cannot provide refunds. We encourage you to explore all available information about our service before purchasing.
-            </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              6. Acceptable Use
+              5. Acceptable Use
             </h2>
             <p className="mb-4">
               You agree not to:
@@ -104,20 +92,31 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              7. Data and Privacy
+              6. Data Usage and Communications
             </h2>
+            <p className="mb-4">
+              By creating an account and using TrackMySubscriptions, you grant us permission to:
+            </p>
+            <ul className="list-disc pl-6 space-y-2 mb-4">
+              <li>Collect, store, and process your personal data including email address and subscription information</li>
+              <li>Use your data to improve our services, develop new features, and analyze usage patterns</li>
+              <li>Send you transactional emails (payment reminders, account notifications, security alerts)</li>
+              <li>Send you promotional emails, newsletters, product updates, and marketing communications</li>
+              <li>Use aggregated and anonymized data for analytics, research, and public statistics</li>
+              <li>Contact you about new features, special offers, and partnership opportunities</li>
+            </ul>
             <p>
-              Your use of the service is also governed by our{" "}
+              You may opt out of marketing emails at any time through your account settings or by clicking the unsubscribe link in any email. Your use of the service is also governed by our{" "}
               <Link href="/privacy" className="text-blue-600 hover:underline dark:text-blue-400">
                 Privacy Policy
               </Link>
-              . By using TrackMySubscriptions, you consent to the collection and use of information as described therein.
+              .
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              8. Disclaimer of Warranties
+              7. Disclaimer of Warranties
             </h2>
             <p>
               The service is provided &ldquo;as is&rdquo; without warranties of any kind, either express or implied. We do not guarantee that the service will be uninterrupted, secure, or error-free.
@@ -126,7 +125,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              9. Limitation of Liability
+              8. Limitation of Liability
             </h2>
             <p>
               TrackMySubscriptions shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the service.
@@ -135,7 +134,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              10. Changes to Terms
+              9. Changes to Terms
             </h2>
             <p>
               We reserve the right to modify these terms at any time. We will notify users of significant changes via email or through the service. Continued use after changes constitutes acceptance of the new terms.
@@ -144,7 +143,7 @@ export default function TermsPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              11. Contact
+              10. Contact
             </h2>
             <p>
               For questions about these Terms of Service, please contact us at{" "}

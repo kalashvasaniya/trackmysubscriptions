@@ -4,6 +4,7 @@ import type { NextAuthConfig } from "next-auth"
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import clientPromise from "./mongodb-client"
+import { sendWelcomeEmail } from "./email"
 
 export const authConfig: NextAuthConfig = {
   adapter: MongoDBAdapter(clientPromise),
@@ -51,6 +52,19 @@ export const authConfig: NextAuthConfig = {
           },
         },
       )
+
+      // Send welcome email to new users
+      if (user.email) {
+        try {
+          await sendWelcomeEmail(user.email, {
+            userName: user.name || "",
+            email: user.email,
+          })
+        } catch (error) {
+          // Log error but don't block user creation
+          console.error("Failed to send welcome email:", error)
+        }
+      }
     },
   },
 }

@@ -1,46 +1,15 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
-import { RiGroupLine, RiStarFill, RiFileList3Line, RiMoneyDollarCircleLine } from "@remixicon/react"
+import { RiGroupLine, RiFileList3Line, RiMoneyDollarCircleLine, RiCheckboxCircleLine } from "@remixicon/react"
 
-const stats = [
-  { 
-    id: 1, 
-    name: "Happy Users", 
-    value: 20000, 
-    suffix: "+", 
-    prefix: "",
-    description: "Trust us",
-    icon: RiGroupLine,
-  },
-  { 
-    id: 2, 
-    name: "5-Star Reviews", 
-    value: 600, 
-    suffix: "+", 
-    prefix: "",
-    description: "On App Store",
-    icon: RiStarFill,
-  },
-  { 
-    id: 3, 
-    name: "Subscriptions", 
-    value: 250000, 
-    suffix: "+", 
-    prefix: "",
-    description: "Being tracked",
-    icon: RiFileList3Line,
-  },
-  { 
-    id: 4, 
-    name: "Money Saved", 
-    value: 1000000, 
-    suffix: "+", 
-    prefix: "$",
-    description: "By our users",
-    icon: RiMoneyDollarCircleLine,
-  },
-]
+interface StatsData {
+  totalUsers: number
+  totalSubscriptions: number
+  activeSubscriptions: number
+  totalMonthlySpending: number
+  totalTrackedValue: number
+}
 
 function AnimatedCounter({
   value,
@@ -56,7 +25,7 @@ function AnimatedCounter({
   const [count, setCount] = useState(0)
 
   useEffect(() => {
-    if (!inView) return
+    if (!inView || value === 0) return
     
     const duration = 2000
     const steps = 60
@@ -76,7 +45,7 @@ function AnimatedCounter({
   }, [value, inView])
 
   const formatNumber = (num: number) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(0) + "M"
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M"
     if (num >= 1000) return (num / 1000).toFixed(0) + "K"
     return num.toString()
   }
@@ -88,6 +57,7 @@ function AnimatedCounter({
 
 export function Stats() {
   const [inView, setInView] = useState(false)
+  const [statsData, setStatsData] = useState<StatsData | null>(null)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -101,8 +71,60 @@ export function Stats() {
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    fetch("/api/stats/public")
+      .then((res) => res.json())
+      .then((data) => setStatsData(data))
+      .catch(() => setStatsData(null))
+  }, [])
+
+  const stats = [
+    { 
+      id: 1, 
+      name: "Users", 
+      value: statsData?.totalUsers || 0, 
+      suffix: "+", 
+      prefix: "",
+      description: "Tracking subscriptions",
+      icon: RiGroupLine,
+    },
+    { 
+      id: 2, 
+      name: "Active Subscriptions", 
+      value: statsData?.activeSubscriptions || 0, 
+      suffix: "+", 
+      prefix: "",
+      description: "Currently tracked",
+      icon: RiCheckboxCircleLine,
+    },
+    { 
+      id: 3, 
+      name: "Total Subscriptions", 
+      value: statsData?.totalSubscriptions || 0, 
+      suffix: "+", 
+      prefix: "",
+      description: "Being managed",
+      icon: RiFileList3Line,
+    },
+    { 
+      id: 4, 
+      name: "Value Tracked", 
+      value: statsData?.totalTrackedValue || 0, 
+      suffix: "+", 
+      prefix: "$",
+      description: "Annual subscriptions",
+      icon: RiMoneyDollarCircleLine,
+    },
+  ]
+
+  const formatUserCount = (num: number) => {
+    if (num >= 1000) return Math.floor(num / 1000) + "K+"
+    if (num > 0) return num + "+"
+    return "growing"
+  }
+
   return (
-    <section className="py-16 sm:py-24 lg:py-32 bg-white dark:bg-gray-950 overflow-hidden">
+    <section id="stats" className="py-16 sm:py-24 lg:py-32 bg-white dark:bg-gray-950 overflow-hidden">
       <div ref={ref} className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div 
@@ -112,12 +134,12 @@ export function Stats() {
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight text-gray-900 dark:text-white">
             Trusted by
-            <span className="text-gray-400 dark:text-gray-500"> 20,000+ </span>
+            <span className="text-gray-400 dark:text-gray-500"> {statsData?.totalUsers ? formatUserCount(statsData.totalUsers) : ""} </span>
             <br className="sm:hidden" />
             users worldwide
           </h2>
           <p className="mt-4 sm:mt-6 text-base sm:text-lg text-gray-500 dark:text-gray-400">
-            Join thousands who have already taken control of their subscription spending.
+            Join our community and take control of your subscription spending.
           </p>
         </div>
 
@@ -141,12 +163,16 @@ export function Stats() {
               
               {/* Number */}
               <dd className="relative mt-4 sm:mt-6 text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
-                <AnimatedCounter
-                  value={stat.value}
-                  prefix={stat.prefix}
-                  suffix={stat.suffix}
-                  inView={inView}
-                />
+                {stat.value > 0 ? (
+                  <AnimatedCounter
+                    value={stat.value}
+                    prefix={stat.prefix}
+                    suffix={stat.suffix}
+                    inView={inView}
+                  />
+                ) : (
+                  <span className="text-gray-400">-</span>
+                )}
               </dd>
               
               {/* Label */}
@@ -169,7 +195,7 @@ export function Stats() {
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          {["Product Hunt", "SOC 2", "GDPR Ready", "256-bit SSL"].map((badge) => (
+          {["Open Source", "GDPR Ready", "256-bit SSL", "100% Free"].map((badge) => (
             <div 
               key={badge}
               className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400"

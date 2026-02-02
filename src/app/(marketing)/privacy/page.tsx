@@ -55,12 +55,32 @@ export default function PrivacyPage() {
               <li>Process transactions and send related information</li>
               <li>Respond to your comments, questions, and requests</li>
               <li>Monitor and analyze trends, usage, and activities</li>
+              <li>Send promotional emails, newsletters, and marketing communications</li>
+              <li>Develop new products, services, and features</li>
+              <li>Create aggregated statistics and insights for internal and public use</li>
             </ul>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              3. Data Security
+              3. Email Communications
+            </h2>
+            <p className="mb-4">
+              By creating an account, you consent to receive the following types of emails:
+            </p>
+            <ul className="list-disc pl-6 space-y-2">
+              <li><strong>Transactional emails:</strong> Payment reminders, account notifications, security alerts, and service updates</li>
+              <li><strong>Marketing emails:</strong> Product announcements, feature updates, tips and best practices</li>
+              <li><strong>Promotional emails:</strong> Special offers, partner promotions, and newsletters</li>
+            </ul>
+            <p className="mt-4">
+              You can unsubscribe from marketing and promotional emails at any time through your account settings or by clicking the unsubscribe link in any email. Transactional emails related to your account cannot be opted out of while your account is active.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              4. Data Security
             </h2>
             <p>
               We take reasonable measures to help protect your personal information from loss, theft, misuse, unauthorized access, disclosure, alteration, and destruction. Your data is encrypted in transit and at rest.
@@ -69,7 +89,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              4. Data Retention
+              5. Data Retention
             </h2>
             <p>
               We retain your information for as long as your account is active or as needed to provide you services. You can request deletion of your account and associated data at any time through your account settings.
@@ -78,7 +98,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              5. Third-Party Services
+              6. Third-Party Services
             </h2>
             <p>
               We may use third-party services for authentication (Google OAuth), payment processing, and analytics. These services have their own privacy policies governing the use of your information.
@@ -87,7 +107,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              6. Your Rights
+              7. Your Rights
             </h2>
             <p className="mb-4">
               You have the right to:
@@ -103,7 +123,7 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              7. Contact Us
+              8. Contact Us
             </h2>
             <p>
               If you have any questions about this Privacy Policy, please contact us at{" "}

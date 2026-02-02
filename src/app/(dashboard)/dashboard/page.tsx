@@ -138,16 +138,42 @@ function getTimeAgo(dateStr: string): string {
 }
 
 // Health Score Gauge Component
-function HealthScoreGauge({ score }: { score: number }) {
-  const getScoreColor = () => {
-    if (score >= 80) return { main: "#10B981", light: "#D1FAE5", text: "Excellent" }
-    if (score >= 60) return { main: "#3B82F6", light: "#DBEAFE", text: "Good" }
-    if (score >= 40) return { main: "#F59E0B", light: "#FEF3C7", text: "Fair" }
+function HealthScoreGauge({ score }: { score: number | null }) {
+  const getScoreColor = (s: number) => {
+    if (s >= 80) return { main: "#10B981", light: "#D1FAE5", text: "Excellent" }
+    if (s >= 60) return { main: "#3B82F6", light: "#DBEAFE", text: "Good" }
+    if (s >= 40) return { main: "#F59E0B", light: "#FEF3C7", text: "Fair" }
     return { main: "#EF4444", light: "#FEE2E2", text: "Needs Attention" }
   }
   
-  const { main, light, text } = getScoreColor()
   const circumference = 2 * Math.PI * 45
+  
+  // Handle no subscriptions case
+  if (score === null) {
+    return (
+      <div className="flex flex-col items-center">
+        <div className="relative">
+          <svg className="size-28 -rotate-90 transform">
+            <circle
+              cx="56"
+              cy="56"
+              r="45"
+              stroke="#E5E7EB"
+              strokeWidth="10"
+              fill="none"
+              className="dark:opacity-30"
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span className="text-xl font-bold text-gray-400 dark:text-gray-500">—</span>
+          </div>
+        </div>
+        <span className="mt-2 text-sm font-medium text-gray-400">Add subscriptions</span>
+      </div>
+    )
+  }
+  
+  const { main, light, text } = getScoreColor(score)
   const strokeDashoffset = circumference - (score / 100) * circumference
   
   return (
@@ -246,14 +272,19 @@ export default function DashboardPage() {
       ? Math.ceil((new Date(nextPayment.nextBillingDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
       : null
 
-    // Calculate health score
-    const activeRatio = data.metrics.totalSubscriptions > 0
-      ? (data.statusBreakdown.active / data.metrics.totalSubscriptions) * 50
-      : 50
-    const noOverdue = todayPayments.length === 0 ? 20 : 10
-    const hasCategories = data.categorySpending.length > 0 ? 15 : 0
-    const trending = monthlyChange <= 0 ? 15 : Math.max(0, 15 - monthlyChange / 10)
-    const healthScore = Math.round(Math.min(100, activeRatio + noOverdue + hasCategories + trending))
+    // Calculate health score - returns null if no subscriptions
+    let healthScore: number | null = null
+    if (data.metrics.totalSubscriptions > 0) {
+      // Active ratio: up to 40 points based on % of active subscriptions
+      const activeRatio = (data.statusBreakdown.active / data.metrics.totalSubscriptions) * 40
+      // No overdue payments today: 25 points if none, 10 if some
+      const noOverdue = todayPayments.length === 0 ? 25 : 10
+      // Has organized with categories: up to 20 points
+      const hasCategories = data.categorySpending.length > 0 ? 20 : 0
+      // Spending trend: up to 15 points if spending is stable or decreasing
+      const trending = monthlyChange <= 0 ? 15 : Math.max(0, 15 - monthlyChange / 10)
+      healthScore = Math.round(Math.min(100, activeRatio + noOverdue + hasCategories + trending))
+    }
 
     // Action items
     const actionItems = []

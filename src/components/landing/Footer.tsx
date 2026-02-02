@@ -7,8 +7,8 @@ import { RiTwitterXLine, RiGithubLine, RiLinkedinLine, RiHeartFill } from "@remi
 const navigation = {
   product: [
     { name: "Features", href: "#features" },
-    { name: "Pricing", href: "#pricing" },
     { name: "How It Works", href: "#how-it-works" },
+    { name: "Stats", href: "#stats" },
   ],
   company: [
     { name: "About", href: "#" },
@@ -23,7 +23,6 @@ const navigation = {
   legal: [
     { name: "Privacy", href: "/privacy" },
     { name: "Terms", href: "/terms" },
-    { name: "Refund Policy", href: "/terms#refund" },
   ],
 }
 

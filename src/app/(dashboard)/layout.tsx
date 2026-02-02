@@ -8,7 +8,6 @@ import localFont from "next/font/local"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
-import clientPromise from "@/lib/mongodb-client"
 import "../globals.css"
 import { siteConfig } from "../siteConfig"
 
@@ -46,17 +45,6 @@ export default async function DashboardLayout({
 
   if (!session?.user?.email) {
     redirect("/login")
-  }
-
-  // Check if user has payment: true in users collection
-  const client = await clientPromise
-  const db = client.db()
-  const user = await db.collection("users").findOne({
-    email: session.user.email,
-  })
-
-  if (!user?.payment) {
-    redirect("/?upgrade=1#pricing")
   }
 
   const cookieStore = await cookies()

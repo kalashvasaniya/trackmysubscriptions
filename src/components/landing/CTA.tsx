@@ -6,13 +6,14 @@ import { RiArrowRightLine, RiCheckLine, RiSparklingLine } from "@remixicon/react
 import Link from "next/link"
 
 const benefits = [
-  "$5 one-time payment",
-  "Lifetime access", 
+  "100% Free forever",
+  "No credit card required", 
   "Set up in 2 minutes",
 ]
 
 export function CTA() {
   const [inView, setInView] = useState(false)
+  const [userCount, setUserCount] = useState<number | null>(null)
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -25,6 +26,18 @@ export function CTA() {
     if (ref.current) observer.observe(ref.current)
     return () => observer.disconnect()
   }, [])
+
+  useEffect(() => {
+    fetch("/api/stats/public")
+      .then((res) => res.json())
+      .then((data) => setUserCount(data.totalUsers))
+      .catch(() => setUserCount(null))
+  }, [])
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000) return Math.floor(num / 1000) + "K+"
+    return num + "+"
+  }
 
   return (
     <section className="py-16 sm:py-24 lg:py-32 bg-gray-50 dark:bg-gray-900 overflow-hidden">
@@ -49,7 +62,9 @@ export function CTA() {
               }`}
             >
               <RiSparklingLine className="size-3.5 sm:size-4 text-amber-500" />
-              <span className="text-gray-600 dark:text-gray-400">Loved by 20,000+ users</span>
+              <span className="text-gray-600 dark:text-gray-400">
+                {userCount ? `Loved by ${formatNumber(userCount)} users` : "100% Free"}
+              </span>
             </div>
 
             {/* Heading */}
@@ -69,7 +84,9 @@ export function CTA() {
                 inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
               }`}
             >
-              Join 20,000+ users saving money and staying on top of their recurring expenses.
+              {userCount 
+                ? `Join ${formatNumber(userCount)} users saving money and staying on top of their recurring expenses.`
+                : "Start saving money and stay on top of your recurring expenses for free."}
             </p>
 
             {/* CTA Buttons */}
@@ -80,13 +97,13 @@ export function CTA() {
             >
               <Button size="lg" asChild className="px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base w-full sm:w-auto">
                 <Link href="/register">
-                  Start Free Today
+                  Get Started Free
                   <RiArrowRightLine className="size-4 sm:size-5" />
                 </Link>
               </Button>
               <Button variant="secondary" size="lg" asChild className="px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base w-full sm:w-auto">
-                <Link href="#pricing">
-                  View Pricing
+                <Link href="#how-it-works">
+                  See How It Works
                 </Link>
               </Button>
             </div>

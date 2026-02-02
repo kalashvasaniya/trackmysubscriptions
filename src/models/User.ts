@@ -76,7 +76,7 @@ const UserSchema = new Schema<IUser>(
       status: {
         type: String,
         enum: ["free", "paid", "refunded"],
-        default: "free",
+        default: "paid", // All users get full access for free
       },
       paidAt: Date,
     },

@@ -5,12 +5,32 @@ import { Button } from "@/components/Button"
 import { RiArrowRightLine, RiCheckLine, RiPlayCircleLine, RiShieldCheckLine } from "@remixicon/react"
 import Link from "next/link"
 
+interface StatsData {
+  totalUsers: number
+  totalSubscriptions: number
+  activeSubscriptions: number
+  totalMonthlySpending: number
+  totalTrackedValue: number
+}
+
 export function Hero() {
   const [loaded, setLoaded] = useState(false)
+  const [stats, setStats] = useState<StatsData | null>(null)
 
   useEffect(() => {
     setLoaded(true)
+    fetch("/api/stats/public")
+      .then((res) => res.json())
+      .then((data) => setStats(data))
+      .catch(() => setStats(null))
   }, [])
+
+  const formatTrackedValue = (value: number) => {
+    if (value >= 1000000) return `$${(value / 1000000).toFixed(0)}M+`
+    if (value >= 1000) return `$${(value / 1000).toFixed(0)}K+`
+    if (value > 0) return `$${value}+`
+    return "Free"
+  }
 
   return (
     <section className="relative pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24 bg-[#FAFAFA] dark:bg-gray-950 overflow-hidden">
@@ -35,9 +55,18 @@ export function Hero() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
               </span>
-              <span className="text-gray-500 dark:text-gray-400">Tracking</span>
-              <span className="font-semibold text-gray-900 dark:text-white">$100M+</span>
-              <span className="text-gray-500 dark:text-gray-400 hidden xs:inline">in subscriptions</span>
+              {stats?.totalTrackedValue ? (
+                <>
+                  <span className="text-gray-500 dark:text-gray-400">Tracking</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">{formatTrackedValue(stats.totalTrackedValue)}</span>
+                  <span className="text-gray-500 dark:text-gray-400 hidden xs:inline">in subscriptions</span>
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold text-emerald-600 dark:text-emerald-400">100% Free</span>
+                  <span className="text-gray-500 dark:text-gray-400 hidden xs:inline">subscription tracker</span>
+                </>
+              )}
             </div>
 
             {/* Headline */}
