@@ -5,6 +5,7 @@ import "../globals.css"
 import { siteConfig } from "../siteConfig"
 import { Navbar } from "@/components/landing/Navbar"
 import { Footer } from "@/components/landing/Footer"
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -93,6 +94,7 @@ export default function MarketingLayout({
             Sponsor
           </a>
         </Providers>
+        <Analytics />
       </body>
     </html>
   )
