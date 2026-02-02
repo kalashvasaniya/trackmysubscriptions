@@ -3,6 +3,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary"
 import type { Metadata } from "next"
 import localFont from "next/font/local"
 import "../globals.css"
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: "Sign In | TrackMySubscriptions",
@@ -42,6 +43,7 @@ export default function AuthLayout({
         <Providers>
           <ErrorBoundary>{children}</ErrorBoundary>
         </Providers>
+        <Analytics />
       </body>
     </html>
   )

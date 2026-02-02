@@ -10,6 +10,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import "../globals.css"
 import { siteConfig } from "../siteConfig"
+import { Analytics } from "@vercel/analytics/next"
 
 const geistSans = localFont({
   src: "../fonts/GeistVF.woff",
@@ -71,6 +72,7 @@ export default async function DashboardLayout({
             </div>
           </SidebarProvider>
         </Providers>
+        <Analytics />
       </body>
     </html>
   )
