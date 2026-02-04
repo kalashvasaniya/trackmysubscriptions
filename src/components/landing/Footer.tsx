@@ -28,7 +28,7 @@ const navigation = {
 
 const social = [
   { name: "Twitter", href: "https://x.com/kalashbuilds", icon: RiTwitterXLine },
-  { name: "GitHub", href: "https://github.com/kalashvasaniya", icon: RiGithubLine },
+  { name: "GitHub", href: "https://github.com/kalashvasaniya/trackmysubscriptions", icon: RiGithubLine },
   { name: "LinkedIn", href: "https://www.linkedin.com/in/kalashvasaniya/", icon: RiLinkedinLine },
 ]
 
