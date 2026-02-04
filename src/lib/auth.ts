@@ -18,6 +18,10 @@ export const authConfig: NextAuthConfig = {
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      // Allow linking Google accounts to existing users with the same email.
+      // This prevents "OAuthAccountNotLinked" errors when a user previously
+      // signed up using another method that stored the same email.
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   callbacks: {
