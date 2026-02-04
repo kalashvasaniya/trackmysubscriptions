@@ -1,7 +1,26 @@
 {
-  "name": "template-planner",
-  "version": "0.1.0",
-  "private": true,
+  "name": "trackmysubscriptions",
+  "version": "1.0.0",
+  "description": "A free, open-source subscription management app. Track all your subscriptions, get payment reminders, and visualize spending analytics.",
+  "author": "Kalash Vasaniya <kalashvasaniya@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kalashvasaniya/trackmysubscriptions.git"
+  },
+  "homepage": "https://trackmysubscriptions.com",
+  "bugs": {
+    "url": "https://github.com/kalashvasaniya/trackmysubscriptions/issues"
+  },
+  "keywords": [
+    "subscription",
+    "tracker",
+    "finance",
+    "budgeting",
+    "nextjs",
+    "mongodb",
+    "open-source"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -10,7 +29,6 @@
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.11.1",
-    "@polar-sh/nextjs": "^0.9.3",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",

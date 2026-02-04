@@ -1,16 +1,5 @@
 import mongoose, { Schema, Document, Model } from "mongoose"
 
-export interface IPayment {
-  polarCustomerId?: string
-  polarOrderId?: string
-  polarCheckoutId?: string
-  productId?: string
-  amount?: number
-  currency?: string
-  status: "free" | "paid" | "refunded"
-  paidAt?: Date
-}
-
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId
   email: string
@@ -22,7 +11,6 @@ export interface IUser extends Document {
   emailAlerts: boolean
   weeklyDigest: boolean
   emailVerified?: Date
-  payment?: IPayment
   createdAt: Date
   updatedAt: Date
 }
@@ -65,20 +53,6 @@ const UserSchema = new Schema<IUser>(
     },
     emailVerified: {
       type: Date,
-    },
-    payment: {
-      polarCustomerId: String,
-      polarOrderId: String,
-      polarCheckoutId: String,
-      productId: String,
-      amount: Number,
-      currency: String,
-      status: {
-        type: String,
-        enum: ["free", "paid", "refunded"],
-        default: "paid", // All users get full access for free
-      },
-      paidAt: Date,
     },
   },
   {

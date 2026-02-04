@@ -1,47 +1,200 @@
-# Tremor – Planner
+# TrackMySubscriptions
 
-`Planner` is a SaaS application template from [Tremor](https://tremor.so). It's built
-using [`Tremor`](https://tremor.so/docs/getting-started/installation) and
-[Next.js](https://nextjs.org).
+A free, open-source subscription management application built with Next.js 16, MongoDB, and Tremor UI. Track all your subscriptions in one place, get payment reminders, and visualize your spending with beautiful analytics.
 
-## Getting started
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
 
-1. Install the dependencies. We recommend using pnpm. If you want to use `npm`,
-   just replace `pnpm` with `npm`.
+## Features
+
+- **Subscription Tracking** - Add and manage all your subscriptions with details like billing cycle, amount, and category
+- **Payment Reminders** - Get email notifications before payments are due
+- **Analytics Dashboard** - Visualize your spending patterns with interactive charts
+- **Folders & Tags** - Organize subscriptions with custom folders and tags
+- **Multi-Currency Support** - Track subscriptions in different currencies with automatic conversion
+- **Import/Export** - Import subscriptions from CSV or export your data
+- **Calendar View** - See upcoming payments in a calendar format
+- **Dark Mode** - Full dark mode support
+
+## Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org/) with App Router
+- **Database**: [MongoDB](https://www.mongodb.com/) with Mongoose ODM
+- **Authentication**: [NextAuth.js v5](https://authjs.dev/) with Google OAuth
+- **UI Components**: [Tremor](https://tremor.so/) + [Radix UI](https://www.radix-ui.com/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Charts**: [Recharts](https://recharts.org/)
+- **Email**: [Resend](https://resend.com/)
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18.x or later
+- MongoDB database (local or [MongoDB Atlas](https://www.mongodb.com/atlas))
+- Google OAuth credentials
+- (Optional) Resend API key for email notifications
+
+### Installation
+
+1. **Clone the repository**
 
 ```bash
+git clone https://github.com/kalashvasaniya/trackmysubscriptions.git
+cd trackmysubscriptions
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+# or
 pnpm install
 ```
 
-2. Then, start the development server:
+3. **Set up environment variables**
+
+Copy the example environment file and fill in your values:
 
 ```bash
-pnpm run dev
+cp .env.example .env.local
 ```
 
-3. Visit [http://localhost:3000](http://localhost:3000) in your browser to view
-   the template.
+4. **Run the development server**
 
-## Notes
+```bash
+npm run dev
+# or
+pnpm dev
+```
 
-This project uses
-[`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to
-automatically optimize and load Geist, a custom Google Font.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-This project uses
-[`Tremor`](https://raw.tremor.so/docs/getting-started/installation) components
-for the UI.
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following variables:
+
+```env
+# Database (Required)
+MONGODB_URI=mongodb+srv://your-connection-string
+
+# Authentication (Required)
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your-nextauth-secret
+
+# Google OAuth (Required)
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# Email (Optional - for payment reminders)
+RESEND_API_KEY=your-resend-api-key
+RESEND_EMAIL_FROM=hello@yourdomain.com
+RESEND_EMAIL_REPLY_TO=support@yourdomain.com
+
+# Cron Jobs (Optional - for automated alerts)
+CRON_SECRET=your-cron-secret
+
+# Currency Conversion (Optional)
+EXCHANGE_RATE_API_KEY=your-api-key-or-url
+```
+
+See [.env.example](.env.example) for more details on each variable.
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── (auth)/            # Authentication pages (login, register)
+│   ├── (dashboard)/       # Dashboard pages (protected routes)
+│   ├── (marketing)/       # Public marketing pages
+│   └── api/               # API routes
+├── components/            # React components
+│   ├── analytics/         # Analytics charts
+│   ├── dashboard/         # Dashboard components
+│   ├── landing/           # Landing page sections
+│   ├── subscriptions/     # Subscription forms
+│   └── ui/                # Reusable UI components
+├── lib/                   # Utility functions and configurations
+├── models/                # Mongoose database models
+└── types/                 # TypeScript type definitions
+```
+
+## API Routes
+
+| Route | Method | Description |
+|-------|--------|-------------|
+| `/api/subscriptions` | GET, POST | List/create subscriptions |
+| `/api/subscriptions/[id]` | GET, PUT, DELETE | Manage single subscription |
+| `/api/folders` | GET, POST | List/create folders |
+| `/api/tags` | GET, POST | List/create tags |
+| `/api/analytics` | GET | Get spending analytics |
+| `/api/alerts/send` | POST | Trigger payment alerts |
+
+## Deployment
+
+### Vercel (Recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/kalashvasaniya/trackmysubscriptions)
+
+1. Click the deploy button above
+2. Add your environment variables in the Vercel dashboard
+3. Deploy!
+
+### Self-Hosted
+
+1. Build the application:
+
+```bash
+npm run build
+```
+
+2. Start the production server:
+
+```bash
+npm start
+```
+
+### Docker
+
+```bash
+# Build the image
+docker build -t trackmysubscriptions .
+
+# Run the container
+docker run -p 3000:3000 --env-file .env.local trackmysubscriptions
+```
+
+## Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-This site template is a commercial product and is licensed under the
-[Tremor License](https://blocks.tremor.so/license).
+This project is based on the **Tremor Planner** template and is licensed under the MIT license provided by **Tremor Labs, Inc.**  
+See the [LICENSE](LICENSE.md) file and the original [Tremor license information](https://blocks.tremor.so/license) for full details.
 
-## Learn more
+## Acknowledgments
 
-For a deeper understanding of the technologies used in this template, check out
-the resources listed below:
+- [Tremor](https://tremor.so/) for the beautiful UI components
+- [Next.js](https://nextjs.org/) for the amazing React framework
+- [Vercel](https://vercel.com/) for hosting and deployment
 
-- [Tailwind CSS v4 beta](https://tailwindcss.com/docs/v4-beta) - A utility-first CSS framework
-- [Next.js](https://nextjs.org/docs) - Next.js documentation
-- [Radix UI](https://www.radix-ui.com) - Radix UI Website
+## Support
+
+If you find this project helpful, please consider:
+
+- Giving it a star on GitHub
+- [Sponsoring the project](https://github.com/sponsors/kalashvasaniya)
+- Sharing it with others
+
+---
+
+Built with love by [Kalash Vasaniya](https://github.com/kalashvasaniya)
