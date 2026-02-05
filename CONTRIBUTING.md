@@ -163,11 +163,16 @@ npm run dev
 
 ```
 src/
-├── app/           # Next.js App Router pages and API routes
-├── components/    # React components
-├── lib/           # Utility functions and configurations
-├── models/        # Mongoose database models
-└── types/         # TypeScript type definitions
+├── app/            # Next.js App Router pages and API routes
+│   ├── (auth)/     # Authentication pages
+│   ├── (dashboard)/ # Dashboard pages (protected)
+│   └── (marketing)/ # Public & pSEO pages (browse, compare, glossary, etc.)
+├── components/     # React components
+│   └── pseo/       # pSEO-specific components (breadcrumbs, CTAs, tables)
+├── data/pseo/      # Programmatic SEO data (services, glossary, personas)
+├── lib/            # Utility functions and configurations (incl. jsonld.ts)
+├── models/         # Mongoose database models
+└── types/          # TypeScript type definitions
 ```
 
 ## Coding Standards
@@ -212,6 +217,33 @@ Before submitting a PR, please:
 3. Check for linting errors: `npm run lint`
 4. Test on both light and dark modes
 5. Test on mobile viewport sizes
+
+## Programmatic SEO (pSEO) Contributions
+
+The project includes a large-scale pSEO system. Here's how to contribute:
+
+### Adding a New Subscription Service
+
+1. Add the service definition to the appropriate file in `src/data/pseo/services/`
+2. Follow the `SubscriptionService` type in `src/data/pseo/services/types.ts`
+3. The service automatically gets detail, alternatives, pricing, and comparison pages
+4. Sitemaps regenerate on build — no manual sitemap changes needed
+
+### Adding Glossary Terms
+
+1. Add new terms to `src/data/pseo/glossary.ts`
+2. Include: slug, name, definition, category, and related terms
+
+### Adding Persona Pages
+
+1. Add new personas to `src/data/pseo/personas.ts`
+2. Include: slug, headline, description, pain points, features, stats, and relevant categories
+
+### JSON-LD & Structured Data
+
+- All schema generators are in `src/lib/jsonld.ts`
+- When adding new page types, add appropriate JSON-LD schemas
+- Test structured data with [Google's Rich Results Test](https://search.google.com/test/rich-results)
 
 ## Documentation
 

@@ -1,7 +1,7 @@
 {
   "name": "trackmysubscriptions",
   "version": "1.0.0",
-  "description": "A free, open-source subscription management app. Track all your subscriptions, get payment reminders, and visualize spending analytics.",
+  "description": "A free, open-source subscription management app. Track all your subscriptions, get payment reminders, visualize spending analytics, and discover services through 100k+ programmatic SEO pages.",
   "author": "Kalash Vasaniya <kalashvasaniya@gmail.com>",
   "license": "MIT",
   "repository": {
@@ -19,7 +19,15 @@
     "budgeting",
     "nextjs",
     "mongodb",
-    "open-source"
+    "open-source",
+    "seo",
+    "programmatic-seo",
+    "pseo",
+    "subscription-comparison",
+    "subscription-alternatives",
+    "saas-glossary",
+    "structured-data",
+    "json-ld"
   ],
   "scripts": {
     "dev": "next dev",
