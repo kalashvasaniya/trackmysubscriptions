@@ -1,0 +1,61 @@
+import { svc, type SubscriptionService } from "./types"
+
+// ── Additional Development Services ──────────────────────────────────
+
+export const additionalDevelopmentServices: SubscriptionService[] = [
+  svc("Codacy", "codacy", "development", "Automated code quality and security analysis for development teams",
+    "https://codacy.com", [["Free", 0, null], ["Pro", 15, 144]], ["Code quality", "Security analysis", "PR checks", "Coverage reports", "Multi-language"], ["code-quality", "security", "automation", "devops"], 2012, "Lisbon, Portugal"),
+  svc("Hasura", "hasura", "development", "Instant GraphQL and REST APIs on your data with built-in authorization",
+    "https://hasura.io", [["Free", 0, null], ["Professional", 99, null], ["Enterprise", null, null]], ["GraphQL APIs", "REST APIs", "Authorization", "Real-time subscriptions", "Data federation"], ["graphql", "api", "backend", "authorization"], 2018, "San Francisco, California"),
+  svc("Semaphore", "semaphore", "development", "Fast CI/CD platform with customizable pipelines and test parallelism",
+    "https://semaphoreci.com", [["Free", 0, null], ["Startup", 10, null], ["Scale", 200, null]], ["CI/CD", "Parallel testing", "Docker support", "Custom pipelines", "Artifact storage"], ["ci-cd", "testing", "pipelines", "automation"], 2012, "Novi Sad, Serbia"),
+  svc("Appsmith", "appsmith", "development", "Open-source low-code platform for building admin panels and internal tools",
+    "https://appsmith.com", [["Free", 0, null], ["Business", 40, null], ["Enterprise", null, null]], ["Open source", "Drag-and-drop builder", "Database queries", "API connections", "Git integration"], ["low-code", "open-source", "internal-tools", "admin"], 2019, "San Francisco, California"),
+  svc("Clerk", "clerk", "development", "Complete user management and authentication platform for modern applications",
+    "https://clerk.com", [["Free", 0, null], ["Pro", 25, null], ["Enterprise", null, null]], ["Authentication", "User management", "Multi-factor auth", "Social login", "Organization management"], ["auth", "user-management", "identity", "sso"], 2019, "San Francisco, California"),
+  svc("Coolify", "coolify", "development", "Open-source self-hosting platform for applications and databases",
+    "https://coolify.io", [["Self-Hosted", 0, null], ["Cloud", 5, null]], ["Self-hosting", "Docker deploys", "Database hosting", "SSL certificates", "Monitoring"], ["self-hosting", "deployment", "docker", "open-source"], 2021, "Budapest, Hungary"),
+  svc("Deno Deploy", "deno-deploy", "development", "Serverless platform for deploying JavaScript and TypeScript globally",
+    "https://deno.com/deploy", [["Free", 0, null], ["Pro", 20, null], ["Enterprise", null, null]], ["Edge functions", "TypeScript native", "Zero config", "Global CDN", "Automatic HTTPS"], ["serverless", "edge", "typescript", "deployment"], 2020, "New York, New York"),
+  svc("Tigris Data", "tigris-data", "development", "Globally distributed S3-compatible object storage for modern apps",
+    "https://tigrisdata.com", [["Free", 0, null], ["Pay-as-you-go", 0.02, null]], ["Object storage", "S3 compatible", "Global distribution", "Zero egress", "Caching"], ["storage", "s3", "global", "object-storage"], 2022, "San Francisco, California"),
+  svc("Temporal", "temporal", "development", "Durable execution platform for building reliable distributed applications",
+    "https://temporal.io", [["Free", 0, null], ["Growth", 25, null], ["Enterprise", null, null]], ["Workflow engine", "Durable execution", "Multi-language", "Observability", "Self-hosted option"], ["workflows", "distributed", "orchestration", "reliability"], 2019, "Seattle, Washington"),
+  svc("Val Town", "val-town", "development", "Social website to write and deploy TypeScript serverless functions",
+    "https://val.town", [["Free", 0, null], ["Pro", 10, null]], ["Serverless functions", "TypeScript", "Social coding", "Cron jobs", "API endpoints"], ["serverless", "functions", "social", "typescript"], 2022, "Brooklyn, New York"),
+  svc("Koyeb", "koyeb", "development", "Serverless platform for deploying full-stack apps globally with zero ops",
+    "https://koyeb.com", [["Free", 0, null], ["Starter", 7, null], ["Enterprise", null, null]], ["Global deployment", "Auto-scaling", "GPU support", "Docker deploys", "Managed databases"], ["serverless", "deployment", "gpu", "global"], 2020, "Paris, France"),
+  svc("Qovery", "qovery", "development", "Internal developer platform that deploys on your own cloud account",
+    "https://qovery.com", [["Free", 0, null], ["Team", 29, null], ["Enterprise", null, null]], ["Cloud deployment", "Preview environments", "Self-service", "Multi-cloud", "Terraform"], ["deployment", "devops", "cloud", "platform"], 2019, "Paris, France"),
+  svc("Aptible", "aptible", "development", "PaaS for deploying HIPAA-compliant and security-sensitive applications",
+    "https://aptible.com", [["Starter", 185, null], ["Scale", 599, null]], ["HIPAA compliance", "SOC 2", "Managed hosting", "Database hosting", "Audit logging"], ["compliance", "hipaa", "hosting", "security"], 2013, "San Francisco, California"),
+  svc("Zeet", "zeet", "development", "Cloud deployment platform that simplifies Kubernetes and infrastructure management",
+    "https://zeet.co", [["Free", 0, null], ["Pro", 99, null], ["Enterprise", null, null]], ["Kubernetes", "Multi-cloud", "CI/CD", "Infrastructure management", "Cost optimization"], ["kubernetes", "deployment", "multi-cloud", "infrastructure"], 2019, "San Francisco, California"),
+  svc("Porter", "porter", "development", "PaaS that runs in your own cloud account for deploying and managing applications",
+    "https://porter.run", [["Free", 0, null], ["Team", 399, null], ["Enterprise", null, null]], ["Kubernetes PaaS", "Own cloud account", "Preview envs", "Addons marketplace", "Auto-scaling"], ["paas", "kubernetes", "cloud", "deployment"], 2020, "San Francisco, California"),
+]
+
+// ── Additional Design Services ───────────────────────────────────────
+
+export const additionalDesignServices: SubscriptionService[] = [
+  svc("ProtoPie", "protopie", "design", "Advanced prototyping tool for creating realistic interactions across devices",
+    "https://protopie.io", [["Free", 0, null], ["Pro", 11, null], ["Enterprise", null, null]], ["Advanced prototyping", "Multi-device", "Sensors integration", "Variables & logic", "Handoff"], ["prototyping", "interaction", "multi-device", "ux"], 2016, "Seoul, South Korea"),
+  svc("Lottie", "lottie", "design", "Animation platform for creating, testing, and shipping Lottie animations",
+    "https://lottiefiles.com", [["Free", 0, null], ["Creator", 19, null], ["Team", 29, null]], ["Animation editor", "LottieFiles library", "Interactivity", "Web player", "Design plugins"], ["animation", "motion-design", "lottie", "interactive"], 2015, "Kuala Lumpur, Malaysia"),
+  svc("Linearity Curve", "linearity-curve", "design", "Vector graphic design tool for illustrations, marketing, and UI on Mac",
+    "https://linearity.io", [["Free", 0, null], ["Pro", 7.99, null], ["Org", 11.99, null]], ["Vector design", "Auto Trace", "Template library", "Animation export", "Font management"], ["vector", "illustration", "mac", "design"], 2016, "Berlin, Germany"),
+  svc("Mockplus", "mockplus", "design", "Product design platform with prototyping, handoff, and design system tools",
+    "https://mockplus.com", [["Free", 0, null], ["Pro", 12.95, null], ["Enterprise", null, null]], ["Prototyping", "Design handoff", "Design systems", "Collaboration", "Interaction design"], ["prototyping", "handoff", "design-system", "collaboration"], 2014, "Chengdu, China"),
+  svc("Vectornator", "vectornator", "design", "Free vector design app for illustration and graphic design on Apple devices",
+    "https://vectornator.io", [["Free", 0, null]], ["Vector illustration", "Apple Pencil support", "Auto Trace", "Typography tools", "SVG export"], ["vector", "illustration", "free", "apple"], 2017, "Berlin, Germany"),
+  svc("Lunacy", "lunacy", "design", "Free graphic design app with built-in AI tools and asset libraries",
+    "https://icons8.com/lunacy", [["Free", 0, null]], ["Free design tool", "AI tools", "Built-in assets", "Figma import", "Cross-platform"], ["free", "design-tool", "ai", "assets"], 2017, "Odessa, Ukraine"),
+  svc("Glorify", "glorify", "design", "Design tool built for ecommerce with templates for product images and social media",
+    "https://glorify.com", [["Free", 0, null], ["Pro", 12.99, null], ["Business", 24.99, null]], ["E-commerce design", "Product mockups", "Social media", "Brand kit", "Background remover"], ["ecommerce", "product-images", "social-media", "templates"], 2019, "London, UK"),
+  svc("Visme", "visme", "design", "Visual content creation platform for presentations, infographics, and documents",
+    "https://visme.co", [["Free", 0, null], ["Starter", 12.25, null], ["Pro", 24.75, null]], ["Infographics", "Presentations", "Documents", "Data visualization", "Brand kit"], ["infographics", "presentations", "visual-content", "data-viz"], 2013, "Rockville, Maryland"),
+  svc("Placeit", "placeit", "design", "Online mockup and design template tool for branding and marketing",
+    "https://placeit.net", [["Monthly", 14.95, 89.69]], ["Mockup generator", "Logo maker", "Video maker", "Design templates", "Social media"], ["mockups", "branding", "templates", "marketing"], 2013, "Mexico City, Mexico"),
+  svc("Unfold", "unfold", "design", "Story and social media template app for creating beautiful visual content",
+    "https://unfold.com", [["Free", 0, null], ["Plus", 2.99, null]], ["Story templates", "Social media", "Photo editing", "Bio sites", "Fonts"], ["social-media", "templates", "stories", "instagram"], 2018, "Stockholm, Sweden"),
+]

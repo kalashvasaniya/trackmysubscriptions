@@ -1,0 +1,61 @@
+import { svc, type SubscriptionService } from "./types"
+
+// ── Additional Cloud Services ────────────────────────────────────────
+
+export const additionalCloudServices: SubscriptionService[] = [
+  svc("Cloudinary", "cloudinary", "cloud", "Cloud-based image and video management for developers and marketers",
+    "https://cloudinary.com", [["Free", 0, null], ["Plus", 89, null], ["Advanced", 224, null]], ["Image optimization", "Video management", "CDN delivery", "AI transformations", "DAM"], ["media", "image-optimization", "cdn", "dam"], 2011, "Santa Clara, California"),
+  svc("Fastly", "fastly", "cloud", "Edge cloud platform for fast, secure, and scalable digital experiences",
+    "https://fastly.com", [["Free", 0, null], ["Essential", 50, null], ["Professional", 500, null]], ["CDN", "Edge computing", "DDoS protection", "Image optimization", "Load balancing"], ["cdn", "edge", "performance", "security"], 2011, "San Francisco, California"),
+  svc("Vultr", "vultr", "cloud", "Cloud computing platform with SSD cloud servers deployed worldwide",
+    "https://vultr.com", [["Cloud Compute", 2.50, null], ["High Frequency", 6, null], ["Bare Metal", 120, null]], ["SSD cloud servers", "Block storage", "Kubernetes", "Load balancers", "32 locations"], ["cloud-servers", "hosting", "kubernetes", "vps"], 2014, "Matawan, New Jersey"),
+  svc("Hetzner Cloud", "hetzner", "cloud", "European cloud hosting with dedicated servers at competitive prices",
+    "https://hetzner.com", [["Cloud CX11", 3.49, null], ["Cloud CPX11", 4.59, null], ["Dedicated", 39, null]], ["Cloud servers", "Dedicated servers", "Storage boxes", "Load balancers", "Firewalls"], ["cloud-hosting", "dedicated", "european", "affordable"], 2000, "Gunzenhausen, Germany"),
+  svc("Scaleway", "scaleway", "cloud", "European cloud provider with compute, storage, and managed services",
+    "https://scaleway.com", [["DEV1-S", 3.28, null], ["GP1-S", 18.50, null], ["Enterprise", null, null]], ["Cloud instances", "Object storage", "Managed databases", "Kubernetes", "Serverless"], ["cloud", "european", "kubernetes", "managed"], 1999, "Paris, France"),
+  svc("Filebase", "filebase", "cloud", "Decentralized cloud storage built on IPFS and blockchain protocols",
+    "https://filebase.com", [["Free", 0, null], ["Pro", 20, null], ["Enterprise", null, null]], ["IPFS storage", "S3 compatible", "Decentralized", "CDN pinning", "Backup gateway"], ["ipfs", "decentralized", "storage", "blockchain"], 2019, "Dallas, Texas"),
+  svc("Cloudflare R2", "cloudflare-r2", "cloud", "S3-compatible object storage with zero egress fees",
+    "https://cloudflare.com/r2", [["Free", 0, null], ["Pay-as-you-go", 0.015, null]], ["Zero egress", "S3 compatible", "Workers integration", "Global CDN", "Auto migration"], ["object-storage", "s3", "zero-egress", "cdn"], 2022, "San Francisco, California"),
+  svc("Storj", "storj", "cloud", "Decentralized cloud storage with enterprise-grade security and performance",
+    "https://storj.io", [["Free", 0, null], ["Pro", 0.004, null]], ["Decentralized storage", "End-to-end encryption", "S3 compatible", "No egress fees", "Global distribution"], ["decentralized", "encrypted", "s3", "distributed"], 2014, "Atlanta, Georgia"),
+  svc("UpCloud", "upcloud", "cloud", "European cloud infrastructure with high-performance servers and managed databases",
+    "https://upcloud.com", [["Cloud Server", 5, null], ["Managed DB", 12, null]], ["MaxIOPS storage", "Managed databases", "Load balancers", "Object storage", "Kubernetes"], ["cloud-servers", "databases", "european", "performance"], 2011, "Helsinki, Finland"),
+  svc("OVHcloud", "ovhcloud", "cloud", "European cloud provider with a broad ecosystem of cloud and hosting services",
+    "https://ovhcloud.com", [["Starter", 3.50, null], ["General Purpose", 14, null], ["Dedicated", 59, null]], ["Public cloud", "Bare metal", "Web hosting", "Domain names", "CDN"], ["cloud", "hosting", "european", "dedicated"], 1999, "Roubaix, France"),
+]
+
+// ── Additional Productivity Services ─────────────────────────────────
+
+export const additionalProductivityServices: SubscriptionService[] = [
+  svc("Height", "height", "productivity", "Autonomous project management tool with AI-powered task management",
+    "https://height.app", [["Free", 0, null], ["Team", 6.99, null], ["Enterprise", null, null]], ["AI task management", "Project tracking", "Chat integration", "Automations", "Forms"], ["project-management", "ai", "tasks", "collaboration"], 2019, "San Francisco, California"),
+  svc("Fibery", "fibery", "productivity", "Work management platform that connects strategy, product, and development",
+    "https://fibery.io", [["Free", 0, null], ["Standard", 10, null], ["Pro", 17, null]], ["Knowledge management", "Product management", "Custom databases", "Automations", "Reports"], ["work-management", "product", "knowledge", "customizable"], 2019, "Limassol, Cyprus"),
+  svc("Reflect Notes", "reflect-notes", "productivity", "Networked note-taking app with AI-powered organization and backlinks",
+    "https://reflect.app", [["Pro", 10, 96]], ["Networked notes", "AI integration", "Backlinks", "Daily notes", "End-to-end encryption"], ["notes", "ai", "knowledge", "encrypted"], 2021, "San Francisco, California"),
+  svc("Taskade", "taskade", "productivity", "AI-powered workspace for task management, notes, and team collaboration",
+    "https://taskade.com", [["Free", 0, null], ["Pro", 4, null], ["Business", 8, null]], ["AI workspace", "Task management", "Mind maps", "Real-time collaboration", "Templates"], ["tasks", "ai", "collaboration", "mind-maps"], 2017, "San Francisco, California"),
+  svc("Reclaim AI", "reclaim-ai", "productivity", "AI scheduling assistant that optimizes your calendar and defends your time",
+    "https://reclaim.ai", [["Free", 0, null], ["Starter", 8, null], ["Business", 12, null]], ["AI scheduling", "Smart habits", "Meeting optimization", "Focus time", "Calendar sync"], ["calendar", "ai", "scheduling", "time-management"], 2019, "Portland, Oregon"),
+  svc("Tally Forms", "tally-forms", "productivity", "Free form builder that works like a text document for easy form creation",
+    "https://tally.so", [["Free", 0, null], ["Pro", 29, null]], ["Unlimited forms", "File uploads", "Payment collection", "Conditional logic", "Integrations"], ["forms", "surveys", "no-code", "data-collection"], 2020, "Brussels, Belgium"),
+  svc("Cal.com", "cal-com", "productivity", "Open-source scheduling infrastructure for everyone",
+    "https://cal.com", [["Free", 0, null], ["Team", 12, null], ["Organization", 37, null]], ["Scheduling", "Calendar integrations", "Workflows", "Round-robin", "Collective bookings"], ["scheduling", "open-source", "calendar", "booking"], 2021, "San Francisco, California"),
+  svc("Whereby", "whereby", "productivity", "Easy video meetings in your browser with no app downloads required",
+    "https://whereby.com", [["Free", 0, null], ["Pro", 8.99, null], ["Business", 11.99, null]], ["Browser-based", "No downloads", "Screen sharing", "Recording", "Custom branding"], ["video-meetings", "browser", "collaboration", "remote-work"], 2013, "Oslo, Norway"),
+  svc("Twist", "twist", "productivity", "Async-first team communication with organized threads and channels",
+    "https://twist.com", [["Free", 0, null], ["Unlimited", 6, null]], ["Async communication", "Threaded messages", "Channels", "Integrations", "Search"], ["communication", "async", "threads", "team-chat"], 2017, "Remote"),
+  svc("Spike", "spike", "productivity", "Email reinvented as chat with collaborative features and AI assistance",
+    "https://spikenow.com", [["Free", 0, null], ["Pro", 7, null], ["Business", 9, null]], ["Email as chat", "Collaborative docs", "AI assistant", "Video meetings", "Task management"], ["email", "chat", "collaboration", "ai"], 2014, "Tel Aviv, Israel"),
+  svc("Hive", "hive", "productivity", "Project management platform with AI-powered workflows and team collaboration",
+    "https://hive.com", [["Free", 0, null], ["Teams", 12, null], ["Enterprise", null, null]], ["Project management", "AI tools", "Gantt charts", "Forms", "Time tracking"], ["project-management", "gantt", "ai", "collaboration"], 2015, "New York, New York"),
+  svc("Wrike", "wrike", "productivity", "Work management platform for cross-functional teams with real-time visibility",
+    "https://wrike.com", [["Free", 0, null], ["Team", 9.80, null], ["Business", 24.80, null]], ["Work management", "Gantt charts", "Custom workflows", "Proofing", "Time tracking"], ["work-management", "gantt", "workflows", "collaboration"], 2006, "San Jose, California"),
+  svc("Smartsheet", "smartsheet", "productivity", "Enterprise work execution platform with spreadsheet-like interface",
+    "https://smartsheet.com", [["Pro", 7, null], ["Business", 25, null], ["Enterprise", null, null]], ["Work execution", "Automations", "Dashboards", "Reports", "Resource management"], ["enterprise", "spreadsheet", "project-management", "automation"], 2006, "Bellevue, Washington"),
+  svc("Teamwork", "teamwork", "productivity", "Project management and client work platform for agencies and services teams",
+    "https://teamwork.com", [["Free", 0, null], ["Deliver", 9.99, null], ["Grow", 17.99, null]], ["Client projects", "Time tracking", "Budgets", "Invoicing", "Resource management"], ["agency", "client-work", "time-tracking", "invoicing"], 2007, "Cork, Ireland"),
+  svc("Nifty", "nifty", "productivity", "Remote collaboration hub with projects, docs, chat, and goals in one platform",
+    "https://niftypm.com", [["Free", 0, null], ["Starter", 7, null], ["Pro", 12, null]], ["Project management", "Docs", "Chat", "Goals", "Time tracking"], ["all-in-one", "project-management", "docs", "goals"], 2017, "New York, New York"),
+]

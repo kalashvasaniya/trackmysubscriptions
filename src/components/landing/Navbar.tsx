@@ -11,7 +11,9 @@ import { useState } from "react"
 const navigation = [
   { name: "Features", href: "#features" },
   { name: "How It Works", href: "#how-it-works" },
-  { name: "Stats", href: "#stats" },
+  { name: "Browse", href: "/browse" },
+  { name: "Compare", href: "/compare" },
+  { name: "Tools", href: "/tools" },
 ]
 
 export function Navbar() {
