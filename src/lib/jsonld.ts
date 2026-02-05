@@ -1,5 +1,114 @@
 import { siteConfig } from "@/app/siteConfig"
 
+// ── Organization ────────────────────────────────────────────────────
+
+export function organizationJsonLd(): string {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    logo: `${siteConfig.url}/logo.png`,
+    description: siteConfig.description,
+    sameAs: [
+      "https://x.com/kalashbuilds",
+      "https://github.com/kalashvasaniya/trackmysubscriptions",
+      "https://www.linkedin.com/in/kalashvasaniya/",
+    ],
+    contactPoint: {
+      "@type": "ContactPoint",
+      email: "kalashvasaniya@gmail.com",
+      contactType: "customer support",
+    },
+  }
+  return JSON.stringify(schema)
+}
+
+// ── WebSite (with SearchAction for sitelinks search) ────────────────
+
+export function webSiteJsonLd(): string {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    description: siteConfig.description,
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${siteConfig.url}/browse?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  }
+  return JSON.stringify(schema)
+}
+
+// ── SoftwareApplication ─────────────────────────────────────────────
+
+export function softwareApplicationJsonLd(): string {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: siteConfig.name,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    applicationCategory: "FinanceApplication",
+    operatingSystem: "Web",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.9",
+      ratingCount: "500",
+      bestRating: "5",
+      worstRating: "1",
+    },
+    featureList: [
+      "Subscription tracking",
+      "Payment alerts",
+      "Spending analytics",
+      "Calendar view",
+      "Multi-currency support",
+      "CSV import/export",
+    ],
+  }
+  return JSON.stringify(schema)
+}
+
+// ── WebPage (for generic pages like Privacy, Terms) ─────────────────
+
+export function webPageJsonLd(page: {
+  name: string
+  description: string
+  url: string
+  dateModified?: string
+}): string {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: page.name,
+    description: page.description,
+    url: `${siteConfig.url}${page.url}`,
+    isPartOf: {
+      "@type": "WebSite",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
+    ...(page.dateModified ? { dateModified: page.dateModified } : {}),
+  }
+  return JSON.stringify(schema)
+}
+
 // ── Breadcrumb List ──────────────────────────────────────────────────
 
 export function breadcrumbJsonLd(

@@ -4,9 +4,10 @@ import { RiCalculatorLine, RiArrowRightLine } from "@remixicon/react"
 import { PseoBreadcrumb } from "@/components/pseo/PseoBreadcrumb"
 import { CTABanner } from "@/components/pseo/CTABanner"
 import { RelatedLinks } from "@/components/pseo/RelatedLinks"
+import { itemListJsonLd } from "@/lib/jsonld"
 
 export const metadata: Metadata = {
-  title: "Free Subscription Tools & Calculators | TrackMySubscriptions",
+  title: "Free Subscription Tools & Calculators (2026)",
   description:
     "Free tools to help you manage your subscriptions better. Calculate subscription costs, compare billing cycles, and find savings opportunities.",
   alternates: {
@@ -39,6 +40,20 @@ const tools = [
 export default function ToolsPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: itemListJsonLd(
+            "Free Subscription Tools & Calculators",
+            "Free calculators and tools to help you understand, manage, and optimize your subscription spending.",
+            tools.map((tool) => ({
+              name: tool.name,
+              url: tool.href,
+              description: tool.description,
+            })),
+          ),
+        }}
+      />
       <PseoBreadcrumb items={[{ name: "Tools", href: "/tools" }]} />
 
       <div className="text-center">

@@ -60,9 +60,12 @@ export function Footer() {
                 <a
                   key={item.name}
                   href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Follow us on ${item.name}`}
                   className="flex size-8 sm:size-10 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-all hover:border-gray-300 hover:text-gray-900 dark:border-gray-800 dark:hover:border-gray-700 dark:hover:text-white"
                 >
-                  <item.icon className="size-4 sm:size-5" />
+                  <item.icon className="size-4 sm:size-5" aria-hidden="true" />
                 </a>
               ))}
             </div>

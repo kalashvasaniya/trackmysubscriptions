@@ -53,8 +53,36 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/:path*",
+        source: "/(.*)",
         headers: securityHeaders,
+      },
+      // Cache static assets aggressively for performance (Core Web Vitals)
+      {
+        source: "/fonts/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/logo.png",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/logo.svg",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
       },
     ]
   },
@@ -73,26 +101,32 @@ const nextConfig: NextConfig = {
         hostname: "lh3.googleusercontent.com", // Google profile pictures
       },
     ],
+    formats: ["image/avif", "image/webp"],
   },
 
-  // Redirect HTTP to HTTPS in production
+  // Trailing slash consistency for SEO (prevents duplicate content)
+  trailingSlash: false,
+
+  // Redirect HTTP to HTTPS in production + SEO redirects
   async redirects() {
-    return process.env.NODE_ENV === "production"
-      ? [
+    const redirects = []
+
+    if (process.env.NODE_ENV === "production") {
+      redirects.push({
+        source: "/:path+",
+        has: [
           {
-            source: "/:path*",
-            has: [
-              {
-                type: "header",
-                key: "x-forwarded-proto",
-                value: "http",
-              },
-            ],
-            destination: "https://:path*",
-            permanent: true,
+            type: "header" as const,
+            key: "x-forwarded-proto",
+            value: "http",
           },
-        ]
-      : []
+        ],
+        destination: "https://trackmysubscriptions.com/:path+",
+        permanent: true,
+      })
+    }
+
+    return redirects
   },
 }
 

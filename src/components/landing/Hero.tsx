@@ -184,7 +184,8 @@ export function Hero() {
                     <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3.5 bg-white transition-colors hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800">
                       <div className="flex items-center gap-2 sm:gap-3">
                         <div className="flex size-7 sm:size-9 items-center justify-center rounded-md sm:rounded-lg bg-black">
-                          <svg viewBox="0 0 111 30" className="h-3 sm:h-4 w-auto fill-[#E50914]">
+                          <svg viewBox="0 0 111 30" className="h-3 sm:h-4 w-auto fill-[#E50914]" aria-hidden="true" role="img">
+                            <title>Netflix</title>
                             <path d="M105.062 14.28L111 30c-1.75-.25-3.499-.563-5.28-.845l-3.345-8.686-3.437 7.969c-1.687-.282-3.344-.376-5.031-.595l6.031-13.75L94.468 0h5.063l3.062 7.874L105.875 0h5.124l-5.937 14.28zM90.47 0h-4.594v27.25c1.5.094 3.062.156 4.594.343V0zm-8.563 26.937c-4.187-.281-8.375-.53-12.656-.625V0h4.687v21.875c2.688.062 5.375.28 7.969.405v4.657zM64.25 10.657v4.687h-6.406V26H53.22V0h13.125v4.687h-8.5v5.97h6.406zm-18.906-5.97V26.25c-1.563 0-3.156 0-4.688.062V4.687h-4.844V0h14.406v4.687h-4.874zM30.75 15.593c-2.062 0-4.5 0-6.25.095v6.968c2.75-.188 5.5-.406 8.281-.5v4.5l-12.968 1.032V0H32.78v4.687H24.5V11c1.813 0 4.594-.094 6.25-.094v4.688zM4.78 12.968v16.375C3.094 29.531 1.593 29.75 0 30V0h4.469l6.093 17.032V0h4.688v28.062c-1.656.282-3.344.376-5.125.625L4.78 12.968z"/>
                           </svg>
                         </div>
@@ -199,7 +200,8 @@ export function Hero() {
                     <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3.5 bg-white transition-colors hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800">
                       <div className="flex items-center gap-2 sm:gap-3">
                         <div className="flex size-7 sm:size-9 items-center justify-center rounded-md sm:rounded-lg bg-[#1DB954]">
-                          <svg viewBox="0 0 24 24" className="size-4 sm:size-5 fill-white">
+                          <svg viewBox="0 0 24 24" className="size-4 sm:size-5 fill-white" aria-hidden="true" role="img">
+                            <title>Spotify</title>
                             <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
                           </svg>
                         </div>
@@ -214,7 +216,8 @@ export function Hero() {
                     <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3.5 bg-white transition-colors hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800">
                       <div className="flex items-center gap-2 sm:gap-3">
                         <div className="flex size-7 sm:size-9 items-center justify-center rounded-md sm:rounded-lg bg-[#ED2224]">
-                          <svg viewBox="0 0 30 26" className="size-4 sm:size-5 fill-white">
+                          <svg viewBox="0 0 30 26" className="size-4 sm:size-5 fill-white" aria-hidden="true" role="img">
+                            <title>Adobe Creative Cloud</title>
                             <path d="M19.1 0H30v26L19.1 0zM10.9 0H0v26L10.9 0zM15 9.6L22.1 26h-4.6l-2.1-5.2h-5.2L15 9.6z"/>
                           </svg>
                         </div>
@@ -229,7 +232,8 @@ export function Hero() {
                     <div className="hidden xs:flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3.5 bg-white transition-colors hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800">
                       <div className="flex items-center gap-2 sm:gap-3">
                         <div className="flex size-7 sm:size-9 items-center justify-center rounded-md sm:rounded-lg bg-[#24292F]">
-                          <svg viewBox="0 0 24 24" className="size-4 sm:size-5 fill-white">
+                          <svg viewBox="0 0 24 24" className="size-4 sm:size-5 fill-white" aria-hidden="true" role="img">
+                            <title>GitHub</title>
                             <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
                           </svg>
                         </div>

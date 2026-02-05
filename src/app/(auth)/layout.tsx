@@ -1,33 +1,19 @@
 import { Providers } from "@/components/Providers"
 import { ErrorBoundary } from "@/components/ErrorBoundary"
 import type { Metadata } from "next"
-import localFont from "next/font/local"
-import "../globals.css"
 
 export const metadata: Metadata = {
-  title: "Sign In | TrackMySubscriptions",
-  description: "Sign in to manage your subscriptions",
-  icons: {
-    icon: [
-      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
-      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/logo.svg", type: "image/svg+xml" },
-    ],
-    apple: "/apple-touch-icon.png",
+  title: {
+    default: "Sign In | TrackMySubscriptions",
+    template: "%s | TrackMySubscriptions",
+  },
+  description:
+    "Sign in to TrackMySubscriptions to manage your subscriptions, view spending analytics, and get payment alerts.",
+  robots: {
+    index: false,
+    follow: false,
   },
 }
-
-const geistSans = localFont({
-  src: "../fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-})
-
-const geistMono = localFont({
-  src: "../fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-})
 
 export default function AuthLayout({
   children,
@@ -35,14 +21,10 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="h-full" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} flex min-h-full items-center justify-center bg-gray-50 antialiased dark:bg-gray-950`}
-      >
-        <Providers>
-          <ErrorBoundary>{children}</ErrorBoundary>
-        </Providers>
-      </body>
-    </html>
+    <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <Providers>
+        <ErrorBoundary>{children}</ErrorBoundary>
+      </Providers>
+    </div>
   )
 }

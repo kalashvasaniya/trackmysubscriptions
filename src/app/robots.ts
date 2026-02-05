@@ -6,9 +6,30 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/dashboard/", "/subscriptions/", "/settings/", "/analytics/", "/calendar/", "/folders/", "/tags/", "/payment-methods/"],
+        disallow: [
+          "/api/",
+          "/dashboard/",
+          "/subscriptions/",
+          "/settings/",
+          "/analytics/",
+          "/calendar/",
+          "/folders/",
+          "/tags/",
+          "/payment-methods/",
+          "/login",
+          "/register",
+        ],
+      },
+      {
+        userAgent: "GPTBot",
+        disallow: ["/"],
+      },
+      {
+        userAgent: "CCBot",
+        disallow: ["/"],
       },
     ],
     sitemap: "https://trackmysubscriptions.com/sitemap-index.xml",
+    host: "https://trackmysubscriptions.com",
   }
 }

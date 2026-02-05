@@ -70,6 +70,9 @@ export function Navbar() {
         <button
           className="flex size-9 sm:size-10 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden transition-colors"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="mobile-menu"
+          aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
         >
           {mobileMenuOpen ? (
             <RiCloseLine className="size-5 text-gray-900 dark:text-white" />
@@ -81,7 +84,7 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="absolute inset-x-0 top-full border-t border-gray-200/80 bg-white/95 backdrop-blur-xl px-4 py-4 sm:py-6 md:hidden dark:border-gray-800 dark:bg-gray-950/95">
+        <div id="mobile-menu" role="navigation" aria-label="Mobile navigation" className="absolute inset-x-0 top-full border-t border-gray-200/80 bg-white/95 backdrop-blur-xl px-4 py-4 sm:py-6 md:hidden dark:border-gray-800 dark:bg-gray-950/95">
           <div className="flex flex-col gap-1">
             {navigation.map((item) => (
               <Link

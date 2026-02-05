@@ -1,15 +1,47 @@
 import { Metadata } from "next"
 import Link from "next/link"
 import { RiArrowLeftLine } from "@remixicon/react"
+import { webPageJsonLd, breadcrumbJsonLd } from "@/lib/jsonld"
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | TrackMySubscriptions",
-  description: "Learn how TrackMySubscriptions collects, uses, and protects your personal information.",
+  title: "Privacy Policy",
+  description:
+    "Learn how TrackMySubscriptions collects, uses, and protects your personal information. We are committed to safeguarding your data with bank-level security.",
+  alternates: {
+    canonical: "https://trackmysubscriptions.com/privacy",
+  },
+  openGraph: {
+    title: "Privacy Policy | TrackMySubscriptions",
+    description:
+      "Learn how TrackMySubscriptions collects, uses, and protects your personal information.",
+    url: "https://trackmysubscriptions.com/privacy",
+  },
 }
 
 export default function PrivacyPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: webPageJsonLd({
+            name: "Privacy Policy",
+            description:
+              "Learn how TrackMySubscriptions collects, uses, and protects your personal information.",
+            url: "/privacy",
+            dateModified: "2026-02-01",
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: breadcrumbJsonLd([
+            { name: "Home", url: "/" },
+            { name: "Privacy Policy", url: "/privacy" },
+          ]),
+        }}
+      />
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         <Link 
           href="/" 

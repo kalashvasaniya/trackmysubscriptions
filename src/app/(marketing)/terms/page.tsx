@@ -1,15 +1,47 @@
 import { Metadata } from "next"
 import Link from "next/link"
 import { RiArrowLeftLine } from "@remixicon/react"
+import { webPageJsonLd, breadcrumbJsonLd } from "@/lib/jsonld"
 
 export const metadata: Metadata = {
-  title: "Terms of Service | TrackMySubscriptions",
-  description: "Read the terms and conditions for using TrackMySubscriptions.",
+  title: "Terms of Service",
+  description:
+    "Read the terms and conditions for using TrackMySubscriptions. Understand your rights and responsibilities as a user of our free subscription tracking service.",
+  alternates: {
+    canonical: "https://trackmysubscriptions.com/terms",
+  },
+  openGraph: {
+    title: "Terms of Service | TrackMySubscriptions",
+    description:
+      "Read the terms and conditions for using TrackMySubscriptions.",
+    url: "https://trackmysubscriptions.com/terms",
+  },
 }
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: webPageJsonLd({
+            name: "Terms of Service",
+            description:
+              "Read the terms and conditions for using TrackMySubscriptions.",
+            url: "/terms",
+            dateModified: "2026-02-01",
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: breadcrumbJsonLd([
+            { name: "Home", url: "/" },
+            { name: "Terms of Service", url: "/terms" },
+          ]),
+        }}
+      />
       <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">
         <Link 
           href="/" 
