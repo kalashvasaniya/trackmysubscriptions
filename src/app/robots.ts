@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/dashboard/", "/subscriptions/", "/settings/", "/analytics/", "/calendar/", "/folders/", "/tags/", "/payment-methods/"],
       },
     ],
-    sitemap: "https://trackmysubscriptions.com/sitemap.xml",
+    sitemap: "https://trackmysubscriptions.com/sitemap-index.xml",
   }
 }
