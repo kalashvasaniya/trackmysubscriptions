@@ -20,6 +20,7 @@ export const metadata: Metadata = {
     description:
       "Head-to-head comparisons of popular subscription services with pricing, features, and recommendations.",
     url: "https://trackmysubscriptions.com/compare",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "TrackMySubscriptions — Compare Subscription Services" }],
   },
 }
 

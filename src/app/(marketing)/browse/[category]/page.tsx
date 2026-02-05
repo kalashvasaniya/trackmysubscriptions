@@ -40,6 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `Best ${cat.name} Subscriptions ${year}`,
       description: cat.description,
       url: `https://trackmysubscriptions.com/browse/${category}`,
+      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `Best ${cat.name} Subscriptions` }],
     },
   }
 }

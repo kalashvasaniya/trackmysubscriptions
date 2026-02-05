@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${s.name} Pricing ${year} — Plans & Costs | TrackMySubscriptions`,
     description: `${s.name} pricing breakdown for ${year}. Compare all ${s.pricing.length} plans with monthly and yearly costs, features per tier, and savings tips.`,
     alternates: { canonical: `https://trackmysubscriptions.com/pricing/${slug}` },
-    openGraph: { title: `${s.name} Pricing ${year}`, description: `Detailed pricing for all ${s.name} plans`, url: `https://trackmysubscriptions.com/pricing/${slug}` },
+    openGraph: { title: `${s.name} Pricing ${year}`, description: `Detailed pricing for all ${s.name} plans`, url: `https://trackmysubscriptions.com/pricing/${slug}`, images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${s.name} Pricing` }] },
   }
 }
 

@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     description:
       "Learn how TrackMySubscriptions collects, uses, and protects your personal information.",
     url: "https://trackmysubscriptions.com/privacy",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "TrackMySubscriptions — Privacy Policy" }],
   },
 }
 

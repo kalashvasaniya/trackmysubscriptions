@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     description:
       "Calculate the true long-term cost of your subscriptions. Convert between billing cycles and see 5-10 year projections.",
     url: "https://trackmysubscriptions.com/tools/subscription-cost-calculator",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "TrackMySubscriptions — Subscription Cost Calculator" }],
   },
 }
 

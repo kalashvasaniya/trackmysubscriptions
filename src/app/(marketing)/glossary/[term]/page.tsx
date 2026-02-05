@@ -36,6 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `What is ${data.term}? — Subscription Glossary`,
       description: data.definition,
       url: `https://trackmysubscriptions.com/glossary/${term}`,
+      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${data.term} — Subscription Glossary` }],
     },
   }
 }

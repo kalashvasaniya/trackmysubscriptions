@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     description:
       "Read the terms and conditions for using TrackMySubscriptions.",
     url: "https://trackmysubscriptions.com/terms",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "TrackMySubscriptions — Terms of Service" }],
   },
 }
 

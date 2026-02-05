@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     description:
       "Learn key subscription and SaaS terms with clear definitions. From MRR to churn rate, understand the language of subscriptions.",
     url: "https://trackmysubscriptions.com/glossary",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "TrackMySubscriptions — Subscription Glossary" }],
   },
 }
 

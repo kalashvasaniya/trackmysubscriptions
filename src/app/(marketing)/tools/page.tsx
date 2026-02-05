@@ -18,6 +18,7 @@ export const metadata: Metadata = {
     description:
       "Free tools to calculate subscription costs, compare billing cycles, and find savings.",
     url: "https://trackmysubscriptions.com/tools",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "TrackMySubscriptions — Free Subscription Tools" }],
   },
 }
 

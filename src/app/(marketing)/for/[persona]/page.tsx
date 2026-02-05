@@ -38,6 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${data.headline}`,
       description: data.subheadline,
       url: `https://trackmysubscriptions.com/for/${persona}`,
+      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `TrackMySubscriptions for ${data.name}` }],
     },
   }
 }

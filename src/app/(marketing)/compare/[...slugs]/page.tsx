@@ -50,6 +50,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${serviceA.name} vs ${serviceB.name} — Full Comparison ${year}`,
       description: `Detailed comparison of ${serviceA.name} and ${serviceB.name} including pricing, features, and recommendations.`,
       url: `https://trackmysubscriptions.com/compare/${slug}`,
+      images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `${serviceA.name} vs ${serviceB.name} Comparison` }],
     },
   }
 }

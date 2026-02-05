@@ -34,6 +34,7 @@ export const metadata: Metadata = {
     description:
       "Explore and compare popular subscription services across 9 categories. Find the best services for your needs.",
     url: "https://trackmysubscriptions.com/browse",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "TrackMySubscriptions — Browse Subscription Services" }],
   },
 }
 

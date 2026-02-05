@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `Best ${s.name} Alternatives ${year} — Compare & Switch | TrackMySubscriptions`,
     description: `Looking for ${s.name} alternatives? Compare the best ${s.category} services with pricing, features, and honest reviews.`,
     alternates: { canonical: `https://trackmysubscriptions.com/alternatives/${slug}` },
-    openGraph: { title: `Best ${s.name} Alternatives ${year}`, description: `Compare the best alternatives to ${s.name}`, url: `https://trackmysubscriptions.com/alternatives/${slug}` },
+    openGraph: { title: `Best ${s.name} Alternatives ${year}`, description: `Compare the best alternatives to ${s.name}`, url: `https://trackmysubscriptions.com/alternatives/${slug}`, images: [{ url: "/og-image.png", width: 1200, height: 630, alt: `Best ${s.name} Alternatives` }] },
   }
 }
 

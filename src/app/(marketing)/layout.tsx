@@ -43,10 +43,10 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     images: [
       {
-        url: "/logo.png",
-        width: 512,
-        height: 512,
-        alt: "TrackMySubscriptions Logo",
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "TrackMySubscriptions — Free Subscription Tracker & Billing Manager",
       },
     ],
   },
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     creator: "@trackmysubs",
-    images: ["/logo.png"],
+    images: ["/og-image.png"],
   },
   manifest: "/manifest.json",
   robots: {

@@ -42,10 +42,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://trackmysubscriptions.com/logo.png",
-        width: 512,
-        height: 512,
-        alt: "TrackMySubscriptions — Subscription Tracker",
+        url: "https://trackmysubscriptions.com/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "TrackMySubscriptions — Free Subscription Tracker & Billing Manager",
       },
     ],
   },
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     title: "TrackMySubscriptions — Free Subscription Tracker",
     description:
       "Track all subscriptions in one place. Payment alerts, spending analytics, and smart insights. 100% free.",
-    images: ["https://trackmysubscriptions.com/logo.png"],
+    images: ["https://trackmysubscriptions.com/og-image.png"],
     creator: "@trackmysubs",
   },
 }
